@@ -25,7 +25,7 @@ function getLikedIds(): Set<string> {
 function saveLikedId(id: string) {
   const ids = getLikedIds();
   ids.add(id);
-  localStorage.setItem('liked_blessings', JSON.stringify([...ids]));
+  localStorage.setItem('liked_blessings', JSON.stringify(Array.from(ids)));
 }
 
 interface BlessingCardProps {

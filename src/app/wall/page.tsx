@@ -1,12 +1,13 @@
 // ============================================================
-// 祝福墙页面 — Masonry 瀑布流 + 实时订阅
+// 祝福墙页面 — Masonry 瀑布流 + Supabase Realtime 实时订阅
 // ============================================================
 
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import useSWR from 'swr';
 import dynamic from 'next/dynamic';
+import { createClient } from '@/lib/supabase/client';
 import type { Blessing, PaginatedResponse } from '@/types';
 import BlessingCard from '@/components/blessing/BlessingCard';
 
@@ -28,15 +29,54 @@ export default function WallPage() {
   const [showConfetti, setShowConfetti] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
-  // 获取祝福列表
+  // 获取祝福列表（SWR 作为初始加载 + 长间隔兜底）
   const { data, error, isLoading, mutate } = useSWR<PaginatedResponse<Blessing>>(
     '/api/blessings?pageSize=30',
     fetcher,
-    { refreshInterval: 30000 } // 每30秒轮询兜底
+    { refreshInterval: 5 * 60 * 1000 } // 5分钟兜底轮询
   );
 
-  // TODO: Supabase Realtime 订阅 — 替代轮询方案
-  // 当前先用 SWR 轮询作为兜底，后续接入 realtime
+  // Supabase Realtime 订阅
+  useEffect(() => {
+    const supabase = createClient();
+
+    const channel = supabase
+      .channel('blessings-wall')
+      .on(
+        'postgres_changes',
+        {
+          event: 'INSERT',
+          schema: 'public',
+          table: 'blessings',
+          filter: 'status=eq.approved',
+        },
+        () => {
+          // 新审核通过的祝福 → 重新拉取列表
+          mutate();
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'blessings',
+        },
+        () => {
+          // 状态变更（如 pending→approved）→ 重新拉取列表
+          mutate();
+        }
+      )
+      .subscribe((status) => {
+        if (status === 'SUBSCRIBED') {
+          console.log('🔌 Realtime 已连接');
+        }
+      });
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [mutate]);
 
   // 提交祝福
   const handleSubmit = useCallback(
@@ -64,7 +104,7 @@ export default function WallPage() {
         setShowConfetti(true);
         setTimeout(() => setShowConfetti(false), 3000);
 
-        // 刷新列表
+        // 立即刷新列表（提交后管理员审核通过时 Realtime 会再次推送）
         await mutate();
         setShowForm(false);
       } catch {
