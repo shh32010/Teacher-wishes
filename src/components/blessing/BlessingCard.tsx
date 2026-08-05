@@ -1,14 +1,32 @@
 // ============================================================
-// 祝福卡片 — 单条祝福展示
+// 祝福卡片 — 单条祝福展示（含点赞 + localStorage 防重复）
 // ============================================================
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import GlassCard from '@/components/ui/GlassCard';
 import { cn, formatDate } from '@/lib/utils';
 import type { Blessing } from '@/types';
+
+/** 从 localStorage 读取已点赞的祝福 ID 集合 */
+function getLikedIds(): Set<string> {
+  if (typeof window === 'undefined') return new Set();
+  try {
+    const raw = localStorage.getItem('liked_blessings');
+    return raw ? new Set(JSON.parse(raw)) : new Set();
+  } catch {
+    return new Set();
+  }
+}
+
+/** 将祝福 ID 写入 localStorage 已点赞集合 */
+function saveLikedId(id: string) {
+  const ids = getLikedIds();
+  ids.add(id);
+  localStorage.setItem('liked_blessings', JSON.stringify([...ids]));
+}
 
 interface BlessingCardProps {
   blessing: Blessing;
@@ -22,10 +40,20 @@ export default function BlessingCard({ blessing, index = 0, onLike }: BlessingCa
   const [liked, setLiked] = useState(false);
   const [likesCount, setLikesCount] = useState(blessing.likes);
 
+  // 初始化时从 localStorage 读取点赞状态
+  useEffect(() => {
+    const likedIds = getLikedIds();
+    if (likedIds.has(blessing.id)) {
+      setLiked(true);
+    }
+  }, [blessing.id]);
+
   const handleLike = () => {
-    if (liked) return; // 已点赞则跳过
+    if (liked) return;
+    // 乐观更新
     setLiked(true);
     setLikesCount((prev) => prev + 1);
+    saveLikedId(blessing.id);
     onLike?.(blessing.id);
   };
 
@@ -61,16 +89,18 @@ export default function BlessingCard({ blessing, index = 0, onLike }: BlessingCa
 
         {/* 底部：教师标签 + 点赞 */}
         <div className="flex items-center justify-between pt-1">
-          {blessing.teacher && (
+          {blessing.teacher ? (
             <span className="rounded-full bg-accent/10 px-3 py-1 text-xs text-accent-light">
               ❤️ {blessing.teacher.name}老师
             </span>
+          ) : (
+            <span />
           )}
           <button
             onClick={handleLike}
             disabled={liked}
             className={cn(
-              'ml-auto flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs transition-all duration-200',
+              'flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs transition-all duration-200',
               liked
                 ? 'bg-pink-500/20 text-pink-400 cursor-default'
                 : 'glass hover:bg-white/15 text-slate-400 hover:text-pink-400'

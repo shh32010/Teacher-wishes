@@ -1,37 +1,27 @@
 // ============================================================
-// POST /api/blessings/[id]/like — 为祝福点赞
+// POST /api/blessings/[id]/like — 为祝福点赞（RPC 原子递增）
 // ============================================================
 
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
+import { createAnonClient } from '@/lib/supabase/server';
 
-export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
+export async function POST(_request: NextRequest, { params }: { params: { id: string } }) {
   const { id } = params;
 
   try {
-    const supabase = createClient();
+    const supabase = createAnonClient();
 
-    // 使用 RPC 或直接增加计数
-    // 简化版：原子递增 likes 字段
-    const { data, error } = await supabase.from('blessings').select('likes').eq('id', id).single();
+    // 调用 Postgres RPC 函数（SECURITY DEFINER，绕过 RLS）
+    const { data, error } = await supabase.rpc('increment_likes', {
+      blessing_id: id,
+    });
 
     if (error) {
-      return NextResponse.json({ error: '祝福不存在' }, { status: 404 });
-    }
-
-    const newLikes = (data.likes || 0) + 1;
-
-    const { error: updateError } = await supabase
-      .from('blessings')
-      .update({ likes: newLikes })
-      .eq('id', id);
-
-    if (updateError) {
-      console.error('[API] 点赞更新失败:', updateError);
+      console.error('[API] 点赞失败:', error);
       return NextResponse.json({ error: '点赞失败' }, { status: 500 });
     }
 
-    return NextResponse.json({ id, likes_count: newLikes });
+    return NextResponse.json({ id, likes_count: data });
   } catch (err) {
     console.error('[API] 点赞异常:', err);
     return NextResponse.json({ error: '服务器内部错误' }, { status: 500 });

@@ -235,3 +235,5 @@
 | 08-05 | 项目初始化完成，Phase 0 基础架构搭建，构建验证通过 |
 | 08-05 | Supabase 连接配置完成，数据库迁移执行，API 全链路调通 |
 | 08-05 | 修复 RLS SELECT/POST 冲突：`.select()` 链式调用改为 `return=minimal` |
+| 08-05 | 推送 GitHub：`git@github.com:shh32010/Teacher-wishes.git` |
+| 08-05 | README.md 改为中文，补充功能介绍、项目结构、本地运行指南 |
