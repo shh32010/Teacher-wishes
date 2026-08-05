@@ -4,6 +4,7 @@
 // ============================================================
 
 import { createServerClient } from '@supabase/ssr';
+import { createClient as createSupabaseClient } from '@supabase/supabase-js';
 import { cookies } from 'next/headers';
 
 export function createClient() {
@@ -49,5 +50,17 @@ export function createAdminClient() {
         },
       },
     }
+  );
+}
+
+/**
+ * 创建匿名 Supabase 客户端（不依赖 Cookie/Session）
+ * 用于不需要用户认证的 API 操作（如公开提交、查询等）
+ * 使用 anon key + 受 RLS 策略约束
+ */
+export function createAnonClient() {
+  return createSupabaseClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
   );
 }

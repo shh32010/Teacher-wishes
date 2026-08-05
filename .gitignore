@@ -32,6 +32,9 @@ yarn-error.log*
 参考-*.md
 教师节祝福墙-主设计文档-*.md
 
+# migration & test scripts (含敏感凭证，不入库)
+scripts/
+
 # vercel
 .vercel
 

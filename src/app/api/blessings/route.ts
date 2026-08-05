@@ -4,7 +4,7 @@
 // ============================================================
 
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@/lib/supabase/server';
+import { createClient, createAnonClient } from '@/lib/supabase/server';
 import type { Blessing, CreateBlessingPayload, PaginatedResponse } from '@/types';
 
 export async function GET(request: NextRequest) {
@@ -66,28 +66,29 @@ export async function POST(request: NextRequest) {
     // TODO: 速率限制（IP 每10分钟最多3条）
     // TODO: Turnstile/hCaptcha 验证
 
-    const supabase = createClient();
+    const supabase = createAnonClient();
 
-    const { data, error } = await supabase
-      .from('blessings')
-      .insert([
-        {
-          teacher_id: body.teacher_id || null,
-          nickname: body.nickname || null,
-          class: body.class || null,
-          content: body.content.trim(),
-          is_anonymous: body.is_anonymous || false,
-        },
-      ])
-      .select('id, content, created_at')
-      .single();
+    // 注意：不使用 .select() 链式调用，因为 RLS SELECT 策略会过滤 pending 状态
+    // 导致 PostgREST 的 return=representation 模式报 401
+    const { error } = await supabase.from('blessings').insert([
+      {
+        teacher_id: body.teacher_id || null,
+        nickname: body.nickname || null,
+        class: body.class || null,
+        content: body.content.trim(),
+        is_anonymous: body.is_anonymous || false,
+      },
+    ]);
 
     if (error) {
       console.error('[API] 提交祝福失败:', error);
       return NextResponse.json({ error: '提交失败，请稍后再试' }, { status: 500 });
     }
 
-    return NextResponse.json(data, { status: 201 });
+    return NextResponse.json(
+      { success: true, message: '祝福提交成功，等待审核后展示' },
+      { status: 201 }
+    );
   } catch (err) {
     console.error('[API] 提交祝福异常:', err);
     return NextResponse.json({ error: '服务器内部错误' }, { status: 500 });
