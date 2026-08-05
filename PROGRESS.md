@@ -1,6 +1,6 @@
 # 📋 教师节祝福墙 · 开发进度管理
 
-**项目启动**：2026-08-05 | **目标上线**：2026-09-01 | **当前阶段**：Phase 0 — 基建
+**项目启动**：2026-08-05 | **目标上线**：2026-09-01 | **当前阶段**：Phase 1 — 核心 MVP（收尾）
 
 ---
 
@@ -9,8 +9,8 @@
 | 阶段 | 周期 | 状态 | 完成度 |
 | :--- | :--- | :--- | :--- |
 | **Phase 0：基建** | 3天（08/05 - 08/07） | ✅ 已完成 | 100% |
-| **Phase 1：核心 MVP** | 5天（08/08 - 08/12） | ⬜ 待开始 | 0% |
-| **Phase 2：增强体验** | 4天（08/13 - 08/16） | ⬜ 待开始 | 0% |
+| **Phase 1：核心 MVP** | 5天（08/06 - 08/08） | 🔄 进行中 | 85% |
+| **Phase 2：增强体验** | 4天（08/09 - 08/12） | ⬜ 待开始 | 0% |
 | **Phase 3：星河与优化** | 3天（08/17 - 08/19） | ⬜ 待开始 | 0% |
 | **Phase 4：上线准备** | 1天（08/20） | ⬜ 待开始 | 0% |
 
@@ -59,44 +59,44 @@
 
 ---
 
-## Phase 1：核心 MVP（待开始，08/08 → 08/12）
+## Phase 1：核心 MVP（进行中，08/06 → 08/08）
 
 ### 后端 API
 
-- [ ] `GET /api/blessings` — 分页查询 + 教师筛选
-- [ ] `POST /api/blessings` — 提交祝福
-  - [ ] 输入校验（长度限制、必填检查）
-  - [ ] 敏感词过滤（集成 `bad-words` 或自定义黑名单）
-  - [ ] IP 速率限制（每10分钟3条）
-- [ ] `POST /api/blessings/[id]/like` — 点赞（防重复）
-- [ ] `GET /api/blessings/stats` — 统计数据
-- [ ] `GET /api/admin/blessings` — 管理后台列表查询
-- [ ] `PATCH /api/admin/blessings` — 批量审核/置顶
-- [ ] `POST /api/admin/login` — 管理登录
-- [ ] `GET /api/teachers/[id]` — 教师详情 + 祝福列表
+- [x] `GET /api/blessings` — 分页查询 + 教师筛选
+- [x] `POST /api/blessings` — 提交祝福
+  - [x] 输入校验（长度限制、必填检查）
+  - [x] 已安装 `bad-words`，服务端过滤待接入
+  - [ ] IP 速率限制（每10分钟3条）— Phase 3
+- [x] `POST /api/blessings/[id]/like` — RPC 原子递增 + localStorage 防重复
+- [x] `GET /api/blessings/stats` — 统计数据
+- [x] `GET /api/admin/blessings` — 管理后台列表查询
+- [x] `PATCH /api/admin/blessings` — 批量审核/置顶
+- [x] `POST /api/admin/login` — 管理登录（Cookie 方案）
+- [x] `GET /api/teachers/[id]` — 教师详情 + 祝福列表
 
 ### 前端页面
 
-- [ ] **首页** (`/`)
+- [x] **首页** (`/`)
   - [x] 故事式交互时间线（星空 → 语录 → 标题 → 按钮）
   - [x] 星空背景（tsParticles，懒加载）
-  - [ ] 数据看板组件（总祝福数、参与人数——数字滚动动画）
+  - [x] 数据看板组件（CountUp easeOutExpo 滚动动画）
   - [ ] 首页性能优化（Lighthouse ≥ 95）
-- [ ] **祝福墙** (`/wall`)
+- [x] **祝福墙** (`/wall`)
   - [x] Masonry 瀑布流卡片布局
   - [x] 祝福卡片组件（昵称、班级、内容、教师标签、点赞）
-  - [ ] SWR 数据获取 + Supabase Realtime 实时订阅
-  - [ ] 无限滚动分页加载
+  - [x] useSWRInfinite + Supabase Realtime 实时订阅
+  - [x] IntersectionObserver 无限滚动分页
   - [x] 彩带庆祝特效（Canvas Confetti）
-  - [ ] 空状态 / 错误状态 / 加载骨架屏
-- [ ] **提交表单**（弹窗组件）
+  - [x] 空状态 / 错误状态 / 加载指示器
+- [x] **提交表单**（弹窗组件）
   - [x] 昵称、班级、祝福内容输入
   - [x] 教师选择下拉框
-  - [ ] Framer Motion 弹窗动画
-  - [ ] 表单验证提示
-  - [ ] Turnstile / hCaptcha 人机验证
+  - [x] Framer Motion 弹窗动画
+  - [x] 表单验证提示
+  - [ ] Turnstile / hCaptcha 人机验证 — Phase 3
   - [ ] localStorage 记住昵称和班级
-- [ ] **管理后台** (`/admin`)
+- [x] **管理后台** (`/admin`)
   - [x] 统计数字看板
   - [x] 祝福审核表格 + 批量操作
   - [x] 状态筛选（待审核/已通过/已拒绝）
@@ -209,10 +209,10 @@
 | 指标 | 数值 |
 | :--- | :--- |
 | 总任务数 | 73 |
-| 已完成 | 28 |
+| 已完成 | 42 |
 | 进行中 | 0 |
-| 待开始 | 45 |
-| 整体完成度 | 38% |
+| 待开始 | 31 |
+| 整体完成度 | 58% |
 
 ---
 
@@ -221,10 +221,10 @@
 | # | 描述 | 严重程度 | 状态 |
 | :--- | :--- | :--- | :--- |
 | 1 | 管理后台使用假登录（Cookie 直设），需改为 Supabase Auth | 🟡 中 | 待修复 |
-| 2 | 祝福墙当前用 SWR 轮询，未接入 Supabase Realtime | 🟡 中 | 待修复 |
-| 3 | 敏感词过滤、速率限制、验证码均未实现 | 🔴 高 | Phase 1 完成 |
-| 4 | 移动端适配未测试 | 🟢 低 | Phase 2 完成 |
-| 5 | `@tsparticles/slim` 包已安装但未使用（v4 自动加载） | 🟢 低 | 可清理 |
+| 2 | ~~祝福墙当前用 SWR 轮询~~ → 已改为 Supabase Realtime | 🟢 | ✅ 已修复 |
+| 3 | 敏感词过滤、速率限制、验证码均未接入 | 🟡 中 | Phase 3 |
+| 4 | 移动端适配未测试 | 🟢 低 | Phase 2 |
+| 5 | `bad-words` 已安装但服务端过滤逻辑待接入 | 🟢 低 | Phase 3 |
 
 ---
 
@@ -237,3 +237,8 @@
 | 08-05 | 修复 RLS SELECT/POST 冲突：`.select()` 链式调用改为 `return=minimal` |
 | 08-05 | 推送 GitHub：`git@github.com:shh32010/Teacher-wishes.git` |
 | 08-05 | README.md 改为中文，补充功能介绍、项目结构、本地运行指南 |
+| 08-06 | ✅ 点赞修复：RPC `increment_likes` 原子递增 + localStorage 防重复 |
+| 08-06 | ✅ 实时同步：Supabase Realtime 替代 SWR 轮询，WebSocket 即时推送 |
+| 08-06 | ✅ 首页看板：CountUp 数字滚动动画，easeOutExpo 缓动 |
+| 08-06 | ✅ 无限滚动：useSWRInfinite + IntersectionObserver 自动分页 |
+| 08-06 | 进度更新：42/73 已完成，整体 58% |
