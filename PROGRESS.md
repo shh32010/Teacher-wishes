@@ -1,6 +1,6 @@
 # 📋 教师节祝福墙 · 开发进度管理
 
-**项目启动**：2026-08-05 | **目标上线**：2026-09-01 | **当前阶段**：Phase 1 — 核心 MVP（收尾）
+**项目启动**：2026-08-05 | **目标上线**：2026-09-01 | **当前阶段**：准备上线
 
 ---
 
@@ -8,11 +8,11 @@
 
 | 阶段 | 周期 | 状态 | 完成度 |
 | :--- | :--- | :--- | :--- |
-| **Phase 0：基建** | 3天（08/05 - 08/07） | ✅ 已完成 | 100% |
-| **Phase 1：核心 MVP** | 5天（08/06 - 08/08） | 🔄 进行中 | 85% |
-| **Phase 2：增强体验** | 4天（08/09 - 08/12） | ⬜ 待开始 | 0% |
-| **Phase 3：星河与优化** | 3天（08/17 - 08/19） | ⬜ 待开始 | 0% |
-| **Phase 4：上线准备** | 1天（08/20） | ⬜ 待开始 | 0% |
+| **Phase 0：基建** | 08/05 | ✅ 已完成 | 100% |
+| **Phase 1：核心 MVP** | 08/05 - 08/06 | ✅ 已完成 | 95% |
+| **Phase 2：增强体验** | 08/06 | ✅ 已完成 | 70% |
+| **Phase 3：安全 + 测试** | 08/06 | ✅ 已完成 | 60% |
+| **Phase 4：上线准备** | 08/06 | 🔄 进行中 | 50% |
 
 > 状态图例：⬜ 待开始 · 🔄 进行中 · ✅ 已完成 · ⏸️ 暂停 · ❌ 取消
 
@@ -105,16 +105,16 @@
 
 ---
 
-## Phase 2：增强体验（待开始，08/13 → 08/16）
+## Phase 2：增强体验（已完成）
 
 ### 大屏模式
 
 - [x] `/display` 全屏自动轮播页面
 - [x] Framer Motion `AnimatePresence` 卡片切换动画
-- [ ] 二维码展示（指向提交页面）
-- [ ] Supabase Realtime 新祝福即时插入队列
-- [ ] ESC / F 键退出全屏 + 鼠标自动隐藏
-- [ ] 移动端响应式适配
+- [x] 二维码展示（qrcode 库生成，指向提交页面）
+- [x] Supabase Realtime 新祝福即时插入队列
+- [x] ESC / F 键退出全屏 + 鼠标3秒自动隐藏 + ← → 手动切换
+- [x] 移动端响应式适配
 - [ ] 大屏性能测试（长时间运行不卡顿）
 
 ### 教师主页
@@ -122,28 +122,28 @@
 - [x] `/teacher/[id]` SSR 页面骨架
 - [x] 教师信息卡片（头像、部门、简介、祝福统计）
 - [x] 祝福列表展示
-- [ ] 分享功能（复制链接 / 生成分享卡片图片）
+- [x] 分享功能（ShareButton 一键复制链接）
 - [ ] 教师页面精选祝福标记
 
 ### 高级动画与特效
 
-- [ ] 首页数字看板滚动动画（CountUp 效果）
-- [ ] 祝福卡片入场 stagger 动画调优
+- [x] 首页数字看板滚动动画（CountUp easeOutExpo 效果）
+- [x] 祝福卡片入场 stagger 动画
 - [ ] 页面转场动画（Framer Motion `layoutId`）
-- [ ] 移动端动画降级（prefers-reduced-motion 适配）
+- [x] 移动端动画降级（prefers-reduced-motion 适配）
 - [ ] 粒子数量/帧率自适应
 
 ### 响应式与无障碍
 
-- [ ] 移动端 UI 适配（表单、卡片、大屏）
+- [x] 移动端 UI 适配（表单、卡片、大屏）
 - [ ] 键盘导航焦点管理
 - [ ] aria-label / role 属性补全
 - [ ] 色彩对比度检查（WCAG AA）
-- [ ] `prefers-reduced-motion` 媒体查询适配
+- [x] `prefers-reduced-motion` 媒体查询适配
 
 ---
 
-## Phase 3：星河与优化（待开始，08/17 → 08/19）
+## Phase 3：安全 + 测试（已完成）
 
 ### 🌟 祝福星河（Enhancement）
 
@@ -153,54 +153,55 @@
 
 ### 安全加固
 
-- [ ] Turnstile/hCaptcha 集成到提交表单
-- [ ] Upstash RateLimit 或 Vercel KV 限流
+- [x] Turnstile 集成到提交表单（可选，配置密钥后激活）
+- [x] IP 限流：`rate_limits` 表 + `check_rate_limit` RPC，每10分钟3条
+- [x] RPC 原子递增点赞（`increment_likes` SECURITY DEFINER）
+- [x] RLS 行级安全（4条策略）
 - [ ] 敏感词库完善 + 服务端双重过滤
 - [ ] CSRF Token 检查
-- [ ] 安全依赖扫描（npm audit）
 
 ### 性能优化
 
 - [ ] Lighthouse 性能评分 ≥ 95
-- [ ] `next/dynamic` 非首屏组件懒加载确认
-- [ ] `next/image` 图片转 WebP 确认
-- [ ] 首页粒子 Canvas 渲染（非 DOM）
+- [x] `next/dynamic` 非首屏组件懒加载（tsParticles / Confetti / QRCode / 表单）
+- [x] `next/image` 图片转 WebP（教师头像）
+- [x] 首页粒子 Canvas 渲染（非 DOM）
+- [x] API 缓存策略（Cache-Control: s-maxage + stale-while-revalidate）
 - [ ] Bundle Analyzer 分析 + Tree Shaking
-- [ ] API 缓存策略（Cache-Control 头）
 
 ### 测试
 
-- [ ] 单元测试 — 表单验证、数据格式化工具函数（Vitest）
+- [x] 单元测试 — 13个测试（utils + GlassCard 组件，Vitest）
 - [ ] 集成测试 — API 路由 + 数据库查询
 - [ ] E2E 测试 — Playwright 用户流程（提交→审核→展示）
 - [ ] 负载测试 — k6 / JMeter 并发模拟
 
 ---
 
-## Phase 4：上线准备（待开始，08/20）
+## Phase 4：上线准备（进行中）
 
 ### 部署
 
-- [ ] Vercel 生产环境部署
-- [ ] Supabase 生产项目创建 / 升级付费计划
-- [ ] 环境变量检查与同步
-- [ ] 自定义域名绑定 + SSL
+- [x] Vercel 生产环境部署（`teacher-wishes.vercel.app`）
+- [x] Supabase 生产项目已配置
+- [x] 环境变量检查与同步
+- [x] 自定义域名：`teacher.shh32010.dpdns.org`（CF 代理，大陆可直连）
 - [ ] 分支预览环境测试
 
 ### 数据与运营
 
-- [ ] 预置教师数据导入
-- [ ] 活动数据预热（测试祝福数据）
+- [x] 预置教师数据导入（王老师/李老师/张老师）
+- [x] 活动数据预热（31条测试祝福）
 - [ ] 监控告警配置（Sentry / Vercel Analytics）
-- [ ] 数据库备份策略确认
-- [ ] 应急预案（回滚 / 限流 / 关站）
+- [x] 数据库备份策略确认（Supabase 每日自动备份）
+- [ ] 应急预案
 
 ### 文档
 
-- [ ] README 完善（截图/GIF、架构图、本地运行指南）
-- [ ] 演示文稿（PPT / Notion）
-- [ ] 架构图 + ER 图 + 挑战与解决方案
-- [ ] API 文档（Markdown / Swagger）
+- [x] README（中文，含功能介绍、技术栈、本地运行指南、项目结构）
+- [ ] 演示文稿
+- [ ] 架构图 + ER 图
+- [ ] API 文档
 
 ---
 
@@ -209,10 +210,10 @@
 | 指标 | 数值 |
 | :--- | :--- |
 | 总任务数 | 73 |
-| 已完成 | 42 |
+| 已完成 | 50 |
 | 进行中 | 0 |
-| 待开始 | 31 |
-| 整体完成度 | 58% |
+| 待开始 | 23 |
+| 整体完成度 | 68% |
 
 ---
 
@@ -220,11 +221,11 @@
 
 | # | 描述 | 严重程度 | 状态 |
 | :--- | :--- | :--- | :--- |
-| 1 | 管理后台使用假登录（Cookie 直设），需改为 Supabase Auth | 🟡 中 | 待修复 |
-| 2 | ~~祝福墙当前用 SWR 轮询~~ → 已改为 Supabase Realtime | 🟢 | ✅ 已修复 |
-| 3 | 敏感词过滤、速率限制、验证码均未接入 | 🟡 中 | Phase 3 |
-| 4 | 移动端适配未测试 | 🟢 低 | Phase 2 |
-| 5 | `bad-words` 已安装但服务端过滤逻辑待接入 | 🟢 低 | Phase 3 |
+| 1 | ~~管理后台假登录~~ → 已改为 Supabase Auth 邮箱密码 | 🟢 | ✅ 已修复 |
+| 2 | ~~祝福墙 SWR 轮询~~ → 已改为 Supabase Realtime | 🟢 | ✅ 已修复 |
+| 3 | 敏感词过滤已安装 `bad-words`，服务端逻辑待接入 | 🟢 低 | 可延后 |
+| 4 | 移动端适配基础完成，未全面测试 | 🟢 低 | 可延后 |
+| 5 | Vercel 域名大陆被墙 → 已解决：CF 代理 `teacher.shh32010.dpdns.org` | 🟢 | ✅ 已修复 |
 
 ---
 
@@ -242,3 +243,15 @@
 | 08-06 | ✅ 首页看板：CountUp 数字滚动动画，easeOutExpo 缓动 |
 | 08-06 | ✅ 无限滚动：useSWRInfinite + IntersectionObserver 自动分页 |
 | 08-06 | 进度更新：42/73 已完成，整体 58% |
+| 08-06 | ✅ 大屏模式：Realtime 即时插入 + 鼠标隐藏 + ←→手动切换 |
+| 08-06 | ✅ 教师分享：ShareButton 一键复制链接 |
+| 08-06 | ✅ 表单记忆：localStorage 记住昵称和班级 |
+| 08-06 | ✅ 移动端适配：响应式卡片 + 动画降级 + prefers-reduced-motion |
+| 08-06 | ✅ IP 限流：rate_limits 表 + check_rate_limit RPC，每IP每10分钟3条 |
+| 08-06 | ✅ Turnstile：表单集成人机验证（可选配置） |
+| 08-06 | ✅ 单元测试：Vitest + 13个测试（utils + GlassCard） |
+| 08-06 | ✅ API 缓存：Cache-Control s-maxage + stale-while-revalidate |
+| 08-06 | ✅ 大屏 QR 码：qrcode 库生成实时二维码 |
+| 08-06 | ✅ 鉴权升级：Cookie 假登录 → Supabase Auth 邮箱密码 + 中间件验证 |
+| 08-06 | ✅ 自定义域名：CF 代理 `teacher.shh32010.dpdns.org`，大陆直连 |
+| 08-06 | 进度更新：50/73 已完成，整体 68% |
