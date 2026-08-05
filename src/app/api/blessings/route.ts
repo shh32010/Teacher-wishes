@@ -52,7 +52,7 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const body: CreateBlessingPayload = await request.json();
+    const body: CreateBlessingPayload & { turnstile_token?: string } = await request.json();
 
     // 基础校验
     if (!body.content || body.content.trim().length === 0) {
@@ -62,14 +62,47 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: '祝福内容不能超过500字' }, { status: 400 });
     }
 
-    // TODO: 敏感词过滤
-    // TODO: 速率限制（IP 每10分钟最多3条）
-    // TODO: Turnstile/hCaptcha 验证
+    // 获取客户端 IP
+    const ip =
+      request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
+      request.headers.get('x-real-ip') ||
+      '127.0.0.1';
 
     const supabase = createAnonClient();
 
-    // 注意：不使用 .select() 链式调用，因为 RLS SELECT 策略会过滤 pending 状态
-    // 导致 PostgREST 的 return=representation 模式报 401
+    // 速率限制：每10分钟最多3条
+    const { data: remaining, error: rateError } = await supabase.rpc('check_rate_limit', {
+      client_ip: ip,
+      action_name: 'submit_blessing',
+      max_requests: 3,
+      window_minutes: 10,
+    });
+
+    if (!rateError && remaining !== null && remaining <= 0) {
+      return NextResponse.json({ error: '发送太频繁，请10分钟后再试' }, { status: 429 });
+    }
+
+    // Turnstile 验证（如果配置了密钥）
+    const turnstileSecret = process.env.TURNSTILE_SECRET_KEY;
+    if (turnstileSecret && body.turnstile_token) {
+      const turnstileRes = await fetch(
+        'https://challenges.cloudflare.com/turnstile/v0/siteverify',
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            secret: turnstileSecret,
+            response: body.turnstile_token,
+          }),
+        }
+      );
+      const turnstileData = await turnstileRes.json();
+      if (!turnstileData.success) {
+        return NextResponse.json({ error: '人机验证失败，请刷新重试' }, { status: 400 });
+      }
+    }
+
+    // 插入祝福（不使用 .select()，避免 RLS SELECT 冲突）
     const { error } = await supabase.from('blessings').insert([
       {
         teacher_id: body.teacher_id || null,
@@ -84,6 +117,9 @@ export async function POST(request: NextRequest) {
       console.error('[API] 提交祝福失败:', error);
       return NextResponse.json({ error: '提交失败，请稍后再试' }, { status: 500 });
     }
+
+    // 写入速率限制记录
+    await supabase.from('rate_limits').insert([{ ip, action: 'submit_blessing' }]);
 
     return NextResponse.json(
       { success: true, message: '祝福提交成功，等待审核后展示' },

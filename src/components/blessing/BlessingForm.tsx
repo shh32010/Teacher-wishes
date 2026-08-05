@@ -4,25 +4,23 @@
 
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import GlassCard from '@/components/ui/GlassCard';
 
+const TURNSTILE_SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || '';
+
 interface BlessingFormProps {
-  /** 是否显示弹窗 */
   isOpen: boolean;
-  /** 关闭回调 */
   onClose: () => void;
-  /** 提交成功回调 */
   onSubmit: (data: {
     nickname: string;
     class_: string;
     content: string;
     teacherId: string;
+    turnstileToken?: string;
   }) => void;
-  /** 可选：教师列表 */
   teachers?: { id: string; name: string }[];
-  /** 是否正在提交 */
   isSubmitting?: boolean;
 }
 
@@ -38,19 +36,52 @@ export default function BlessingForm({
   const [content, setContent] = useState('');
   const [teacherId, setTeacherId] = useState('');
   const [error, setError] = useState('');
+  const turnstileRef = useRef<HTMLDivElement>(null);
+  const turnstileLoaded = useRef(false);
 
-  // 从 localStorage 恢复上次填写的昵称和班级
+  // 加载 Turnstile 脚本（如果配置了 site key）
+  useEffect(() => {
+    if (!TURNSTILE_SITE_KEY || turnstileLoaded.current) return;
+    if (typeof window === 'undefined') return;
+
+    const script = document.createElement('script');
+    script.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js';
+    script.async = true;
+    script.defer = true;
+    document.head.appendChild(script);
+    turnstileLoaded.current = true;
+  }, []);
+
+  // 从 localStorage 恢复
   useEffect(() => {
     if (typeof window === 'undefined') return;
     setNickname(localStorage.getItem('blessing_nickname') || '');
     setClass(localStorage.getItem('blessing_class') || '');
   }, [isOpen]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const getTurnstileToken = useCallback((): Promise<string> => {
+    return new Promise((resolve) => {
+      if (!TURNSTILE_SITE_KEY || typeof window === 'undefined' || !window.turnstile) {
+        resolve('');
+        return;
+      }
+      try {
+        window.turnstile.render(turnstileRef.current, {
+          sitekey: TURNSTILE_SITE_KEY,
+          callback: (token: string) => resolve(token),
+          'error-callback': () => resolve(''),
+          'expired-callback': () => resolve(''),
+        });
+      } catch {
+        resolve('');
+      }
+    });
+  }, []);
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
 
-    // 校验
     if (!content.trim()) {
       setError('请写下你的祝福语');
       return;
@@ -60,8 +91,9 @@ export default function BlessingForm({
       return;
     }
 
-    onSubmit({ nickname, class_, content: content.trim(), teacherId });
-    // 提交后保存昵称班级 + 仅清空祝福内容
+    const turnstileToken = await getTurnstileToken();
+    onSubmit({ nickname, class_, content: content.trim(), teacherId, turnstileToken });
+
     if (typeof window !== 'undefined') {
       localStorage.setItem('blessing_nickname', nickname);
       localStorage.setItem('blessing_class', class_);
@@ -185,6 +217,9 @@ export default function BlessingForm({
 
                 {/* 错误提示 */}
                 {error && <p className="text-sm text-red-400">{error}</p>}
+
+                {/* Turnstile 人机验证（如果配置了 site key） */}
+                {TURNSTILE_SITE_KEY && <div ref={turnstileRef} className="flex justify-center" />}
 
                 {/* 提交按钮 */}
                 <button

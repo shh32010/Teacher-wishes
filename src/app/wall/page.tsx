@@ -92,7 +92,13 @@ export default function WallPage() {
 
   // 提交祝福
   const handleSubmit = useCallback(
-    async (formData: { nickname: string; class_: string; content: string; teacherId: string }) => {
+    async (formData: {
+      nickname: string;
+      class_: string;
+      content: string;
+      teacherId: string;
+      turnstileToken?: string;
+    }) => {
       setIsSubmitting(true);
       try {
         const res = await fetch('/api/blessings', {
@@ -103,6 +109,7 @@ export default function WallPage() {
             class: formData.class_,
             content: formData.content,
             teacher_id: formData.teacherId || undefined,
+            turnstile_token: formData.turnstileToken || undefined,
           }),
         });
         if (!res.ok) {
