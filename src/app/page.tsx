@@ -16,6 +16,10 @@ const StarBackground = dynamic(() => import('@/components/home/StarBackground'),
   loading: () => <div className="fixed inset-0 -z-10 bg-night" />,
 });
 
+const StatsPanel = dynamic(() => import('@/components/home/StatsPanel'), {
+  ssr: false,
+});
+
 /** 首页展示的语录 */
 const QUOTES = ['教育不是灌满一桶水，而是点燃一把火。', '一支粉笔，两袖清风，三尺讲台，四季晴雨。'];
 
@@ -97,6 +101,9 @@ export default function HomePage() {
             </motion.div>
           )}
         </AnimatePresence>
+
+        {/* 数据看板 */}
+        <StatsPanel visible={isActive('button')} />
 
         {/* 进入按钮 */}
         <AnimatePresence>
