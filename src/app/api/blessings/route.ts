@@ -43,7 +43,9 @@ export async function GET(request: NextRequest) {
       pageSize,
     };
 
-    return NextResponse.json(response);
+    const res = NextResponse.json(response);
+    res.headers.set('Cache-Control', 'public, s-maxage=5, stale-while-revalidate=30');
+    return res;
   } catch (err) {
     console.error('[API] 获取祝福列表异常:', err);
     return NextResponse.json({ error: '服务器内部错误' }, { status: 500 });

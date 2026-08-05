@@ -31,7 +31,10 @@ export async function GET() {
       total_likes,
     };
 
-    return NextResponse.json(stats);
+    const response = NextResponse.json(stats);
+    // 缓存10秒（CDN 边缘缓存 + 浏览器缓存）
+    response.headers.set('Cache-Control', 'public, s-maxage=10, stale-while-revalidate=59');
+    return response;
   } catch (err) {
     console.error('[API] 获取统计数据异常:', err);
     return NextResponse.json({ error: '服务器内部错误' }, { status: 500 });
