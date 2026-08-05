@@ -5,7 +5,9 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import useSWR from 'swr';
+import { createClient } from '@/lib/supabase/client';
 import type { Blessing, BlessingStats, AdminUpdateBlessing } from '@/types';
 import { formatDateTime } from '@/lib/utils';
 
@@ -14,6 +16,7 @@ const fetcher = (url: string) => fetch(url).then((res) => res.json());
 type FilterStatus = 'pending' | 'approved' | 'rejected' | 'all';
 
 export default function AdminPage() {
+  const router = useRouter();
   const [filter, setFilter] = useState<FilterStatus>('pending');
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
@@ -78,6 +81,15 @@ export default function AdminPage() {
               返回首页 →
             </a>
           </div>
+          <button
+            onClick={async () => {
+              await createClient().auth.signOut();
+              router.push('/admin/login');
+            }}
+            className="text-sm text-slate-500 hover:text-red-400 transition-colors"
+          >
+            退出登录
+          </button>
         </div>
       </header>
 

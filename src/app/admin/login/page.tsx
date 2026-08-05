@@ -1,43 +1,50 @@
 // ============================================================
-// 管理后台登录页 — 简单密码验证
+// 管理后台登录页 — Supabase Auth 邮箱密码登录
 // ============================================================
 
 'use client';
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { createClient } from '@/lib/supabase/client';
 
 export default function AdminLoginPage() {
   const router = useRouter();
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
 
-    // 简化方案：前端设置 cookie（生产环境应使用 Supabase Auth）
-    if (!password) {
-      setError('请输入管理密码');
+    if (!email || !password) {
+      setError('请输入邮箱和密码');
       return;
     }
 
-    // 调用 API 验证密码
+    setLoading(true);
     try {
-      const res = await fetch('/api/admin/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ password }),
+      const supabase = createClient();
+      const { error: authError } = await supabase.auth.signInWithPassword({
+        email,
+        password,
       });
 
-      if (res.ok) {
-        router.push('/admin');
-        router.refresh();
-      } else {
-        setError('密码错误');
+      if (authError) {
+        setError(
+          authError.message === 'Invalid login credentials' ? '邮箱或密码错误' : authError.message
+        );
+        return;
       }
+
+      router.push('/admin');
+      router.refresh();
     } catch {
       setError('网络错误，请稍后再试');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -47,17 +54,27 @@ export default function AdminLoginPage() {
         <h2 className="mb-6 text-center text-xl font-bold text-white">🔐 管理员登录</h2>
         <form onSubmit={handleLogin} className="space-y-4">
           <input
+            type="email"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            placeholder="管理员邮箱"
+            autoComplete="email"
+            className="w-full rounded-xl glass border-white/10 bg-transparent px-4 py-3 text-white placeholder-slate-500 outline-none focus:border-primary/50"
+          />
+          <input
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            placeholder="请输入管理密码"
+            placeholder="密码"
+            autoComplete="current-password"
             className="w-full rounded-xl glass border-white/10 bg-transparent px-4 py-3 text-white placeholder-slate-500 outline-none focus:border-primary/50"
           />
           {error && <p className="text-sm text-red-400">{error}</p>}
-          <button type="submit" className="btn-primary w-full">
-            登录
+          <button type="submit" disabled={loading} className="btn-primary w-full">
+            {loading ? '登录中...' : '登录'}
           </button>
         </form>
+        <p className="mt-4 text-xs text-slate-600 text-center">使用 Supabase Auth 管理员账号登录</p>
       </div>
     </main>
   );

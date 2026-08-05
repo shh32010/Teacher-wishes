@@ -7,8 +7,11 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import useSWR from 'swr';
+import dynamic from 'next/dynamic';
 import { createRealtimeClient } from '@/lib/supabase/client';
 import type { Blessing, PaginatedResponse } from '@/types';
+
+const QRCode = dynamic(() => import('@/components/ui/QRCode'), { ssr: false });
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 const DISPLAY_INTERVAL = 6; // 每条停留秒数
@@ -108,17 +111,12 @@ export default function DisplayPage() {
       ref={containerRef}
       className={`relative flex min-h-screen flex-col items-center justify-center bg-night overflow-hidden transition-opacity duration-500 ${cursorHidden ? 'cursor-none' : ''}`}
     >
-      {/* 二维码 / 入口区域 */}
+      {/* 二维码 */}
       {!isFullscreen && (
-        <div className="absolute left-8 top-8 z-10 glass rounded-xl p-4">
-          <p className="mb-2 text-sm text-slate-400">扫码送祝福</p>
-          <div className="flex h-16 w-16 items-center justify-center rounded-lg bg-white/10 text-xs text-slate-500">
-            <a href={submitUrl} target="_blank" className="hover:text-white">
-              📱
-              <br />
-              点此
-            </a>
-          </div>
+        <div className="absolute left-8 top-8 z-10 glass rounded-xl p-5 text-center">
+          <p className="mb-3 text-sm text-slate-400">📱 扫码送祝福</p>
+          <QRCode value={`${submitUrl}?from=display`} size={120} />
+          <p className="mt-2 text-xs text-slate-600">{submitUrl}</p>
         </div>
       )}
 
