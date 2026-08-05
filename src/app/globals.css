@@ -113,3 +113,36 @@ body {
            active:scale-95;
   }
 }
+
+/* ---- 移动端响应式 ---- */
+@media (max-width: 768px) {
+  .glass-card {
+    @apply rounded-xl p-4;
+  }
+
+  .btn-primary,
+  .btn-glass {
+    @apply px-4 py-2.5 text-sm rounded-lg;
+  }
+
+  /* 首页标题缩小 */
+  h1.text-7xl {
+    font-size: 2.5rem !important;
+  }
+
+  /* 瀑布流单列 */
+  .columns-2 {
+    column-count: 1 !important;
+  }
+}
+
+/* ---- 减弱动画偏好 ---- */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

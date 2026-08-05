@@ -5,6 +5,7 @@
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import { createClient } from '@/lib/supabase/server';
+import ShareButton from '@/components/ui/ShareButton';
 import type { Teacher, Blessing } from '@/types';
 import { formatDate } from '@/lib/utils';
 import { Metadata } from 'next';
@@ -90,9 +91,12 @@ export default async function TeacherPage({ params }: TeacherPageProps) {
           {teacher.description && (
             <p className="mt-4 text-sm leading-relaxed text-slate-300">{teacher.description}</p>
           )}
-          <p className="mt-6 text-lg font-semibold text-accent-light">
-            收到 {blessings.length} 条祝福
-          </p>
+          <div className="mt-6 flex items-center justify-center gap-4">
+            <p className="text-lg font-semibold text-accent-light">
+              收到 {blessings.length} 条祝福
+            </p>
+            <ShareButton />
+          </div>
         </div>
 
         {/* 祝福列表 */}

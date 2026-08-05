@@ -4,7 +4,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import GlassCard from '@/components/ui/GlassCard';
 
@@ -39,6 +39,13 @@ export default function BlessingForm({
   const [teacherId, setTeacherId] = useState('');
   const [error, setError] = useState('');
 
+  // 从 localStorage 恢复上次填写的昵称和班级
+  useEffect(() => {
+    if (typeof window === 'undefined') return;
+    setNickname(localStorage.getItem('blessing_nickname') || '');
+    setClass(localStorage.getItem('blessing_class') || '');
+  }, [isOpen]);
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
@@ -54,9 +61,11 @@ export default function BlessingForm({
     }
 
     onSubmit({ nickname, class_, content: content.trim(), teacherId });
-    // 提交后重置表单
-    setNickname('');
-    setClass('');
+    // 提交后保存昵称班级 + 仅清空祝福内容
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('blessing_nickname', nickname);
+      localStorage.setItem('blessing_class', class_);
+    }
     setContent('');
   };
 
