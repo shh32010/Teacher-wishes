@@ -2,26 +2,114 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ============================================================
+   教师节祝福墙 — 全局样式（Apple + Glassmorphism 风格）
+   ============================================================ */
+
+/* ---- CSS 变量 ---- */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --background: #0b1020;
+  --foreground: #f1f5f9;
+  --glass-bg: rgba(255, 255, 255, 0.08);
+  --glass-border: rgba(255, 255, 255, 0.15);
+  --glass-shadow: rgba(0, 0, 0, 0.3);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* ---- 全局基础 ---- */
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
 }
 
 body {
   color: var(--foreground);
   background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans SC', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
 }
 
+/* ---- 滚动条美化 ---- */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.3);
+}
+
+/* ---- Tailwind 工具层 ---- */
 @layer utilities {
-  .text-balance {
-    text-wrap: balance;
+  /* 毛玻璃容器 */
+  .glass {
+    background: var(--glass-bg);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--glass-border);
+    box-shadow: 0 8px 32px var(--glass-shadow);
+  }
+
+  .glass-light {
+    background: rgba(255, 255, 255, 0.12);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  /* 文字渐变 */
+  .text-gradient {
+    background: linear-gradient(135deg, #38bdf8, #2563eb, #f59e0b);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* 文字阴影 */
+  .text-glow {
+    text-shadow:
+      0 0 20px rgba(56, 189, 248, 0.4),
+      0 0 60px rgba(37, 99, 235, 0.2);
+  }
+}
+
+/* ---- 组件基础层 ---- */
+@layer components {
+  /* 玻璃态卡片 */
+  .glass-card {
+    @apply glass rounded-2xl p-6 transition-all duration-300;
+  }
+  .glass-card:hover {
+    background: rgba(255, 255, 255, 0.12);
+    transform: translateY(-2px);
+    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+  }
+
+  /* 按钮基础样式 */
+  .btn-primary {
+    @apply px-6 py-3 rounded-xl font-semibold text-white
+           bg-gradient-to-r from-primary to-secondary
+           hover:from-primary-dark hover:to-secondary-dark
+           transition-all duration-300
+           shadow-lg shadow-primary/25
+           hover:shadow-xl hover:shadow-primary/40
+           active:scale-95;
+  }
+
+  .btn-glass {
+    @apply px-6 py-3 rounded-xl font-semibold text-white
+           glass border-white/20
+           hover:bg-white/15
+           transition-all duration-300
+           active:scale-95;
   }
 }

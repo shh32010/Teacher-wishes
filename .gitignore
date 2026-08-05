@@ -28,6 +28,10 @@ yarn-error.log*
 # local env files
 .env*.local
 
+# reference docs (设计参考文档，不入库)
+参考-*.md
+教师节祝福墙-主设计文档-*.md
+
 # vercel
 .vercel
 
