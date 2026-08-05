@@ -7,7 +7,7 @@
 import { useState, useCallback, useEffect } from 'react';
 import useSWR from 'swr';
 import dynamic from 'next/dynamic';
-import { createClient } from '@/lib/supabase/client';
+import { createRealtimeClient } from '@/lib/supabase/client';
 import type { Blessing, PaginatedResponse } from '@/types';
 import BlessingCard from '@/components/blessing/BlessingCard';
 
@@ -38,7 +38,7 @@ export default function WallPage() {
 
   // Supabase Realtime 订阅
   useEffect(() => {
-    const supabase = createClient();
+    const supabase = createRealtimeClient();
 
     const channel = supabase
       .channel('blessings-wall')
