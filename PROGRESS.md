@@ -194,7 +194,7 @@
 
 - [x] 预置教师数据导入（王老师/李老师/张老师）
 - [x] 活动数据预热（31条测试祝福）
-- [x] 监控告警配置（Vercel Analytics + Sentry）
+- [x] 监控告警配置（Vercel Analytics + Sentry，Analytics 已确认在线）
 - [x] 数据库备份策略确认（Supabase 每日自动备份）
 - [ ] 应急预案
 
@@ -300,3 +300,5 @@
 - 🔒 **点赞唯一性**：blessing_likes 表 + IP UNIQUE 约束 + RPC 原子检查 + 409 前端回滚
 - ✨ 点赞爱心爆发特效（LikeBurst）+ 祝福星河辉光增强（三层 shadow）
 - 🐛 修复：祝福墙 Realtime mutate 重复 key → flatMap + Set 去重
+- 🐛 修复：Vercel Analytics 导入路径 `/react` → `/next`（App Router 正确用法），已上线确认在线
+- 📝 文档全面审查：17 项修复（LICENSE/环境变量/徽章/百分比/版本号/API 文档/Analytics）

@@ -30,6 +30,7 @@ All notable changes to Teacher Wishes Platform will be documented in this file.
 
 - 祝福墙 Realtime mutate 导致重复 key → `flatMap` + `Set` 去重
 - GlassCard 测试断言更新（暗色 hover → 暖色 hover）
+- Vercel Analytics 导入路径修复（`/react` → `/next`），已确认在线收集数据
 
 ---
 
