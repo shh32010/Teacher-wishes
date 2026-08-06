@@ -1,5 +1,6 @@
 // ============================================================
 // 祝福墙页面 — 无限滚动 + Supabase Realtime 实时订阅
+// 暖色主题
 // ============================================================
 
 'use client';
@@ -24,7 +25,6 @@ const ConfettiTrigger = dynamic(() => import('@/components/blessing/ConfettiTrig
 const PAGE_SIZE = 20;
 type SortMode = 'time' | 'likes';
 
-/** SWR fetcher：检查 HTTP 状态码，非 2xx 抛出错误 */
 const fetcher = async (url: string) => {
   const res = await fetch(url);
   if (!res.ok) {
@@ -40,7 +40,6 @@ export default function WallPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [sortBy, setSortBy] = useState<SortMode>('time');
 
-  /** SWR 分页 key 生成器（依赖 sortBy，切换排序时 key 变化 → 自动重新拉取） */
   const getKey = useCallback(
     (pageIndex: number, prevPage: PaginatedResponse<Blessing> | null) => {
       if (prevPage && (!prevPage.data || prevPage.data.length === 0)) return null;
@@ -49,12 +48,10 @@ export default function WallPage() {
     [sortBy]
   );
 
-  // 获取教师列表（用于表单下拉）
   const { data: teacherData } = useSWR('/api/teachers', fetcher);
   const teachers: { id: string; name: string; avatar_url?: string | null }[] =
     teacherData?.teachers || [];
 
-  // 无限滚动数据
   const {
     data: pages,
     error,
@@ -65,29 +62,32 @@ export default function WallPage() {
   } = useSWRInfinite<PaginatedResponse<Blessing>>(getKey, fetcher, {
     revalidateFirstPage: false,
     revalidateOnFocus: false,
-    refreshInterval: 5 * 60 * 1000, // 5分钟兜底
-    errorRetryCount: 3, // 最多重试 3 次，避免无限循环
+    refreshInterval: 5 * 60 * 1000,
+    errorRetryCount: 3,
     onErrorRetry: (err, _key, _config, revalidate, { retryCount }) => {
-      // 4xx 错误不重试
       if (err.message?.includes('请求失败')) return;
       if (retryCount >= 3) return;
-      // 指数退避重试
       setTimeout(() => revalidate({ retryCount }), 2000 * Math.pow(2, retryCount));
     },
   });
 
-  // 展平所有页
   const blessings = useMemo(() => {
     if (!pages) return [];
-    return pages.flatMap((p) => p.data);
+    // 按 ID 去重（Realtime mutate 可能导致同一祝福出现在多页中）
+    const seen = new Set<string>();
+    return pages
+      .flatMap((p) => p.data)
+      .filter((b) => {
+        if (seen.has(b.id)) return false;
+        seen.add(b.id);
+        return true;
+      });
   }, [pages]);
 
-  // 防御性：pages 某项可能为 undefined（SWR 并行请求时），过滤掉
   const lastPage = pages?.filter(Boolean).at(-1);
   const hasMore = lastPage ? (lastPage.data?.length ?? 0) === PAGE_SIZE : true;
   const totalCount = pages?.[0]?.count || 0;
 
-  // 加载更多
   const loadMore = useCallback(() => {
     if (!hasMore) return;
     setSize(size + 1);
@@ -99,12 +99,10 @@ export default function WallPage() {
     onLoadMore: loadMore,
   });
 
-  // 切换排序时重置到第一页
   useEffect(() => {
     setSize(1);
   }, [sortBy, setSize]);
 
-  // Supabase Realtime 订阅
   useEffect(() => {
     const supabase = createRealtimeClient();
 
@@ -127,7 +125,6 @@ export default function WallPage() {
     };
   }, [mutate]);
 
-  // 提交祝福
   const handleSubmit = useCallback(
     async (formData: {
       nickname: string;
@@ -172,62 +169,57 @@ export default function WallPage() {
     [mutate]
   );
 
-  // 点赞
-  const handleLike = useCallback(async (id: string) => {
+  const handleLike = useCallback(async (id: string): Promise<boolean> => {
     try {
       const csrfToken = await getCsrfToken();
-      await fetch(`/api/blessings/${id}/like`, {
+      const res = await fetch(`/api/blessings/${id}/like`, {
         method: 'POST',
         headers: csrfToken ? { 'X-CSRF-Token': csrfToken } : {},
       });
+      // 409 表示已点过赞，返回 false 让组件回滚乐观更新
+      return res.ok;
     } catch {
-      /* 乐观更新已在组件中完成 */
+      return false;
     }
   }, []);
 
   if (isLoading) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-night">
-        <div className="text-slate-400">加载祝福中...</div>
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="text-ink-muted">加载祝福中...</div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-night">
-        <div className="text-red-400">加载失败，请刷新重试</div>
+      <div className="flex min-h-screen items-center justify-center">
+        <div className="text-red-500">加载失败，请刷新重试</div>
       </div>
     );
   }
 
   return (
-    <main className="min-h-screen bg-night pb-20">
+    <main className="min-h-screen pb-20">
       {showConfetti && <ConfettiTrigger />}
 
       {/* 顶部导航 */}
-      <header className="glass sticky top-0 z-30 border-b border-white/5 backdrop-blur-xl">
+      <header className="glass sticky top-0 z-30 border-b border-ink/10 backdrop-blur-xl">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-4">
-          <a href="/" className="text-lg font-bold text-white" aria-label="返回首页 教师节祝福墙">
+          <a href="/" className="text-lg font-bold text-ink" aria-label="返回首页 教师节祝福墙">
             🌟 教师节祝福墙
           </a>
           <div className="flex items-center gap-3">
-            <span className="text-xs text-slate-400">共 {totalCount} 条</span>
+            <span className="text-xs text-ink-muted">共 {totalCount} 条</span>
 
             {/* 排序切换 */}
-            <div
-              className="flex rounded-lg bg-white/5 p-0.5"
-              role="radiogroup"
-              aria-label="排序方式"
-            >
+            <div className="flex rounded-lg bg-ink/5 p-0.5" role="radiogroup" aria-label="排序方式">
               <button
                 onClick={() => setSortBy('time')}
                 role="radio"
                 aria-checked={sortBy === 'time'}
                 className={`rounded-md px-3 py-1 text-xs transition-all ${
-                  sortBy === 'time'
-                    ? 'bg-primary/20 text-primary'
-                    : 'text-slate-400 hover:text-slate-200'
+                  sortBy === 'time' ? 'bg-primary/15 text-primary' : 'text-ink-muted hover:text-ink'
                 }`}
               >
                 🕐 最新
@@ -238,8 +230,8 @@ export default function WallPage() {
                 aria-checked={sortBy === 'likes'}
                 className={`rounded-md px-3 py-1 text-xs transition-all ${
                   sortBy === 'likes'
-                    ? 'bg-primary/20 text-primary'
-                    : 'text-slate-400 hover:text-slate-200'
+                    ? 'bg-primary/15 text-primary'
+                    : 'text-ink-muted hover:text-ink'
                 }`}
               >
                 🔥 最热
@@ -257,7 +249,7 @@ export default function WallPage() {
       <div className="mx-auto mt-8 max-w-3xl px-4">
         {blessings.length === 0 ? (
           <div className="py-20 text-center">
-            <p className="text-slate-400">还没有祝福，快来写下第一条吧 ✨</p>
+            <p className="text-ink-muted">还没有祝福，快来写下第一条吧 ✨</p>
           </div>
         ) : (
           <>
@@ -269,12 +261,11 @@ export default function WallPage() {
               ))}
             </div>
 
-            {/* 加载更多指示器 */}
             <div ref={sentinelRef} className="py-8 text-center">
               {hasMore ? (
-                <span className="text-sm text-slate-400">加载更多...</span>
+                <span className="text-sm text-ink-muted">加载更多...</span>
               ) : (
-                <span className="text-sm text-slate-400">— 已经到底了 —</span>
+                <span className="text-sm text-ink-muted">— 已经到底了 —</span>
               )}
             </div>
           </>
@@ -292,7 +283,7 @@ export default function WallPage() {
       {/* 底部浮动按钮 */}
       <button
         onClick={() => setShowForm(true)}
-        className="btn-primary fixed bottom-6 right-6 z-40 animate-breathe shadow-lg shadow-primary/30 text-lg px-6 py-3"
+        className="btn-primary fixed bottom-6 right-6 z-40 animate-breathe shadow-lg shadow-primary/20 text-lg px-6 py-3"
       >
         ✨ 送出祝福
       </button>

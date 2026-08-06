@@ -1,5 +1,6 @@
 // ============================================================
 // 教师主页 — 教师信息 + 收到的祝福（SSR）
+// 暖色主题
 // ============================================================
 
 import { notFound } from 'next/navigation';
@@ -14,7 +15,6 @@ import { Metadata } from 'next';
 const ShareButton = dynamicImport(() => import('@/components/ui/ShareButton'), { ssr: false });
 const SortToggle = dynamicImport(() => import('@/components/blessing/SortToggle'), { ssr: false });
 
-/** 教师页面按需 SSR（未来可改为 ISR） */
 export const dynamic = 'force-dynamic';
 
 interface TeacherPageProps {
@@ -22,7 +22,6 @@ interface TeacherPageProps {
   searchParams: { sort?: string };
 }
 
-/** 动态生成元数据 */
 export async function generateMetadata({ params }: TeacherPageProps): Promise<Metadata> {
   const supabase = createClient();
   const { data: teacher } = await supabase
@@ -44,7 +43,6 @@ export default async function TeacherPage({ params, searchParams }: TeacherPageP
   const sort = searchParams.sort === 'likes' ? 'likes' : 'time';
   const sortField = sort === 'likes' ? 'likes' : 'created_at';
 
-  // 并行获取教师信息和祝福列表
   const [teacherResult, blessingsResult] = await Promise.all([
     supabase.from('teachers').select('*').eq('id', params.id).single(),
     supabase
@@ -65,14 +63,14 @@ export default async function TeacherPage({ params, searchParams }: TeacherPageP
   const blessings = (blessingsResult.data || []) as Blessing[];
 
   return (
-    <main className="min-h-screen bg-night">
+    <main className="min-h-screen">
       {/* 顶部导航 */}
-      <header className="glass sticky top-0 z-30 border-b border-white/5 backdrop-blur-xl">
+      <header className="glass sticky top-0 z-30 border-b border-ink/10 backdrop-blur-xl">
         <div className="mx-auto flex max-w-4xl items-center justify-between px-4 py-4">
-          <a href="/" className="text-lg font-bold text-white">
+          <a href="/" className="text-lg font-bold text-ink">
             🌟 教师节祝福墙
           </a>
-          <a href="/wall" className="text-sm text-slate-400 hover:text-white transition-colors">
+          <a href="/wall" className="text-sm text-ink-muted hover:text-ink transition-colors">
             返回祝福墙 →
           </a>
         </div>
@@ -81,7 +79,7 @@ export default async function TeacherPage({ params, searchParams }: TeacherPageP
       <div className="mx-auto max-w-3xl px-4 py-12">
         {/* 教师信息卡片 */}
         <div className="glass-card mb-12 text-center">
-          <div className="mx-auto mb-4 relative flex h-24 w-24 items-center justify-center rounded-full bg-primary/20 text-4xl overflow-hidden">
+          <div className="mx-auto mb-4 relative flex h-24 w-24 items-center justify-center rounded-full bg-primary/15 text-4xl overflow-hidden">
             {teacher.avatar_url ? (
               <Image
                 src={teacher.avatar_url}
@@ -94,30 +92,28 @@ export default async function TeacherPage({ params, searchParams }: TeacherPageP
               '👩‍🏫'
             )}
           </div>
-          <h1 className="text-3xl font-bold text-white">{teacher.name}老师</h1>
-          {teacher.department && <p className="mt-2 text-slate-400">{teacher.department}</p>}
+          <h1 className="text-3xl font-bold text-ink">{teacher.name}老师</h1>
+          {teacher.department && <p className="mt-2 text-ink-light">{teacher.department}</p>}
           {teacher.description && (
-            <p className="mt-4 text-sm leading-relaxed text-slate-300">{teacher.description}</p>
+            <p className="mt-4 text-sm leading-relaxed text-ink">{teacher.description}</p>
           )}
           <div className="mt-6 flex items-center justify-center gap-4">
-            <p className="text-lg font-semibold text-accent-light">
-              收到 {blessings.length} 条祝福
-            </p>
+            <p className="text-lg font-semibold text-accent">收到 {blessings.length} 条祝福</p>
             <ShareButton />
           </div>
         </div>
 
         {/* 排序切换 + 祝福列表 */}
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-sm font-medium text-slate-300">{blessings.length} 条祝福</h2>
-          <Suspense fallback={<div className="h-8 w-24 rounded-lg bg-white/5" />}>
+          <h2 className="text-sm font-medium text-ink-light">{blessings.length} 条祝福</h2>
+          <Suspense fallback={<div className="h-8 w-24 rounded-lg bg-ink/5" />}>
             <SortToggle />
           </Suspense>
         </div>
 
         {blessings.length === 0 ? (
           <div className="py-20 text-center">
-            <p className="text-slate-500">还没有祝福，快来送上第一条吧 💌</p>
+            <p className="text-ink-muted">还没有祝福，快来送上第一条吧 💌</p>
           </div>
         ) : (
           <div className="space-y-4">
@@ -126,25 +122,24 @@ export default async function TeacherPage({ params, searchParams }: TeacherPageP
                 key={blessing.id}
                 className={`glass-card relative ${
                   blessing.is_featured
-                    ? 'border-amber-400/30 bg-amber-400/5 ring-1 ring-amber-400/20'
+                    ? 'border-amber-400/40 bg-amber-400/8 ring-1 ring-amber-400/30'
                     : ''
                 }`}
                 style={{ '--hover': 'none' } as React.CSSProperties}
               >
-                {/* 精选标记 */}
                 {blessing.is_featured && (
                   <div className="absolute -right-2 -top-2 rounded-full bg-amber-400 px-2.5 py-0.5 text-xs font-bold text-amber-900 shadow-lg shadow-amber-400/30">
                     ⭐ 精选
                   </div>
                 )}
                 <div className="mb-3 flex items-center justify-between">
-                  <span className="text-sm font-medium text-white">
+                  <span className="text-sm font-medium text-ink">
                     {blessing.is_anonymous ? '匿名同学' : blessing.nickname || '匿名同学'}
                   </span>
-                  <span className="text-xs text-slate-500">{formatDate(blessing.created_at)}</span>
+                  <span className="text-xs text-ink-muted">{formatDate(blessing.created_at)}</span>
                 </div>
-                <p className="text-slate-200">{blessing.content}</p>
-                <div className="mt-3 flex items-center gap-2 text-sm text-pink-400">
+                <p className="text-ink">{blessing.content}</p>
+                <div className="mt-3 flex items-center gap-2 text-sm text-like">
                   <span>❤️</span>
                   <span>{blessing.likes}</span>
                 </div>

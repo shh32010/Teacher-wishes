@@ -1,5 +1,6 @@
 // ============================================================
 // 大屏展示模式 — 全屏自动轮播 + Realtime 即时插入
+// 暖色主题
 // ============================================================
 
 'use client';
@@ -14,8 +15,8 @@ import type { Blessing, PaginatedResponse } from '@/types';
 const QRCode = dynamic(() => import('@/components/ui/QRCode'), { ssr: false });
 
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
-const DISPLAY_INTERVAL = 6; // 每条停留秒数
-const MOUSE_HIDE_DELAY = 3000; // 鼠标不动多久后隐藏
+const DISPLAY_INTERVAL = 6;
+const MOUSE_HIDE_DELAY = 3000;
 
 export default function DisplayPage() {
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -32,7 +33,6 @@ export default function DisplayPage() {
 
   const blessings: Blessing[] = data?.data || [];
 
-  // Realtime 即时插入
   useEffect(() => {
     const supabase = createRealtimeClient();
     const channel = supabase
@@ -50,7 +50,6 @@ export default function DisplayPage() {
     };
   }, [mutate]);
 
-  // 自动轮播
   useEffect(() => {
     if (blessings.length === 0) return;
     const timer = setInterval(() => {
@@ -59,7 +58,6 @@ export default function DisplayPage() {
     return () => clearInterval(timer);
   }, [blessings.length]);
 
-  // 键盘控制
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
       if (e.key === 'Escape' || e.key === 'f' || e.key === 'F') {
@@ -74,7 +72,6 @@ export default function DisplayPage() {
     return () => window.removeEventListener('keydown', handler);
   }, [blessings.length]);
 
-  // 鼠标自动隐藏
   useEffect(() => {
     const onMove = () => {
       setCursorHidden(false);
@@ -100,8 +97,8 @@ export default function DisplayPage() {
 
   if (blessings.length === 0) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-night">
-        <p className="text-2xl text-slate-500">等待祝福中...</p>
+      <div className="flex min-h-screen items-center justify-center">
+        <p className="text-2xl text-ink-muted">等待祝福中...</p>
       </div>
     );
   }
@@ -109,14 +106,14 @@ export default function DisplayPage() {
   return (
     <main
       ref={containerRef}
-      className={`relative flex min-h-screen flex-col items-center justify-center bg-night overflow-hidden transition-opacity duration-500 ${cursorHidden ? 'cursor-none' : ''}`}
+      className={`relative flex min-h-screen flex-col items-center justify-center overflow-hidden transition-opacity duration-500 ${cursorHidden ? 'cursor-none' : ''}`}
     >
       {/* 二维码 */}
       {!isFullscreen && (
         <div className="absolute left-8 top-8 z-10 glass rounded-xl p-5 text-center">
-          <p className="mb-3 text-sm text-slate-400">📱 扫码送祝福</p>
+          <p className="mb-3 text-sm text-ink-light">📱 扫码送祝福</p>
           <QRCode value={`${submitUrl}?from=display`} size={120} />
-          <p className="mt-2 text-xs text-slate-600">{submitUrl}</p>
+          <p className="mt-2 text-xs text-ink-muted">{submitUrl}</p>
         </div>
       )}
 
@@ -124,7 +121,7 @@ export default function DisplayPage() {
       {!isFullscreen && (
         <button
           onClick={toggleFullscreen}
-          className="absolute right-8 top-8 z-10 glass rounded-xl p-3 text-slate-400 hover:text-white transition-colors"
+          className="absolute right-8 top-8 z-10 glass rounded-xl p-3 text-ink-muted hover:text-ink transition-colors"
           title="全屏 (Esc 退出)"
         >
           ⛶
@@ -141,17 +138,17 @@ export default function DisplayPage() {
           transition={{ duration: 0.8, ease: 'easeInOut' }}
           className="max-w-3xl px-8 text-center"
         >
-          <p className="mb-8 text-xl text-slate-400">
+          <p className="mb-8 text-xl text-ink-light">
             {current?.is_anonymous ? '匿名同学' : current?.nickname || '匿名同学'}
-            {current?.class && <span className="ml-2 text-slate-500">· {current.class}</span>}
+            {current?.class && <span className="ml-2 text-ink-muted">· {current.class}</span>}
           </p>
-          <p className="text-4xl font-bold leading-relaxed text-white md:text-5xl">
+          <p className="text-4xl font-bold leading-relaxed text-ink md:text-5xl">
             {current?.content}
           </p>
           {current?.teacher && (
-            <p className="mt-8 text-2xl text-accent-light">❤️ 送给 {current.teacher.name}老师</p>
+            <p className="mt-8 text-2xl text-accent">❤️ 送给 {current.teacher.name}老师</p>
           )}
-          <p className="mt-6 text-lg text-slate-500">❤️ {current?.likes || 0} 次点赞</p>
+          <p className="mt-6 text-lg text-ink-muted">❤️ {current?.likes || 0} 次点赞</p>
         </motion.div>
       </AnimatePresence>
 
@@ -162,12 +159,12 @@ export default function DisplayPage() {
             <div
               key={b.id}
               className={`h-1 rounded-full transition-all duration-500 ${
-                i === currentIndex ? 'w-6 bg-primary' : 'w-1.5 bg-slate-600'
+                i === currentIndex ? 'w-6 bg-primary' : 'w-1.5 bg-ink/15'
               }`}
             />
           ))}
         </div>
-        <span className="text-xs text-slate-600">
+        <span className="text-xs text-ink-muted">
           {currentIndex + 1} / {blessings.length} · ← → 切换 · Esc 退出
         </span>
       </div>

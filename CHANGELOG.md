@@ -4,6 +4,35 @@ All notable changes to Teacher Wishes Platform will be documented in this file.
 
 ---
 
+## [1.1.0] — 2026-08-07
+
+### 🎨 视觉重构 — 暖色教师节主题（23 文件）
+
+全新 Apple + 秋天 + 校园 设计语言，告别暗黑模式。
+
+- 🎨 **色板重建**：主色 `#2563EB`(蓝) → `#D97706`(琥珀金)，新增 `warm` 背景色阶 + `ink` 文字色阶
+- 🌅 **暖色渐变背景**：`#FFF8F0 → #FDF6EC → #F8F3FF` 替代纯黑 `#0B1020`
+- 🪟 **白色玻璃态**：卡片 `rgba(255,255,255,0.75)` + 毛玻璃，替代暗底半透
+- 🌸 **首页重设计**：语录 "一支粉笔，两袖清风" / "三尺讲台，四季耕耘"，标题加 🌸
+- 🍂 **花瓣飘落**：纯 CSS 银杏/枫叶/樱花飘落动画（FallingPetals 组件）
+- ⭐ **黄昏星河**：教师天体蓝光→金光，祝福星星三层辉光增强可见度
+- 🔤 **霞鹜文楷**：标题字体引入 `LXGW WenKai`，正文保持无衬线
+- 🎉 **点赞爆发**：LikeBurst 组件 — 点赞时 6 个彩色小心心飞出
+
+### 🔒 点赞唯一性约束
+
+- 🗄️ 新建 `blessing_likes` 表 + `UNIQUE(blessing_id, ip_address)` 索引
+- 🔄 RPC `increment_likes(blessing_id, client_ip)` 原子插入+递增
+- 🛡️ 同 IP 重复点赞 → 返回 409，前端乐观回滚
+- 🧹 localStorage 清除/换浏览器 均无法绕过
+
+### 🐛 修复
+
+- 祝福墙 Realtime mutate 导致重复 key → `flatMap` + `Set` 去重
+- GlassCard 测试断言更新（暗色 hover → 暖色 hover）
+
+---
+
 ## [1.0.0] — 2026-08-07
 
 ### 🎉 首次正式发布

@@ -1,5 +1,5 @@
 // ============================================================
-// 毛玻璃卡片 — Apple + Glassmorphism 风格
+// 毛玻璃卡片 — 暖色 · 教师节书卷气
 // ============================================================
 
 import { cn } from '@/lib/utils';
@@ -31,7 +31,7 @@ export default function GlassCard({
       className={cn(
         'glass rounded-2xl',
         paddingMap[padding],
-        hover && 'hover:bg-white/[0.12] hover:-translate-y-1 hover:shadow-xl hover:shadow-black/30',
+        hover && 'hover:bg-white/88 hover:-translate-y-1 hover:shadow-lg hover:shadow-black/5',
         'transition-all duration-300',
         className
       )}

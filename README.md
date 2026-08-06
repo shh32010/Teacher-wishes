@@ -1,7 +1,7 @@
-# 🌟 Teacher Wishes Platform · 教师节祝福平台 · v1.0.0
+# 🌟 Teacher Wishes Platform · 教师节祝福平台 · v1.1.0
 
 <p align="center">
-  <strong>沉浸式教师节活动平台</strong> — 星空祝福星河 · 实时互动 · 大屏展示
+  <strong>沉浸式教师节活动平台</strong> — 暖色秋天美学 · 祝福星河 · 实时互动 · 大屏展示
 </p>
 
 <p align="center">
@@ -18,7 +18,7 @@
 ## 📸 预览
 
 <p align="center">
-  <img src="./public/screenshots/homepage.png" alt="首页 — 星空+祝福星河" width="48%">
+  <img src="./public/screenshots/homepage.png" alt="首页 — 暖色渐变+祝福星河" width="48%">
   <img src="./public/screenshots/wall.png" alt="祝福墙 — 瀑布流卡片" width="48%">
 </p>
 
@@ -33,19 +33,22 @@
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/shh32010/Teacher-wishes&env=NEXT_PUBLIC_SUPABASE_URL,NEXT_PUBLIC_SUPABASE_ANON_KEY,SUPABASE_SERVICE_ROLE_KEY&envDescription=从%20Supabase%20Dashboard%20获取)
 
-> ⚠️ 部署前需在 [Supabase](https://supabase.com) 创建项目，并在 SQL Editor 中执行 `database/migrations/001_schema.sql`。
+> ⚠️ 部署前需在 [Supabase](https://supabase.com) 创建项目，并在 SQL Editor 中依次执行：
+> 1. `database/migrations/001_schema.sql` — 基础表结构
+> 2. `database/migrations/004_likes_unique.sql` — 点赞唯一性约束
 
 ---
 
 ## ✨ 功能
 
-- 🎆 **沉浸式首页** — 星空粒子背景 + 语录渐显 + 渐变标题动画 + 页面过渡动画
-- 🌌 **祝福星河** — 斐波那契螺旋分布，教师天体（蓝色光晕）+ 祝福星星（金色闪烁），layoutId 平滑重排
-- 📝 **发布祝福** — 昵称 / 班级 / 祝福内容 / 教师搜索下拉（含头像）（玻璃态弹窗）
-- 💬 **祝福墙** — 瀑布流卡片 + 时间/点赞排序 + Supabase Realtime 实时更新 + 无限滚动
+- 🎆 **沉浸式首页** — 暖色渐变背景 + 花瓣/银杏飘落 + 语录渐显 + 渐变标题动画
+- 🌌 **祝福星河** — 斐波那契螺旋分布，教师天体（金色光晕）+ 祝福星星（三层辉光），悬浮预览气泡
+- 📝 **发布祝福** — 昵称 / 班级 / 祝福内容 / 教师搜索下拉（含头像）（白色玻璃态弹窗）
+- 💬 **祝福墙** — 瀑布流卡片 + 时间/点赞排序 + Supabase Realtime 实时更新 + 无限滚动 + 点赞爱心爆发
 - 👩‍🏫 **教师主页** — `/teacher/:id` 教师信息 + 时间/点赞排序 + 精选祝福标记 + 一键分享
 - 📺 **大屏模式** — `/display` 全屏自动轮播 + QR 码，适用于活动现场投影
 - 🔐 **管理后台** — 审核 / 置顶 / 精选 / 拒绝 + 教师头像上传 + 数据统计看板
+- 🔒 **点赞唯一性** — `blessing_likes` 表 + IP UNIQUE 约束 + RPC 原子递增 + 乐观回滚
 - 🛡️ **安全防护** — Supabase Auth 鉴权 + Middleware + CSRF Token + IP 限流 + RLS + Turnstile
 - ♿ **无障碍** — focus-visible 焦点环 + aria-label/role + 弹窗焦点陷阱 + WCAG AA 对比度
 - 📊 **监控** — Vercel Analytics 页面统计 + Sentry 错误追踪（DSN 可选激活）
@@ -99,7 +102,9 @@ SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
 
 ```bash
 # 4. 执行数据库迁移
-# 在 Supabase SQL Editor 中运行 database/migrations/001_schema.sql
+# 在 Supabase SQL Editor 中依次运行：
+#   database/migrations/001_schema.sql（基础表结构）
+#   database/migrations/004_likes_unique.sql（点赞唯一性约束）
 
 # 5. 启动
 npm run dev
@@ -128,16 +133,16 @@ npm run analyze              # Bundle 分析
 ```
 src/
 ├── app/                      # App Router 页面
-│   ├── page.tsx              #   首页（星空 + 星河 + 时间线）
-│   ├── wall/page.tsx         #   祝福墙（无限滚动 + Realtime）
+│   ├── page.tsx              #   首页（暖色渐变 + 星河 + 花瓣飘落）
+│   ├── wall/page.tsx         #   祝福墙（无限滚动 + Realtime + 点赞爆发）
 │   ├── display/page.tsx      #   大屏模式（轮播 + QR）
 │   ├── teacher/[id]/page.tsx #   教师主页（SSR + 排序）
 │   ├── admin/                #   管理后台
 │   └── api/                  #   API 路由
 ├── components/
 │   ├── ui/                   #   GlassCard / PageTransition / ShareButton
-│   ├── blessing/             #   BlessingCard / BlessingForm / SortToggle
-│   ├── home/                 #   StarBackground / BlessingGalaxy / StatsPanel
+│   ├── blessing/             #   BlessingCard / BlessingForm / SortToggle / LikeBurst
+│   ├── home/                 #   StarBackground / BlessingGalaxy / StatsPanel / FallingPetals
 │   └── admin/                #   TeacherManager
 ├── lib/
 │   ├── supabase/             #   客户端（浏览器/服务端/实时）

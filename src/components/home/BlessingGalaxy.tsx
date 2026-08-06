@@ -2,6 +2,7 @@
 // 祝福星河 — 每条祝福 = 小星星，每位教师 = 大天体
 // 斐波那契螺旋分布 + 悬浮预览气泡 + 点击弹窗详情
 // 键盘可访问 + 焦点 trap
+// 暖色主题：金色星辉 = 老师，暖光 = 祝福
 // ============================================================
 
 'use client';
@@ -68,7 +69,7 @@ export default function BlessingGalaxy() {
 
         const allStars: Star[] = [];
 
-        // 教师星体 — 占据最外层显眼位置（靠后生成的位置 = 外圈）
+        // 教师星体 — 外圈显眼位置
         teachers.forEach((teacher, i) => {
           const posIdx = blessings.length + i;
           allStars.push({
@@ -99,7 +100,7 @@ export default function BlessingGalaxy() {
       .catch(() => {});
   }, []);
 
-  // 键盘事件处理 — Enter/Space 打开详情
+  // 键盘事件
   const handleStarKeyDown = useCallback((e: React.KeyboardEvent, star: Star) => {
     if (e.key === 'Enter' || e.key === ' ') {
       e.preventDefault();
@@ -107,7 +108,7 @@ export default function BlessingGalaxy() {
     }
   }, []);
 
-  // 焦点 trap — 详情弹窗打开时
+  // 焦点 trap
   useEffect(() => {
     if (!selectedStar) return;
 
@@ -123,7 +124,6 @@ export default function BlessingGalaxy() {
       );
     };
 
-    // 自动聚焦关闭按钮
     const timer = setTimeout(() => {
       const closeBtn = modalEl.querySelector<HTMLElement>('button[aria-label="关闭详情"]');
       if (closeBtn) closeBtn.focus();
@@ -194,7 +194,7 @@ export default function BlessingGalaxy() {
                   onMouseLeave={() => setHovered(null)}
                   onClick={() => setSelectedStar(star)}
                 >
-                  {/* 教师天体 — 光晕 + 头像 */}
+                  {/* 教师天体 — 暖金光晕 + 头像 */}
                   <div
                     className="relative flex items-center justify-center overflow-hidden rounded-full"
                     style={{
@@ -203,8 +203,8 @@ export default function BlessingGalaxy() {
                       marginLeft: -star.size / 2,
                       marginTop: -star.size / 2,
                       background:
-                        'radial-gradient(circle, rgba(59,130,246,0.6) 0%, rgba(37,99,235,0.3) 50%, transparent 70%)',
-                      boxShadow: `0 0 ${star.size}px rgba(59,130,246,0.6), 0 0 ${star.size * 2}px rgba(59,130,246,0.2)`,
+                        'radial-gradient(circle, rgba(217,119,6,0.55) 0%, rgba(245,158,11,0.3) 50%, transparent 70%)',
+                      boxShadow: `0 0 ${star.size}px rgba(217,119,6,0.5), 0 0 ${star.size * 2}px rgba(245,158,11,0.18)`,
                     }}
                   >
                     {star.teacher!.avatar_url ? (
@@ -217,7 +217,7 @@ export default function BlessingGalaxy() {
                       />
                     ) : (
                       <span
-                        className="text-xs font-bold text-white drop-shadow-lg"
+                        className="text-xs font-bold text-ink drop-shadow-lg"
                         aria-hidden="true"
                       >
                         {star.teacher!.name[0]}
@@ -235,13 +235,13 @@ export default function BlessingGalaxy() {
                         className="absolute bottom-full left-1/2 z-20 mb-3 -translate-x-1/2"
                       >
                         <div className="glass whitespace-nowrap rounded-xl px-4 py-3 text-center">
-                          <p className="text-sm font-bold text-white">{star.teacher!.name}老师</p>
+                          <p className="text-sm font-bold text-ink">{star.teacher!.name}老师</p>
                           {star.teacher!.department && (
-                            <p className="text-xs text-slate-400">{star.teacher!.department}</p>
+                            <p className="text-xs text-ink-muted">{star.teacher!.department}</p>
                           )}
-                          <p className="mt-1 text-xs text-accent-light">点击查看详情</p>
+                          <p className="mt-1 text-xs text-accent">点击查看详情</p>
                         </div>
-                        <div className="mx-auto h-0 w-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-white/10" />
+                        <div className="mx-auto h-0 w-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-ink/10" />
                       </motion.div>
                     )}
                   </AnimatePresence>
@@ -274,13 +274,13 @@ export default function BlessingGalaxy() {
                 <div
                   className="animate-star-twinkle rounded-full"
                   style={{
-                    width: star.size * 2,
-                    height: star.size * 2,
-                    marginLeft: -star.size,
-                    marginTop: -star.size,
+                    width: star.size * 2.5,
+                    height: star.size * 2.5,
+                    marginLeft: -star.size * 1.25,
+                    marginTop: -star.size * 1.25,
                     background:
-                      'radial-gradient(circle, rgba(255,233,166,0.9) 0%, rgba(245,158,11,0.4) 50%, transparent 70%)',
-                    boxShadow: `0 0 ${star.size * 3}px rgba(245,158,11,0.5)`,
+                      'radial-gradient(circle, rgba(255,210,80,0.95) 0%, rgba(245,158,11,0.55) 35%, rgba(217,119,6,0.15) 65%, transparent 75%)',
+                    boxShadow: `0 0 ${star.size * 4}px rgba(245,158,11,0.6), 0 0 ${star.size * 8}px rgba(245,158,11,0.25), 0 0 ${star.size * 14}px rgba(245,158,11,0.1)`,
                   }}
                 />
 
@@ -293,16 +293,16 @@ export default function BlessingGalaxy() {
                       className="absolute bottom-full left-1/2 z-20 mb-2 -translate-x-1/2"
                     >
                       <div className="glass max-w-[200px] whitespace-nowrap rounded-xl px-4 py-3 text-center">
-                        <p className="truncate text-xs text-slate-300">
+                        <p className="truncate text-xs text-ink">
                           {star.blessing.content.slice(0, 30)}
                           {star.blessing.content.length > 30 ? '...' : ''}
                         </p>
-                        <p className="mt-1 text-xs text-slate-400">
+                        <p className="mt-1 text-xs text-ink-muted">
                           — {star.blessing.is_anonymous ? '匿名' : star.blessing.nickname || '同学'}
                         </p>
-                        <p className="text-xs text-pink-400">❤️ {star.blessing.likes}</p>
+                        <p className="text-xs text-like">❤️ {star.blessing.likes}</p>
                       </div>
-                      <div className="mx-auto h-0 w-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-white/10" />
+                      <div className="mx-auto h-0 w-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-ink/10" />
                     </motion.div>
                   )}
                 </AnimatePresence>
@@ -321,7 +321,7 @@ export default function BlessingGalaxy() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm"
+              className="fixed inset-0 z-50 bg-black/40 backdrop-blur-sm"
               onClick={() => setSelectedStar(null)}
             />
 
@@ -350,7 +350,7 @@ export default function BlessingGalaxy() {
                 <button
                   onClick={() => setSelectedStar(null)}
                   aria-label="关闭详情"
-                  className="absolute right-4 top-4 rounded-full p-1.5 text-slate-400 hover:text-white transition-colors"
+                  className="absolute right-4 top-4 rounded-full p-1.5 text-ink-muted hover:text-ink transition-colors"
                 >
                   <svg
                     className="h-5 w-5"
@@ -383,10 +383,10 @@ export default function BlessingGalaxy() {
                       <div className="text-center">
                         {/* 教师头像 */}
                         <div
-                          className="relative mx-auto mb-4 flex h-20 w-20 items-center justify-center overflow-hidden rounded-full bg-blue-500/20"
+                          className="relative mx-auto mb-4 flex h-20 w-20 items-center justify-center overflow-hidden rounded-full bg-primary/15"
                           style={{
                             boxShadow:
-                              '0 0 32px rgba(59,130,246,0.5), 0 0 64px rgba(59,130,246,0.2)',
+                              '0 0 32px rgba(217,119,6,0.4), 0 0 64px rgba(245,158,11,0.15)',
                           }}
                         >
                           {selectedStar.teacher!.avatar_url ? (
@@ -398,47 +398,45 @@ export default function BlessingGalaxy() {
                               className="object-cover"
                             />
                           ) : (
-                            <span className="text-2xl font-bold text-blue-300" aria-hidden="true">
+                            <span className="text-2xl font-bold text-primary" aria-hidden="true">
                               {selectedStar.teacher!.name[0]}
                             </span>
                           )}
                         </div>
 
-                        <h2 className="text-xl font-bold text-white">
+                        <h2 className="text-xl font-bold text-ink">
                           {selectedStar.teacher!.name}老师
                         </h2>
                         {selectedStar.teacher!.department && (
-                          <p className="mt-1 text-sm text-slate-400">
+                          <p className="mt-1 text-sm text-ink-light">
                             {selectedStar.teacher!.department}
                           </p>
                         )}
                         {selectedStar.teacher!.description && (
-                          <p className="mt-3 text-sm leading-relaxed text-slate-300">
+                          <p className="mt-3 text-sm leading-relaxed text-ink">
                             {selectedStar.teacher!.description}
                           </p>
                         )}
 
                         {/* 关联祝福列表 */}
                         {teacherBlessings.length > 0 && (
-                          <div className="mt-5 border-t border-white/10 pt-4">
-                            <p className="mb-3 text-xs font-medium text-slate-400">
+                          <div className="mt-5 border-t border-ink/10 pt-4">
+                            <p className="mb-3 text-xs font-medium text-ink-light">
                               💬 收到的祝福（{teacherBlessings.length}条）
                             </p>
                             <div className="max-h-48 space-y-2 overflow-y-auto pr-1 text-left">
                               {teacherBlessings.map((bs) => (
-                                <div key={bs.id} className="rounded-xl bg-white/5 px-3 py-2.5">
-                                  <p className="text-sm leading-relaxed text-slate-200">
+                                <div key={bs.id} className="rounded-xl bg-ink/5 px-3 py-2.5">
+                                  <p className="text-sm leading-relaxed text-ink">
                                     {bs.blessing!.content}
                                   </p>
-                                  <p className="mt-1 text-xs text-slate-400">
+                                  <p className="mt-1 text-xs text-ink-light">
                                     —{' '}
                                     {bs.blessing!.is_anonymous
                                       ? '匿名'
                                       : bs.blessing!.nickname || '同学'}
                                     {bs.blessing!.class && <span> · {bs.blessing!.class}</span>}
-                                    <span className="ml-2 text-pink-400">
-                                      ❤️ {bs.blessing!.likes}
-                                    </span>
+                                    <span className="ml-2 text-like">❤️ {bs.blessing!.likes}</span>
                                   </p>
                                 </div>
                               ))}
@@ -459,13 +457,13 @@ export default function BlessingGalaxy() {
                 {selectedStar.type === 'blessing' && selectedStar.blessing && (
                   <div className="text-center">
                     {/* 发送者头像 */}
-                    <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-primary/20">
-                      <span className="text-lg font-bold text-primary-light" aria-hidden="true">
+                    <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-primary/15">
+                      <span className="text-lg font-bold text-primary" aria-hidden="true">
                         {(selectedStar.blessing.nickname || '匿')[0]}
                       </span>
                     </div>
 
-                    <p className="text-sm text-slate-400">
+                    <p className="text-sm text-ink-light">
                       {selectedStar.blessing.is_anonymous
                         ? '匿名同学'
                         : selectedStar.blessing.nickname || '匿名同学'}
@@ -473,12 +471,12 @@ export default function BlessingGalaxy() {
                     </p>
 
                     {/* 祝福内容 */}
-                    <p className="mt-4 text-base leading-relaxed text-slate-100">
+                    <p className="mt-4 text-base leading-relaxed text-ink">
                       {selectedStar.blessing.content}
                     </p>
 
                     {/* 元信息 */}
-                    <div className="mt-4 flex items-center justify-center gap-4 text-xs text-slate-400">
+                    <div className="mt-4 flex items-center justify-center gap-4 text-xs text-ink-muted">
                       <span>❤️ {selectedStar.blessing.likes} 赞</span>
                       <span>{formatDate(selectedStar.blessing.created_at)}</span>
                     </div>
@@ -489,7 +487,7 @@ export default function BlessingGalaxy() {
                         onClick={() =>
                           router.push(`/teacher/${selectedStar.blessing!.teacher!.id}`)
                         }
-                        className="mt-4 flex items-center gap-1.5 mx-auto rounded-full bg-accent/10 px-4 py-1.5 text-xs text-accent-light hover:bg-accent/20 transition-colors"
+                        className="mt-4 flex items-center gap-1.5 mx-auto rounded-full bg-accent/10 px-4 py-1.5 text-xs text-accent hover:bg-accent/20 transition-colors"
                       >
                         {selectedStar.blessing.teacher.avatar_url ? (
                           <span className="relative inline-block h-5 w-5 overflow-hidden rounded-full">

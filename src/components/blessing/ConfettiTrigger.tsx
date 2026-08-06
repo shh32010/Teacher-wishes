@@ -1,5 +1,5 @@
 // ============================================================
-// 彩带庆祝特效 — Canvas Confetti 触发器
+// 彩带庆祝特效 — Canvas Confetti 触发器 · 暖色
 // ============================================================
 
 'use client';
@@ -8,14 +8,13 @@ import { useEffect } from 'react';
 import confetti from 'canvas-confetti';
 
 interface ConfettiTriggerProps {
-  /** 持续时间（毫秒），默认 2500 */
   duration?: number;
 }
 
 export default function ConfettiTrigger({ duration = 2500 }: ConfettiTriggerProps) {
   useEffect(() => {
     const end = Date.now() + duration;
-    const colors = ['#2563EB', '#38BDF8', '#F59E0B', '#FFFFFF'];
+    const colors = ['#D97706', '#F59E0B', '#FBBF24', '#FDE68A', '#EC4899'];
 
     const frame = () => {
       confetti({

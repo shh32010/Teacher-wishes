@@ -1,5 +1,5 @@
 // ============================================================
-// 管理后台登录页 — Supabase Auth 邮箱密码登录
+// 管理后台登录页 — Supabase Auth · 暖色主题
 // ============================================================
 
 'use client';
@@ -49,9 +49,9 @@ export default function AdminLoginPage() {
   };
 
   return (
-    <main className="flex min-h-screen items-center justify-center bg-night">
+    <main className="flex min-h-screen items-center justify-center">
       <div className="glass-card w-full max-w-sm">
-        <h2 className="mb-6 text-center text-xl font-bold text-white">🔐 管理员登录</h2>
+        <h2 className="mb-6 text-center text-xl font-bold text-ink">🔐 管理员登录</h2>
         <form onSubmit={handleLogin} className="space-y-4">
           <input
             type="email"
@@ -59,7 +59,7 @@ export default function AdminLoginPage() {
             onChange={(e) => setEmail(e.target.value)}
             placeholder="管理员邮箱"
             autoComplete="email"
-            className="w-full rounded-xl glass border-white/10 bg-transparent px-4 py-3 text-white placeholder-slate-500 outline-none focus:border-primary/50"
+            className="w-full rounded-xl border border-ink/10 bg-white/60 px-4 py-3 text-ink placeholder-ink-muted outline-none focus:border-primary/50"
           />
           <input
             type="password"
@@ -67,14 +67,14 @@ export default function AdminLoginPage() {
             onChange={(e) => setPassword(e.target.value)}
             placeholder="密码"
             autoComplete="current-password"
-            className="w-full rounded-xl glass border-white/10 bg-transparent px-4 py-3 text-white placeholder-slate-500 outline-none focus:border-primary/50"
+            className="w-full rounded-xl border border-ink/10 bg-white/60 px-4 py-3 text-ink placeholder-ink-muted outline-none focus:border-primary/50"
           />
-          {error && <p className="text-sm text-red-400">{error}</p>}
+          {error && <p className="text-sm text-red-500">{error}</p>}
           <button type="submit" disabled={loading} className="btn-primary w-full">
             {loading ? '登录中...' : '登录'}
           </button>
         </form>
-        <p className="mt-4 text-xs text-slate-600 text-center">使用 Supabase Auth 管理员账号登录</p>
+        <p className="mt-4 text-xs text-ink-muted text-center">使用 Supabase Auth 管理员账号登录</p>
       </div>
     </main>
   );

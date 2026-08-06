@@ -1,6 +1,6 @@
 // ============================================================
-// 首页 — 故事式沉浸体验
-// 时间线：星空 → 语录淡入 → 标题放大 → 星河提示 → 按钮出现
+// 首页 — 教师节温暖沉浸体验
+// 时间线：黄昏粒子 → 花瓣飘落 → 语录淡入 → 标题 → 星河 → 按钮
 // ============================================================
 
 'use client';
@@ -10,10 +10,15 @@ import { motion, AnimatePresence } from 'framer-motion';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
 
-// tsParticles 星空背景（懒加载，不阻塞首屏）
+// tsParticles 黄昏暖色背景（懒加载）
 const StarBackground = dynamic(() => import('@/components/home/StarBackground'), {
   ssr: false,
-  loading: () => <div className="fixed inset-0 -z-10 bg-night" />,
+  loading: () => <div className="fixed inset-0 -z-10 bg-warm" />,
+});
+
+// 飘落花瓣/银杏（纯 CSS，无依赖）
+const FallingPetals = dynamic(() => import('@/components/home/FallingPetals'), {
+  ssr: false,
 });
 
 const StatsPanel = dynamic(() => import('@/components/home/StatsPanel'), {
@@ -26,71 +31,70 @@ const BlessingGalaxy = dynamic(() => import('@/components/home/BlessingGalaxy'),
   loading: () => <div className="absolute inset-0 -z-5" aria-hidden="true" />,
 });
 
-/** 首页展示的语录 */
-const QUOTES = ['教育不是灌满一桶水，而是点燃一把火。', '一支粉笔，两袖清风，三尺讲台，四季晴雨。'];
+/** 首页语录 — 教师节主题 */
+const QUOTES = ['一支粉笔，两袖清风。', '三尺讲台，四季耕耘。'];
 
-/** 动画阶段 */
-type Stage = 'stars' | 'quote1' | 'quote2' | 'title' | 'galaxyHint' | 'button';
+type Stage = 'particles' | 'quote1' | 'quote2' | 'title' | 'galaxyHint' | 'button';
 
 export default function HomePage() {
   const router = useRouter();
-  const [stage, setStage] = useState<Stage>('stars');
+  const [stage, setStage] = useState<Stage>('particles');
 
   useEffect(() => {
     const timeline: { stage: Stage; delay: number }[] = [
-      { stage: 'quote1', delay: 2000 },
-      { stage: 'quote2', delay: 4000 },
-      { stage: 'title', delay: 6000 },
+      { stage: 'quote1', delay: 1800 },
+      { stage: 'quote2', delay: 3800 },
+      { stage: 'title', delay: 5800 },
       { stage: 'galaxyHint', delay: 8000 },
       { stage: 'button', delay: 10000 },
     ];
 
     const timers = timeline.map(({ stage: s, delay }) => setTimeout(() => setStage(s), delay));
-
     return () => timers.forEach(clearTimeout);
   }, []);
 
   const isActive = (s: Stage): boolean => {
-    const order: Stage[] = ['stars', 'quote1', 'quote2', 'title', 'galaxyHint', 'button'];
+    const order: Stage[] = ['particles', 'quote1', 'quote2', 'title', 'galaxyHint', 'button'];
     return order.indexOf(stage) >= order.indexOf(s);
   };
 
   return (
     <main className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden">
-      {/* 星空背景（装饰） */}
-      <StarBackground count={120} />
+      {/* 黄昏暖色粒子背景 */}
+      <StarBackground count={80} />
+
+      {/* 飘落花瓣/银杏 */}
+      {isActive('quote1') && <FallingPetals />}
 
       {/* 祝福星河层（标题后显示） */}
       {isActive('title') && <BlessingGalaxy />}
 
       {/* 内容层 */}
-      <div className="relative z-10 flex flex-col items-center gap-8 px-4 text-center">
+      <div className="relative z-10 flex flex-col items-center gap-6 px-4 text-center">
         <AnimatePresence>
-          {/* 第一句语录 */}
           {isActive('quote1') && (
             <motion.p
               key="quote1"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 1.2, ease: 'easeOut' }}
-              className="max-w-md text-lg italic text-slate-400"
+              className="max-w-md text-lg italic text-ink-light font-wenkai"
             >
-              &ldquo;{QUOTES[0]}&rdquo;
+              {QUOTES[0]}
             </motion.p>
           )}
         </AnimatePresence>
 
         <AnimatePresence>
-          {/* 第二句语录 */}
           {isActive('quote2') && (
             <motion.p
               key="quote2"
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 1.2, ease: 'easeOut' }}
-              className="max-w-md text-lg italic text-slate-400"
+              className="max-w-md text-lg italic text-ink-light font-wenkai"
             >
-              &ldquo;{QUOTES[1]}&rdquo;
+              {QUOTES[1]}
             </motion.p>
           )}
         </AnimatePresence>
@@ -100,14 +104,14 @@ export default function HomePage() {
           {isActive('title') && (
             <motion.div
               key="title"
-              initial={{ opacity: 0, scale: 0.8 }}
+              initial={{ opacity: 0, scale: 0.85 }}
               animate={{ opacity: 1, scale: 1 }}
-              transition={{ duration: 1.5, type: 'spring', stiffness: 100 }}
+              transition={{ duration: 1.5, type: 'spring', stiffness: 80 }}
             >
               <h1 className="text-gradient text-glow text-5xl font-extrabold md:text-7xl">
-                教师节快乐
+                🌸 教师节快乐
               </h1>
-              <p className="mt-3 text-lg text-slate-400">致敬每一位引路人</p>
+              <p className="mt-3 text-lg text-ink-light">谢谢您，照亮了我们的未来</p>
             </motion.div>
           )}
         </AnimatePresence>
@@ -122,16 +126,16 @@ export default function HomePage() {
               transition={{ duration: 1, ease: 'easeOut' }}
               className="flex flex-col items-center gap-3 text-center"
             >
-              <p className="text-base leading-relaxed text-slate-300">
+              <p className="text-base leading-relaxed text-ink">
                 <span
                   className="mx-1 inline-block h-3.5 w-3.5 rounded-full align-middle"
                   style={{
                     background:
-                      'radial-gradient(circle, rgba(59,130,246,0.8) 0%, rgba(37,99,235,0.4) 50%, transparent 70%)',
-                    boxShadow: '0 0 8px rgba(59,130,246,0.6)',
+                      'radial-gradient(circle, rgba(217,119,6,0.7) 0%, rgba(245,158,11,0.35) 50%, transparent 70%)',
+                    boxShadow: '0 0 8px rgba(217,119,6,0.5)',
                   }}
                 />
-                蓝色星辉是老师，金色光芒是祝福
+                金色星辉是老师，暖光点点是祝福
                 <span
                   className="mx-1 inline-block h-2.5 w-2.5 animate-star-twinkle rounded-full align-middle"
                   style={{
@@ -141,7 +145,7 @@ export default function HomePage() {
                   }}
                 />
               </p>
-              <p className="text-sm text-slate-500">轻触任意光点，听听他们的故事</p>
+              <p className="text-sm text-ink-muted">轻触任意光点，听听他们的故事</p>
             </motion.div>
           )}
         </AnimatePresence>
@@ -175,18 +179,18 @@ export default function HomePage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 2 }}
-            className="fixed bottom-8 z-10 flex gap-4 text-xs text-slate-400"
+            className="fixed bottom-8 z-10 flex gap-4 text-xs text-ink-muted"
           >
             <button
               onClick={() => router.push('/admin')}
-              className="hover:text-slate-300 transition-colors"
+              className="hover:text-ink-light transition-colors"
               aria-label="进入管理后台"
             >
               管理后台
             </button>
             <button
               onClick={() => router.push('/display')}
-              className="hover:text-slate-300 transition-colors"
+              className="hover:text-ink-light transition-colors"
               aria-label="进入大屏展示模式"
             >
               大屏模式

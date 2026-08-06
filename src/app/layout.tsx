@@ -22,7 +22,7 @@ const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
-  themeColor: '#0B1020',
+  themeColor: '#FFF8F0',
 };
 
 export const metadata: Metadata = {
@@ -58,6 +58,13 @@ export default function RootLayout({
         )}
         {/* Turnstile 人机验证（按需加载，提前 DNS 预解析） */}
         <link rel="dns-prefetch" href="https://challenges.cloudflare.com" />
+        {/* 霞鹜文楷 — 教师节标题字体（Google Fonts CDN） */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" crossOrigin="anonymous" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link
+          href="https://fonts.googleapis.com/css2?family=LXGW+WenKai&display=swap"
+          rel="stylesheet"
+        />
       </head>
       <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
         <PageTransition>{children}</PageTransition>

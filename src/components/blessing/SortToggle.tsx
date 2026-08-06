@@ -1,6 +1,6 @@
 // ============================================================
 // 排序切换按钮 — 客户端组件，通过 URL searchParam 驱动
-// 用于 SSR 页面（如教师主页），切换排序后 reload
+// 暖色主题
 // ============================================================
 
 'use client';
@@ -19,7 +19,7 @@ export default function SortToggle() {
     (mode: SortMode) => {
       const params = new URLSearchParams(searchParams.toString());
       if (mode === 'time') {
-        params.delete('sort'); // 默认值不显示在 URL
+        params.delete('sort');
       } else {
         params.set('sort', mode);
       }
@@ -29,13 +29,13 @@ export default function SortToggle() {
   );
 
   return (
-    <div className="flex rounded-lg bg-white/5 p-0.5" role="radiogroup" aria-label="排序方式">
+    <div className="flex rounded-lg bg-ink/5 p-0.5" role="radiogroup" aria-label="排序方式">
       <button
         onClick={() => switchTo('time')}
         role="radio"
         aria-checked={current === 'time'}
         className={`rounded-md px-3 py-1 text-xs transition-all ${
-          current === 'time' ? 'bg-primary/20 text-primary' : 'text-slate-400 hover:text-slate-200'
+          current === 'time' ? 'bg-primary/15 text-primary' : 'text-ink-muted hover:text-ink'
         }`}
       >
         🕐 最新
@@ -45,7 +45,7 @@ export default function SortToggle() {
         role="radio"
         aria-checked={current === 'likes'}
         className={`rounded-md px-3 py-1 text-xs transition-all ${
-          current === 'likes' ? 'bg-primary/20 text-primary' : 'text-slate-400 hover:text-slate-200'
+          current === 'likes' ? 'bg-primary/15 text-primary' : 'text-ink-muted hover:text-ink'
         }`}
       >
         🔥 最热

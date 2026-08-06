@@ -16,12 +16,12 @@ describe('GlassCard', () => {
 
   it('默认启用 hover 效果', () => {
     const { container } = render(<GlassCard>内容</GlassCard>);
-    expect(container.firstChild).toHaveClass('hover:bg-white/[0.12]');
+    expect(container.firstChild).toHaveClass('hover:bg-white/88');
   });
 
   it('可以禁用 hover 效果', () => {
     const { container } = render(<GlassCard hover={false}>内容</GlassCard>);
-    expect(container.firstChild).not.toHaveClass('hover:bg-white/[0.12]');
+    expect(container.firstChild).not.toHaveClass('hover:bg-white/88');
   });
 
   it('支持自定义 className', () => {

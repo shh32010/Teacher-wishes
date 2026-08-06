@@ -1,5 +1,5 @@
 // ============================================================
-// 二维码生成组件 — Canvas 渲染
+// 二维码生成组件 — Canvas 渲染 · 暖色主题
 // ============================================================
 
 'use client';
@@ -8,9 +8,7 @@ import { useEffect, useRef } from 'react';
 import QRCodeLib from 'qrcode';
 
 interface QRCodeProps {
-  /** 要编码的 URL/文本 */
   value: string;
-  /** 尺寸，默认 128 */
   size?: number;
 }
 
@@ -25,7 +23,7 @@ export default function QRCode({ value, size = 128 }: QRCodeProps) {
       width: size,
       margin: 2,
       color: {
-        dark: '#FFFFFF',
+        dark: '#3B2F2F', // 暖深棕（替代纯黑）
         light: '#00000000', // 透明背景
       },
     });

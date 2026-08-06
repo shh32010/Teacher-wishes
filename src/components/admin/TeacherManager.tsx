@@ -1,5 +1,5 @@
 // ============================================================
-// 教师管理组件 — 头像上传 + 列表管理
+// 教师管理组件 — 头像上传 + 列表管理 · 暖色主题
 // ============================================================
 
 'use client';
@@ -15,7 +15,6 @@ export default function TeacherManager() {
   const fileRef = useRef<HTMLInputElement>(null);
   const [targetTeacher, setTargetTeacher] = useState<string>('');
 
-  // 加载教师列表
   const loadTeachers = async () => {
     const res = await fetch('/api/teachers');
     if (res.ok) {
@@ -66,16 +65,16 @@ export default function TeacherManager() {
   };
 
   if (teachers.length === 0) {
-    return <p className="py-8 text-center text-slate-500">暂无教师数据</p>;
+    return <p className="py-8 text-center text-ink-muted">暂无教师数据</p>;
   }
 
   return (
     <div>
-      <h2 className="mb-4 text-lg font-bold text-white">👩‍🏫 教师管理</h2>
+      <h2 className="mb-4 text-lg font-bold text-ink">👩‍🏫 教师管理</h2>
 
       <div className="glass overflow-hidden rounded-2xl">
         <table className="w-full text-left text-sm">
-          <thead className="border-b border-white/10 text-slate-400">
+          <thead className="border-b border-ink/10 text-ink-muted">
             <tr>
               <th className="p-4">头像</th>
               <th className="p-4">姓名</th>
@@ -87,7 +86,7 @@ export default function TeacherManager() {
             {teachers.map((teacher) => (
               <tr
                 key={teacher.id}
-                className="border-b border-white/5 hover:bg-white/5 transition-colors"
+                className="border-b border-ink/5 hover:bg-ink/5 transition-colors"
               >
                 <td className="p-4">
                   {teacher.avatar_url ? (
@@ -99,18 +98,18 @@ export default function TeacherManager() {
                       className="rounded-full object-cover"
                     />
                   ) : (
-                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/20 text-sm">
+                    <div className="flex h-10 w-10 items-center justify-center rounded-full bg-primary/15 text-sm text-primary">
                       {teacher.name[0]}
                     </div>
                   )}
                 </td>
-                <td className="p-4 text-white">{teacher.name}</td>
-                <td className="p-4 text-slate-400">{teacher.department || '-'}</td>
+                <td className="p-4 text-ink">{teacher.name}</td>
+                <td className="p-4 text-ink-light">{teacher.department || '-'}</td>
                 <td className="p-4">
                   <button
                     onClick={() => handleFileSelect(teacher.id)}
                     disabled={uploading === teacher.id}
-                    className="rounded-lg bg-primary/20 px-3 py-1 text-xs text-primary-light hover:bg-primary/30 disabled:opacity-50"
+                    className="rounded-lg bg-primary/15 px-3 py-1 text-xs text-primary hover:bg-primary/25 disabled:opacity-50"
                   >
                     {uploading === teacher.id ? '上传中...' : '📷 上传头像'}
                   </button>

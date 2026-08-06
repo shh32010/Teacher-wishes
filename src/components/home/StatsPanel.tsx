@@ -1,5 +1,6 @@
 // ============================================================
 // 首页数据看板 — 总祝福 / 参与人数 / 点赞总数
+// 暖色主题
 // ============================================================
 
 'use client';
@@ -10,7 +11,6 @@ import CountUp from './CountUp';
 import type { BlessingStats } from '@/types';
 
 interface StatsPanelProps {
-  /** 是否显示 */
   visible: boolean;
 }
 
@@ -25,7 +25,6 @@ export default function StatsPanel({ visible }: StatsPanelProps) {
       .then((res) => res.json())
       .then((data) => {
         setStats(data);
-        // 数据到位后延迟一小段再触发动画，确保卡片已渲染
         setTimeout(() => setAnimStart(true), 200);
       })
       .catch(() => {});
@@ -35,12 +34,7 @@ export default function StatsPanel({ visible }: StatsPanelProps) {
 
   const items = [
     { label: '总祝福', value: stats.total_blessings, emoji: '💌', color: 'text-accent' },
-    {
-      label: '参与人数',
-      value: stats.total_participants,
-      emoji: '👥',
-      color: 'text-primary-light',
-    },
+    { label: '参与人数', value: stats.total_participants, emoji: '👥', color: 'text-primary' },
     { label: '点赞总数', value: stats.total_likes, emoji: '❤️', color: 'text-secondary' },
   ];
 
@@ -57,7 +51,7 @@ export default function StatsPanel({ visible }: StatsPanelProps) {
           <span className={`text-2xl font-bold md:text-3xl ${item.color}`}>
             <CountUp end={item.value} start={animStart} />
           </span>
-          <span className="text-xs text-slate-500">{item.label}</span>
+          <span className="text-xs text-ink-muted">{item.label}</span>
         </div>
       ))}
     </motion.div>

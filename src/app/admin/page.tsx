@@ -1,5 +1,6 @@
 // ============================================================
 // 管理后台 — 审核/置顶/精选祝福 + 数据统计
+// 暖色主题 — 功能区域保持清晰可读
 // ============================================================
 
 'use client';
@@ -28,19 +29,16 @@ export default function AdminPage() {
   const [filter, setFilter] = useState<FilterStatus>('pending');
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
-  // 获取祝福列表
   const statusParam = filter === 'all' ? '' : `&status=${filter}`;
   const { data, error, isLoading, mutate } = useSWR(
     `/api/admin/blessings?pageSize=50${statusParam}`,
     fetcher
   );
 
-  // 获取统计数据
   const { data: stats } = useSWR<BlessingStats>('/api/blessings/stats', fetcher);
 
   const blessings: Blessing[] = data?.data || [];
 
-  // 切换选中
   const toggleSelect = (id: string) => {
     setSelectedIds((prev) => {
       const next = new Set(prev);
@@ -50,7 +48,6 @@ export default function AdminPage() {
     });
   };
 
-  // 全选
   const toggleAll = () => {
     if (selectedIds.size === blessings.length) {
       setSelectedIds(new Set());
@@ -59,7 +56,6 @@ export default function AdminPage() {
     }
   };
 
-  // 批量操作
   const handleBatchUpdate = async (updates: AdminUpdateBlessing) => {
     if (selectedIds.size === 0) return;
     try {
@@ -79,24 +75,23 @@ export default function AdminPage() {
     }
   };
 
-  // 加载状态
-  if (statusParam === '') return null; // 避免 SSR 水合不一致
+  if (statusParam === '') return null;
 
   return (
-    <main className="min-h-screen bg-night">
+    <main className="min-h-screen">
       {/* 顶部导航 */}
-      <header className="glass sticky top-0 z-30 border-b border-white/5">
+      <header className="glass sticky top-0 z-30 border-b border-ink/10">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
           <div className="flex items-center gap-4">
-            <h1 className="text-lg font-bold text-white">⚙️ 管理后台</h1>
-            <a href="/" className="text-sm text-slate-400 hover:text-white">
+            <h1 className="text-lg font-bold text-ink">⚙️ 管理后台</h1>
+            <a href="/" className="text-sm text-ink-muted hover:text-ink">
               返回首页 →
             </a>
             <div className="ml-4 flex gap-1">
               <button
                 onClick={() => setTab('blessings')}
                 className={`rounded-lg px-3 py-1 text-sm transition-colors ${
-                  tab === 'blessings' ? 'bg-primary text-white' : 'text-slate-400 hover:text-white'
+                  tab === 'blessings' ? 'bg-primary text-white' : 'text-ink-muted hover:text-ink'
                 }`}
               >
                 祝福管理
@@ -104,7 +99,7 @@ export default function AdminPage() {
               <button
                 onClick={() => setTab('teachers')}
                 className={`rounded-lg px-3 py-1 text-sm transition-colors ${
-                  tab === 'teachers' ? 'bg-primary text-white' : 'text-slate-400 hover:text-white'
+                  tab === 'teachers' ? 'bg-primary text-white' : 'text-ink-muted hover:text-ink'
                 }`}
               >
                 教师管理
@@ -116,7 +111,7 @@ export default function AdminPage() {
               await createClient().auth.signOut();
               router.push('/admin/login');
             }}
-            className="text-sm text-slate-500 hover:text-red-400 transition-colors"
+            className="text-sm text-ink-muted hover:text-red-500 transition-colors"
           >
             退出登录
           </button>
@@ -133,24 +128,21 @@ export default function AdminPage() {
               <div className="mb-8 grid grid-cols-3 gap-4">
                 <div className="glass-card text-center">
                   <p className="text-3xl font-bold text-accent">{stats.total_blessings}</p>
-                  <p className="text-sm text-slate-400">总祝福数</p>
+                  <p className="text-sm text-ink-muted">总祝福数</p>
                 </div>
                 <div className="glass-card text-center">
-                  <p className="text-3xl font-bold text-primary-light">
-                    {stats.total_participants}
-                  </p>
-                  <p className="text-sm text-slate-400">参与人数</p>
+                  <p className="text-3xl font-bold text-primary">{stats.total_participants}</p>
+                  <p className="text-sm text-ink-muted">参与人数</p>
                 </div>
                 <div className="glass-card text-center">
                   <p className="text-3xl font-bold text-secondary">{stats.total_likes}</p>
-                  <p className="text-sm text-slate-400">点赞总数</p>
+                  <p className="text-sm text-ink-muted">点赞总数</p>
                 </div>
               </div>
             )}
 
             {/* 工具栏 */}
             <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
-              {/* 筛选 */}
               <div className="flex gap-2">
                 {(
                   [
@@ -169,7 +161,7 @@ export default function AdminPage() {
                     className={`rounded-lg px-3 py-1.5 text-sm transition-colors ${
                       filter === value
                         ? 'bg-primary text-white'
-                        : 'glass text-slate-400 hover:text-white'
+                        : 'glass text-ink-muted hover:text-ink'
                     }`}
                   >
                     {label}
@@ -177,7 +169,6 @@ export default function AdminPage() {
                 ))}
               </div>
 
-              {/* 批量操作 */}
               {selectedIds.size > 0 && (
                 <div className="flex gap-2">
                   <button
@@ -194,7 +185,7 @@ export default function AdminPage() {
                   </button>
                   <button
                     onClick={() => handleBatchUpdate({ is_featured: true })}
-                    className="rounded-lg bg-accent px-3 py-1.5 text-sm text-black hover:bg-accent-light"
+                    className="rounded-lg bg-accent px-3 py-1.5 text-sm text-ink hover:bg-accent-light"
                   >
                     ⭐ 精选
                   </button>
@@ -204,15 +195,15 @@ export default function AdminPage() {
 
             {/* 表格 */}
             {isLoading ? (
-              <div className="py-20 text-center text-slate-400">加载中...</div>
+              <div className="py-20 text-center text-ink-muted">加载中...</div>
             ) : error ? (
-              <div className="py-20 text-center text-red-400">加载失败</div>
+              <div className="py-20 text-center text-red-500">加载失败</div>
             ) : blessings.length === 0 ? (
-              <div className="py-20 text-center text-slate-500">暂无数据</div>
+              <div className="py-20 text-center text-ink-muted">暂无数据</div>
             ) : (
               <div className="glass overflow-hidden rounded-2xl">
                 <table className="w-full text-left text-sm">
-                  <thead className="border-b border-white/10 text-slate-400">
+                  <thead className="border-b border-ink/10 text-ink-muted">
                     <tr>
                       <th className="p-4">
                         <input
@@ -233,7 +224,7 @@ export default function AdminPage() {
                     {blessings.map((blessing) => (
                       <tr
                         key={blessing.id}
-                        className="border-b border-white/5 hover:bg-white/5 transition-colors"
+                        className="border-b border-ink/5 hover:bg-ink/5 transition-colors"
                       >
                         <td className="p-4">
                           <input
@@ -243,18 +234,18 @@ export default function AdminPage() {
                             className="rounded"
                           />
                         </td>
-                        <td className="p-4 text-white">
+                        <td className="p-4 text-ink">
                           {blessing.is_anonymous ? '匿名' : blessing.nickname || '-'}
                         </td>
-                        <td className="max-w-xs p-4 text-slate-300 truncate">{blessing.content}</td>
+                        <td className="max-w-xs p-4 text-ink truncate">{blessing.content}</td>
                         <td className="p-4">
                           <span
                             className={`rounded-full px-2 py-0.5 text-xs ${
                               blessing.status === 'approved'
-                                ? 'bg-green-500/20 text-green-400'
+                                ? 'bg-green-500/15 text-green-600'
                                 : blessing.status === 'rejected'
-                                  ? 'bg-red-500/20 text-red-400'
-                                  : 'bg-yellow-500/20 text-yellow-400'
+                                  ? 'bg-red-500/15 text-red-600'
+                                  : 'bg-yellow-500/15 text-yellow-600'
                             }`}
                           >
                             {blessing.status === 'approved'
@@ -264,8 +255,8 @@ export default function AdminPage() {
                                 : '待审核'}
                           </span>
                         </td>
-                        <td className="p-4 text-slate-400">{blessing.likes}</td>
-                        <td className="p-4 text-slate-500">
+                        <td className="p-4 text-ink-muted">{blessing.likes}</td>
+                        <td className="p-4 text-ink-muted">
                           {formatDateTime(blessing.created_at)}
                         </td>
                       </tr>

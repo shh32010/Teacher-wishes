@@ -1,5 +1,6 @@
 // ============================================================
 // 祝福卡片 — 单条祝福展示（含点赞 + localStorage 防重复）
+// 暖色主题 — 白色玻璃态卡片 + 暖棕文字
 // ============================================================
 
 'use client';
@@ -9,10 +10,10 @@ import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import GlassCard from '@/components/ui/GlassCard';
+import LikeBurst from '@/components/blessing/LikeBurst';
 import { cn, formatDate } from '@/lib/utils';
 import type { Blessing } from '@/types';
 
-/** 从 localStorage 读取已点赞的祝福 ID 集合 */
 function getLikedIds(): Set<string> {
   if (typeof window === 'undefined') return new Set();
   try {
@@ -23,7 +24,6 @@ function getLikedIds(): Set<string> {
   }
 }
 
-/** 将祝福 ID 写入 localStorage 已点赞集合 */
 function saveLikedId(id: string) {
   const ids = getLikedIds();
   ids.add(id);
@@ -32,18 +32,17 @@ function saveLikedId(id: string) {
 
 interface BlessingCardProps {
   blessing: Blessing;
-  /** 入场动画延迟索引（用于 stagger 效果） */
   index?: number;
-  /** 点赞回调 */
-  onLike?: (id: string) => void;
+  /** 点赞回调，返回 true 表示服务端确认，false 表示被拒绝（需回滚） */
+  onLike?: (id: string) => Promise<boolean>;
 }
 
 export default function BlessingCard({ blessing, index = 0, onLike }: BlessingCardProps) {
   const router = useRouter();
   const [liked, setLiked] = useState(false);
   const [likesCount, setLikesCount] = useState(blessing.likes);
+  const [showBurst, setShowBurst] = useState(false);
 
-  // 初始化时从 localStorage 读取点赞状态
   useEffect(() => {
     const likedIds = getLikedIds();
     if (likedIds.has(blessing.id)) {
@@ -51,13 +50,24 @@ export default function BlessingCard({ blessing, index = 0, onLike }: BlessingCa
     }
   }, [blessing.id]);
 
-  const handleLike = () => {
+  const handleLike = async () => {
     if (liked) return;
+
     // 乐观更新
     setLiked(true);
     setLikesCount((prev) => prev + 1);
+    setShowBurst(true);
     saveLikedId(blessing.id);
-    onLike?.(blessing.id);
+
+    // 等待服务端确认
+    const confirmed = onLike ? await onLike(blessing.id) : true;
+
+    if (!confirmed) {
+      // 服务端拒绝 → 回滚乐观更新
+      setLiked(false);
+      setLikesCount((prev) => prev - 1);
+      setShowBurst(false);
+    }
   };
 
   return (
@@ -77,21 +87,21 @@ export default function BlessingCard({ blessing, index = 0, onLike }: BlessingCa
         {/* 头部：发送者信息 */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/20 text-sm font-bold text-primary-light">
+            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/15 text-sm font-bold text-primary">
               {(blessing.nickname || '匿')[0]}
             </div>
             <div>
-              <p className="text-sm font-medium text-white">
+              <p className="text-sm font-medium text-ink">
                 {blessing.is_anonymous ? '匿名同学' : blessing.nickname || '匿名同学'}
               </p>
-              {blessing.class && <p className="text-xs text-slate-400">{blessing.class}</p>}
+              {blessing.class && <p className="text-xs text-ink-muted">{blessing.class}</p>}
             </div>
           </div>
-          <span className="text-xs text-slate-400">{formatDate(blessing.created_at)}</span>
+          <span className="text-xs text-ink-muted">{formatDate(blessing.created_at)}</span>
         </div>
 
         {/* 祝福内容 */}
-        <p className="text-sm leading-relaxed text-slate-200">{blessing.content}</p>
+        <p className="text-sm leading-relaxed text-ink">{blessing.content}</p>
 
         {/* 底部：教师标签 + 点赞 */}
         <div className="flex items-center justify-between pt-1">
@@ -101,7 +111,7 @@ export default function BlessingCard({ blessing, index = 0, onLike }: BlessingCa
                 e.stopPropagation();
                 router.push(`/teacher/${blessing.teacher!.id}`);
               }}
-              className="flex items-center gap-1.5 rounded-full bg-accent/10 pl-0.5 pr-3 py-0.5 text-xs text-accent-light hover:bg-accent/20 transition-colors cursor-pointer"
+              className="flex items-center gap-1.5 rounded-full bg-accent/10 pl-0.5 pr-3 py-0.5 text-xs text-accent hover:bg-accent/20 transition-colors cursor-pointer"
               aria-label={`查看${blessing.teacher.name}老师的详情页`}
             >
               {blessing.teacher.avatar_url ? (
@@ -124,22 +134,25 @@ export default function BlessingCard({ blessing, index = 0, onLike }: BlessingCa
           ) : (
             <span />
           )}
-          <button
-            onClick={handleLike}
-            disabled={liked}
-            aria-label={liked ? `已点赞，共${likesCount}赞` : `点赞，当前${likesCount}赞`}
-            className={cn(
-              'flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs transition-all duration-200',
-              liked
-                ? 'bg-pink-500/20 text-pink-400 cursor-default'
-                : 'glass hover:bg-white/15 text-slate-400 hover:text-pink-400'
-            )}
-          >
-            <span className={cn(liked && 'animate-pulse')} aria-hidden="true">
-              {liked ? '❤️' : '🤍'}
-            </span>
-            <span>{likesCount}</span>
-          </button>
+          <span className="relative">
+            <LikeBurst active={showBurst} onComplete={() => setShowBurst(false)} />
+            <button
+              onClick={handleLike}
+              disabled={liked}
+              aria-label={liked ? `已点赞，共${likesCount}赞` : `点赞，当前${likesCount}赞`}
+              className={cn(
+                'flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs transition-all duration-200',
+                liked
+                  ? 'bg-like/15 text-like cursor-default'
+                  : 'text-ink-muted hover:text-like hover:bg-like/5'
+              )}
+            >
+              <span className={cn(liked && 'animate-pulse')} aria-hidden="true">
+                {liked ? '❤️' : '🤍'}
+              </span>
+              <span>{likesCount}</span>
+            </button>
+          </span>
         </div>
       </GlassCard>
     </motion.div>

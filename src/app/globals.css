@@ -3,16 +3,16 @@
 @tailwind utilities;
 
 /* ============================================================
-   教师节祝福墙 — 全局样式（Apple + Glassmorphism 风格）
+   教师节祝福平台 — 暖色·书卷气（Warm + Academic + Minimal）
    ============================================================ */
 
 /* ---- CSS 变量 ---- */
 :root {
-  --background: #0b1020;
-  --foreground: #f1f5f9;
-  --glass-bg: rgba(255, 255, 255, 0.08);
-  --glass-border: rgba(255, 255, 255, 0.15);
-  --glass-shadow: rgba(0, 0, 0, 0.3);
+  --background: #fff8f0;
+  --foreground: #3b2f2f;
+  --glass-bg: rgba(255, 255, 255, 0.75);
+  --glass-border: rgba(255, 255, 255, 0.55);
+  --glass-shadow: rgba(0, 0, 0, 0.06);
 }
 
 /* ---- 全局基础 ---- */
@@ -26,14 +26,16 @@ html {
 
 body {
   color: var(--foreground);
-  background: var(--background);
+  background: linear-gradient(180deg, #fff8f0 0%, #fdf6ec 35%, #f8f3ff 100%);
+  background-attachment: fixed;
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans SC', sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   overflow-x: hidden;
+  min-height: 100vh;
 }
 
-/* ---- 滚动条美化 ---- */
+/* ---- 滚动条美化（暖色） ---- */
 ::-webkit-scrollbar {
   width: 6px;
 }
@@ -41,44 +43,44 @@ body {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(180, 150, 130, 0.35);
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.3);
+  background: rgba(180, 150, 130, 0.55);
 }
 
 /* ---- Tailwind 工具层 ---- */
 @layer utilities {
-  /* 毛玻璃容器 */
+  /* 毛玻璃容器 — 暖色玻璃态 */
   .glass {
     background: var(--glass-bg);
     backdrop-filter: blur(16px);
     -webkit-backdrop-filter: blur(16px);
     border: 1px solid var(--glass-border);
-    box-shadow: 0 8px 32px var(--glass-shadow);
+    box-shadow: 0 4px 24px var(--glass-shadow);
   }
 
   .glass-light {
-    background: rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.65);
     backdrop-filter: blur(12px);
     -webkit-backdrop-filter: blur(12px);
-    border: 1px solid rgba(255, 255, 255, 0.2);
+    border: 1px solid rgba(255, 255, 255, 0.5);
   }
 
-  /* 文字渐变 */
+  /* 文字渐变 — 暖金 */
   .text-gradient {
-    background: linear-gradient(135deg, #38bdf8, #2563eb, #f59e0b);
+    background: linear-gradient(135deg, #d97706, #f59e0b, #fbbf24);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
 
-  /* 文字阴影 */
+  /* 文字阴影 — 暖光 */
   .text-glow {
     text-shadow:
-      0 0 20px rgba(56, 189, 248, 0.4),
-      0 0 60px rgba(37, 99, 235, 0.2);
+      0 0 20px rgba(217, 119, 6, 0.25),
+      0 0 60px rgba(245, 158, 11, 0.12);
   }
 }
 
@@ -89,33 +91,32 @@ body {
     @apply glass rounded-2xl p-6 transition-all duration-300;
   }
   .glass-card:hover {
-    background: rgba(255, 255, 255, 0.12);
+    background: rgba(255, 255, 255, 0.88);
     transform: translateY(-2px);
-    box-shadow: 0 12px 40px rgba(0, 0, 0, 0.4);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
   }
 
-  /* 按钮基础样式 */
+  /* 按钮基础样式 — 暖金渐变 */
   .btn-primary {
     @apply px-6 py-3 rounded-xl font-semibold text-white
            bg-gradient-to-r from-primary to-secondary
            hover:from-primary-dark hover:to-secondary-dark
            transition-all duration-300
-           shadow-lg shadow-primary/25
-           hover:shadow-xl hover:shadow-primary/40
+           shadow-lg shadow-primary/20
+           hover:shadow-xl hover:shadow-primary/30
            active:scale-95;
   }
 
   .btn-glass {
-    @apply px-6 py-3 rounded-xl font-semibold text-white
-           glass border-white/20
-           hover:bg-white/15
+    @apply px-6 py-3 rounded-xl font-semibold
+           glass border-ink/10 text-ink
+           hover:bg-white/85
            transition-all duration-300
            active:scale-95;
   }
 }
 
 /* ---- 低端设备性能降级 — 减少/禁用 backdrop-blur ---- */
-/* GPU 有限的移动设备上，backdrop-blur 会导致大量合成层开销 */
 @media (max-width: 768px) {
   .glass {
     backdrop-filter: blur(8px);
@@ -136,12 +137,10 @@ body {
     @apply px-4 py-2.5 text-sm rounded-lg;
   }
 
-  /* 首页标题缩小 */
   h1.text-7xl {
     font-size: 2.5rem !important;
   }
 
-  /* 瀑布流单列 */
   .columns-2 {
     column-count: 1 !important;
   }
@@ -153,24 +152,21 @@ body {
   .glass-light {
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
-    background: rgba(13, 24, 52, 0.92);
+    background: rgba(255, 248, 240, 0.95);
   }
 }
 
-/* ---- 无障碍：键盘焦点可见样式 ---- */
-/* 对所有可聚焦元素提供高对比焦点环 */
+/* ---- 无障碍：键盘焦点可见样式（暖色环） ---- */
 :focus-visible {
-  outline: 2px solid rgba(56, 189, 248, 0.85);
+  outline: 2px solid rgba(217, 119, 6, 0.75);
   outline-offset: 2px;
   border-radius: 4px;
 }
 
-/* 在暗色玻璃态容器内的元素，焦点环更亮 */
 .glass :focus-visible {
-  outline-color: rgba(125, 211, 252, 0.9);
+  outline-color: rgba(180, 83, 9, 0.8);
 }
 
-/* 毛玻璃按钮内的焦点环 — 适配圆角 */
 .btn-primary:focus-visible,
 .btn-glass:focus-visible,
 .glass-card:focus-visible,
@@ -178,23 +174,21 @@ button.glass:focus-visible {
   border-radius: 12px;
 }
 
-/* 输入框已有自己的 focus 样式，移除全局双环 */
 input:focus-visible,
 textarea:focus-visible,
 select:focus-visible {
   outline: none;
 }
 
-/* ===== 无障碍：色彩对比度修复 ===== */
-/* text-slate-500 (#64748b) 在 #0B1020 上对比度约 3.2:1，不满足 WCAG AA 正文 4.5:1 */
-/* 用更亮的 slate-300/400 替代作为二级文本色 */
+/* ===== 无障碍：色彩对比度 ===== */
+/* 暖色背景上的辅助文字色 */
 @layer components {
   .text-secondary {
-    color: #b0bec5; /* ~slate-300 级别，对比度约 6.5:1 */
+    color: #6b5b5b; /* 对比度 ~7:1 在暖白背景上 */
   }
 
   .text-muted {
-    color: #90a4ae; /* 介于 slate-300~400，对比度约 5.5:1 */
+    color: #9b8b8b; /* 对比度 ~4.5:1 在暖白背景上 */
   }
 }
 

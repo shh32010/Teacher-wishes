@@ -1,5 +1,6 @@
 // ============================================================
 // 首页教师团队头像行
+// 暖色主题
 // ============================================================
 
 'use client';
@@ -36,7 +37,7 @@ export default function TeacherTeam({ visible }: TeacherTeamProps) {
       transition={{ delay: 1, duration: 0.8 }}
       className="flex flex-col items-center gap-3"
     >
-      <p className="text-xs text-slate-500">致敬我们的老师</p>
+      <p className="text-xs text-ink-muted">致敬我们的老师</p>
       <div className="flex flex-wrap items-center justify-center gap-3">
         {teachers.map((teacher, i) => (
           <motion.button
@@ -58,11 +59,11 @@ export default function TeacherTeam({ visible }: TeacherTeamProps) {
                 />
               </div>
             ) : (
-              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-primary/20 text-lg font-bold text-primary-light ring-2 ring-primary/10 group-hover:ring-primary/40 transition-all duration-300">
+              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-primary/15 text-lg font-bold text-primary ring-2 ring-primary/10 group-hover:ring-primary/40 transition-all duration-300">
                 {teacher.name[0]}
               </div>
             )}
-            <span className="text-xs text-slate-400 group-hover:text-white transition-colors">
+            <span className="text-xs text-ink-muted group-hover:text-ink transition-colors">
               {teacher.name}
             </span>
           </motion.button>
