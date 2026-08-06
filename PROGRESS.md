@@ -123,7 +123,7 @@
 - [x] 教师信息卡片（头像、部门、简介、祝福统计）
 - [x] 祝福列表展示
 - [x] 分享功能（ShareButton 一键复制链接）
-- [ ] 教师页面精选祝福标记
+- [x] 教师页面精选祝福标记
 
 ### 高级动画与特效
 
@@ -136,9 +136,9 @@
 ### 响应式与无障碍
 
 - [x] 移动端 UI 适配（表单、卡片、大屏）
-- [ ] 键盘导航焦点管理
-- [ ] aria-label / role 属性补全
-- [ ] 色彩对比度检查（WCAG AA）
+- [x] 键盘导航焦点管理
+- [x] aria-label / role 属性补全
+- [x] 色彩对比度检查（WCAG AA）
 - [x] `prefers-reduced-motion` 媒体查询适配
 
 ---
@@ -160,7 +160,7 @@
 - [x] RPC 原子递增点赞（`increment_likes` SECURITY DEFINER）
 - [x] RLS 行级安全（4条策略）
 - [ ] 敏感词库完善 + 服务端双重过滤
-- [ ] CSRF Token 检查
+- [x] CSRF Token 检查
 
 ### 性能优化
 
@@ -169,7 +169,7 @@
 - [x] `next/image` 图片转 WebP（教师头像）
 - [x] 首页粒子 Canvas 渲染（非 DOM）
 - [x] API 缓存策略（Cache-Control: s-maxage + stale-while-revalidate）
-- [ ] Bundle Analyzer 分析 + Tree Shaking
+- [x] Bundle Analyzer 分析 + Tree Shaking
 
 ### 测试
 
@@ -212,10 +212,10 @@
 | 指标 | 数值 |
 | :--- | :--- |
 | 总任务数 | 73 |
-| 已完成 | 63 |
+| 已完成 | 69 |
 | 进行中 | 0 |
-| 待开始 | 10 |
-| 整体完成度 | 86% |
+| 待开始 | 4 |
+| 整体完成度 | 95% |
 
 ---
 
@@ -264,4 +264,9 @@
 | 08-06 | ✅ 教师搜索下拉：BlessingForm 教师选择框支持关键词搜索 |
 | 08-06 | ✅ 安全修复：Middleware 覆盖 /api/admin/* 路由鉴权 |
 | 08-06 | 🐛 修复：BlessingGalaxy SWC 解析错误（隐式箭头函数 + 嵌套三元 → 显式 if/return） |
-| 08-06 | 进度更新：63/73 已完成，整体 86% |
+| 08-06 | ✅ Bundle Analyzer：安装 @next/bundle-analyzer + splitChunks 优化 + 移除未使用依赖 |
+| 08-06 | ✅ 无障碍：全局 focus-visible 焦点环 + aria-label/role 补全 + WCAG AA 对比度修复 |
+| 08-06 | ✅ 无障碍：弹窗焦点陷阱 + 键盘导航 + label 关联 + role=listbox/option |
+| 08-06 | ✅ CSRF 防护：Double Submit Cookie 模式，保护 5 个 POST/PATCH 端点 + 前端 Token 自动携带 |
+| 08-06 | ✅ 教师页：精选祝福优先排序 + ⭐ 金色边框/徽章视觉标记 |
+| 08-06 | 进度更新：69/73 已完成，整体 95% |

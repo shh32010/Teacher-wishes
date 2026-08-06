@@ -12,6 +12,7 @@ import { createRealtimeClient } from '@/lib/supabase/client';
 import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
 import type { Blessing, PaginatedResponse } from '@/types';
 import BlessingCard from '@/components/blessing/BlessingCard';
+import { getCsrfToken } from '@/lib/csrf-client';
 
 const BlessingForm = dynamic(() => import('@/components/blessing/BlessingForm'), {
   ssr: false,
@@ -104,12 +105,17 @@ export default function WallPage() {
       content: string;
       teacherId: string;
       turnstileToken?: string;
+      csrfToken?: string;
     }) => {
       setIsSubmitting(true);
       try {
+        const csrfToken = formData.csrfToken || (await getCsrfToken());
         const res = await fetch('/api/blessings', {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
+          headers: {
+            'Content-Type': 'application/json',
+            ...(csrfToken ? { 'X-CSRF-Token': csrfToken } : {}),
+          },
           body: JSON.stringify({
             nickname: formData.nickname,
             class: formData.class_,
@@ -139,7 +145,11 @@ export default function WallPage() {
   // 点赞
   const handleLike = useCallback(async (id: string) => {
     try {
-      await fetch(`/api/blessings/${id}/like`, { method: 'POST' });
+      const csrfToken = await getCsrfToken();
+      await fetch(`/api/blessings/${id}/like`, {
+        method: 'POST',
+        headers: csrfToken ? { 'X-CSRF-Token': csrfToken } : {},
+      });
     } catch {
       /* 乐观更新已在组件中完成 */
     }
@@ -168,11 +178,11 @@ export default function WallPage() {
       {/* 顶部导航 */}
       <header className="glass sticky top-0 z-30 border-b border-white/5 backdrop-blur-xl">
         <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-4">
-          <a href="/" className="text-lg font-bold text-white">
+          <a href="/" className="text-lg font-bold text-white" aria-label="返回首页 教师节祝福墙">
             🌟 教师节祝福墙
           </a>
           <div className="flex items-center gap-3">
-            <span className="text-xs text-slate-500">共 {totalCount} 条</span>
+            <span className="text-xs text-slate-400">共 {totalCount} 条</span>
             <button onClick={() => setShowForm(true)} className="btn-primary text-sm">
               ✏️ 写祝福
             </button>
@@ -184,7 +194,7 @@ export default function WallPage() {
       <div className="mx-auto mt-8 max-w-3xl px-4">
         {blessings.length === 0 ? (
           <div className="py-20 text-center">
-            <p className="text-slate-500">还没有祝福，快来写下第一条吧 ✨</p>
+            <p className="text-slate-400">还没有祝福，快来写下第一条吧 ✨</p>
           </div>
         ) : (
           <>
@@ -199,9 +209,9 @@ export default function WallPage() {
             {/* 加载更多指示器 */}
             <div ref={sentinelRef} className="py-8 text-center">
               {hasMore ? (
-                <span className="text-sm text-slate-600">加载更多...</span>
+                <span className="text-sm text-slate-400">加载更多...</span>
               ) : (
-                <span className="text-sm text-slate-600">— 已经到底了 —</span>
+                <span className="text-sm text-slate-400">— 已经到底了 —</span>
               )}
             </div>
           </>

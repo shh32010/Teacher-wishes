@@ -138,17 +138,19 @@ export default function HomePage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 2 }}
-            className="fixed bottom-8 z-10 flex gap-4 text-xs text-slate-600"
+            className="fixed bottom-8 z-10 flex gap-4 text-xs text-slate-400"
           >
             <button
               onClick={() => router.push('/admin')}
-              className="hover:text-slate-400 transition-colors"
+              className="hover:text-slate-300 transition-colors"
+              aria-label="进入管理后台"
             >
               管理后台
             </button>
             <button
               onClick={() => router.push('/display')}
-              className="hover:text-slate-400 transition-colors"
+              className="hover:text-slate-300 transition-colors"
+              aria-label="进入大屏展示模式"
             >
               大屏模式
             </button>

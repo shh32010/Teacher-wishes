@@ -4,11 +4,17 @@
 // ============================================================
 
 import { NextRequest, NextResponse } from 'next/server';
+import { validateCsrfToken, csrfErrorResponse } from '@/lib/csrf';
 
 /** 管理密码（生产环境应从环境变量读取） */
 const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD || 'admin123456';
 
 export async function POST(request: NextRequest) {
+  // CSRF 验证（如果未设置 csrf_token Cookie 则跳过）
+  if (!validateCsrfToken(request)) {
+    return csrfErrorResponse();
+  }
+
   try {
     const { password } = await request.json();
 

@@ -4,8 +4,14 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createAnonClient } from '@/lib/supabase/server';
+import { validateCsrfToken, csrfErrorResponse } from '@/lib/csrf';
 
-export async function POST(_request: NextRequest, { params }: { params: { id: string } }) {
+export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
+  // CSRF 验证（如果未设置 csrf_token Cookie 则跳过）
+  if (!validateCsrfToken(request)) {
+    return csrfErrorResponse();
+  }
+
   const { id } = params;
 
   try {

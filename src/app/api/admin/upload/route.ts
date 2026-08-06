@@ -4,8 +4,14 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { validateCsrfToken, csrfErrorResponse } from '@/lib/csrf';
 
 export async function POST(request: NextRequest) {
+  // CSRF 验证（如果未设置 csrf_token Cookie 则跳过）
+  if (!validateCsrfToken(request)) {
+    return csrfErrorResponse();
+  }
+
   try {
     const formData = await request.formData();
     const teacherId = formData.get('teacher_id') as string;

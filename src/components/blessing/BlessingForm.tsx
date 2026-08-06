@@ -7,6 +7,7 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import GlassCard from '@/components/ui/GlassCard';
+import { getCsrfToken } from '@/lib/csrf-client';
 
 const TURNSTILE_SITE_KEY = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || '';
 
@@ -19,6 +20,7 @@ interface BlessingFormProps {
     content: string;
     teacherId: string;
     turnstileToken?: string;
+    csrfToken?: string;
   }) => void;
   teachers?: { id: string; name: string; avatar_url?: string | null }[];
   isSubmitting?: boolean;
@@ -83,6 +85,65 @@ export default function BlessingForm({
     setClass(localStorage.getItem('blessing_class') || '');
   }, [isOpen]);
 
+  // 焦点 trap — 弹窗打开时将焦点限制在弹窗内
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const modalEl = document.querySelector('[data-modal="blessing-form"]');
+    if (!modalEl) return;
+
+    const focusableSelector =
+      'button:not([disabled]), [href], input:not([disabled]), textarea:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])';
+
+    // 获取弹窗内所有可聚焦元素
+    const getFocusableElements = (): HTMLElement[] => {
+      const elements = modalEl.querySelectorAll<HTMLElement>(focusableSelector);
+      return Array.from(elements).filter(
+        (el) => !el.hasAttribute('disabled') && el.offsetParent !== null
+      );
+    };
+
+    // 自动聚焦第一个输入框
+    const timer = setTimeout(() => {
+      const firstInput = modalEl.querySelector<HTMLElement>(
+        'input:not([disabled]), textarea:not([disabled]), button:not([disabled])'
+      );
+      firstInput?.focus();
+    }, 100);
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key !== 'Tab') return;
+
+      const focusables = getFocusableElements();
+      if (focusables.length === 0) return;
+
+      const firstEl = focusables[0];
+      const lastEl = focusables[focusables.length - 1];
+      const activeEl = document.activeElement;
+
+      if (e.shiftKey) {
+        // Shift+Tab: 如果焦点在第一个元素上，跳到最后一个
+        if (activeEl === firstEl || !modalEl.contains(activeEl)) {
+          e.preventDefault();
+          lastEl.focus();
+        }
+      } else {
+        // Tab: 如果焦点在最后一个元素上，跳回第一个
+        if (activeEl === lastEl || !modalEl.contains(activeEl)) {
+          e.preventDefault();
+          firstEl.focus();
+        }
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      clearTimeout(timer);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isOpen]);
+
   const getTurnstileToken = useCallback((): Promise<string> => {
     return new Promise((resolve) => {
       if (!TURNSTILE_SITE_KEY || typeof window === 'undefined' || !window.turnstile) {
@@ -116,7 +177,8 @@ export default function BlessingForm({
     }
 
     const turnstileToken = await getTurnstileToken();
-    onSubmit({ nickname, class_, content: content.trim(), teacherId, turnstileToken });
+    const csrfToken = await getCsrfToken();
+    onSubmit({ nickname, class_, content: content.trim(), teacherId, turnstileToken, csrfToken });
 
     if (typeof window !== 'undefined') {
       localStorage.setItem('blessing_nickname', nickname);
@@ -145,6 +207,10 @@ export default function BlessingForm({
             exit={{ opacity: 0, scale: 0.9, y: 20 }}
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
             className="fixed inset-0 z-50 flex items-center justify-center p-4"
+            role="dialog"
+            aria-modal="true"
+            aria-label="写下祝福"
+            data-modal="blessing-form"
           >
             <GlassCard
               className="w-full max-w-lg"
@@ -157,9 +223,16 @@ export default function BlessingForm({
                 <h2 className="text-xl font-bold text-white">✏️ 写下你的祝福</h2>
                 <button
                   onClick={onClose}
+                  aria-label="关闭祝福表单"
                   className="glass rounded-full p-2 text-slate-400 hover:text-white transition-colors"
                 >
-                  <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg
+                    className="h-5 w-5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    aria-hidden="true"
+                  >
                     <path
                       strokeLinecap="round"
                       strokeLinejoin="round"
@@ -174,8 +247,14 @@ export default function BlessingForm({
               <form onSubmit={handleSubmit} className="space-y-4">
                 {/* 昵称 */}
                 <div>
-                  <label className="mb-1.5 block text-sm text-slate-400">你的昵称（选填）</label>
+                  <label
+                    htmlFor="blessing-nickname"
+                    className="mb-1.5 block text-sm text-slate-400"
+                  >
+                    你的昵称（选填）
+                  </label>
                   <input
+                    id="blessing-nickname"
                     type="text"
                     value={nickname}
                     onChange={(e) => setNickname(e.target.value)}
@@ -187,8 +266,11 @@ export default function BlessingForm({
 
                 {/* 班级 */}
                 <div>
-                  <label className="mb-1.5 block text-sm text-slate-400">班级（选填）</label>
+                  <label htmlFor="blessing-class" className="mb-1.5 block text-sm text-slate-400">
+                    班级（选填）
+                  </label>
                   <input
+                    id="blessing-class"
                     type="text"
                     value={class_}
                     onChange={(e) => setClass(e.target.value)}
@@ -201,12 +283,18 @@ export default function BlessingForm({
                 {/* 教师选择 — 可搜索 */}
                 {teachers.length > 0 && (
                   <div ref={teacherDropdownRef} className="relative">
-                    <label className="mb-1.5 block text-sm text-slate-400">
+                    <span
+                      id="blessing-teacher-label"
+                      className="mb-1.5 block text-sm text-slate-400"
+                    >
                       送给哪位老师（选填）
-                    </label>
+                    </span>
                     {/* 已选/搜索框 */}
                     <button
                       type="button"
+                      aria-labelledby="blessing-teacher-label"
+                      aria-expanded={showTeacherDropdown}
+                      aria-haspopup="listbox"
                       onClick={() => {
                         setShowTeacherDropdown(!showTeacherDropdown);
                         setTeacherSearch('');
@@ -229,13 +317,17 @@ export default function BlessingForm({
                           {selectedTeacher.name}老师
                         </span>
                       ) : (
-                        <span className="text-slate-500">送给全体老师</span>
+                        <span className="text-slate-400">送给全体老师</span>
                       )}
                     </button>
 
                     {/* 下拉面板 */}
                     {showTeacherDropdown && (
-                      <div className="absolute left-0 right-0 top-full z-50 mt-1 rounded-xl glass border border-white/10 bg-night-light/95 backdrop-blur-xl overflow-hidden">
+                      <div
+                        role="listbox"
+                        aria-label="教师列表"
+                        className="absolute left-0 right-0 top-full z-50 mt-1 rounded-xl glass border border-white/10 bg-night-light/95 backdrop-blur-xl overflow-hidden"
+                      >
                         {/* 搜索输入 */}
                         <div className="border-b border-white/5 p-2">
                           <input
@@ -244,6 +336,7 @@ export default function BlessingForm({
                             value={teacherSearch}
                             onChange={(e) => setTeacherSearch(e.target.value)}
                             placeholder="搜索教师姓名..."
+                            aria-label="搜索教师姓名"
                             className="w-full rounded-lg bg-white/5 px-3 py-2 text-sm text-white placeholder-slate-500 outline-none"
                           />
                         </div>
@@ -251,6 +344,8 @@ export default function BlessingForm({
                         <div className="max-h-48 overflow-y-auto">
                           <button
                             type="button"
+                            role="option"
+                            aria-selected={!teacherId}
                             onClick={() => {
                               setTeacherId('');
                               setShowTeacherDropdown(false);
@@ -266,6 +361,8 @@ export default function BlessingForm({
                             <button
                               key={t.id}
                               type="button"
+                              role="option"
+                              aria-selected={teacherId === t.id}
                               onClick={() => {
                                 setTeacherId(t.id);
                                 setShowTeacherDropdown(false);
@@ -284,7 +381,10 @@ export default function BlessingForm({
                                   alt=""
                                 />
                               ) : (
-                                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/20 text-xs text-primary-light">
+                                <span
+                                  className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/20 text-xs text-primary-light"
+                                  aria-hidden="true"
+                                >
                                   {t.name[0]}
                                 </span>
                               )}
@@ -292,7 +392,7 @@ export default function BlessingForm({
                             </button>
                           ))}
                           {filteredTeachers.length === 0 && (
-                            <p className="px-4 py-3 text-sm text-slate-500">未找到匹配的教师</p>
+                            <p className="px-4 py-3 text-sm text-slate-400">未找到匹配的教师</p>
                           )}
                         </div>
                       </div>
@@ -302,13 +402,17 @@ export default function BlessingForm({
 
                 {/* 祝福内容 */}
                 <div>
-                  <label className="mb-1.5 flex items-center justify-between text-sm text-slate-400">
+                  <label
+                    htmlFor="blessing-content"
+                    className="mb-1.5 flex items-center justify-between text-sm text-slate-400"
+                  >
                     <span>祝福语 *</span>
-                    <span className={content.length > 500 ? 'text-red-400' : 'text-slate-500'}>
+                    <span className={content.length > 500 ? 'text-red-300' : 'text-slate-400'}>
                       {content.length}/500
                     </span>
                   </label>
                   <textarea
+                    id="blessing-content"
                     value={content}
                     onChange={(e) => setContent(e.target.value)}
                     rows={4}
@@ -319,7 +423,7 @@ export default function BlessingForm({
                 </div>
 
                 {/* 错误提示 */}
-                {error && <p className="text-sm text-red-400">{error}</p>}
+                {error && <p className="text-sm text-red-300">{error}</p>}
 
                 {/* Turnstile 人机验证（如果配置了 site key） */}
                 {TURNSTILE_SITE_KEY && <div ref={turnstileRef} className="flex justify-center" />}

@@ -7,6 +7,7 @@
 import { useState, useEffect, useRef } from 'react';
 import Image from 'next/image';
 import type { Teacher } from '@/types';
+import { getCsrfToken } from '@/lib/csrf-client';
 
 export default function TeacherManager() {
   const [teachers, setTeachers] = useState<Teacher[]>([]);
@@ -43,8 +44,10 @@ export default function TeacherManager() {
     formData.append('file', file);
 
     try {
+      const csrfToken = await getCsrfToken();
       const res = await fetch('/api/admin/upload', {
         method: 'POST',
+        headers: csrfToken ? { 'X-CSRF-Token': csrfToken } : {},
         body: formData,
       });
       if (res.ok) {

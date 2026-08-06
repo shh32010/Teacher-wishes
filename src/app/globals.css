@@ -136,6 +136,47 @@ body {
   }
 }
 
+/* ---- 无障碍：键盘焦点可见样式 ---- */
+/* 对所有可聚焦元素提供高对比焦点环 */
+:focus-visible {
+  outline: 2px solid rgba(56, 189, 248, 0.85);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+/* 在暗色玻璃态容器内的元素，焦点环更亮 */
+.glass :focus-visible {
+  outline-color: rgba(125, 211, 252, 0.9);
+}
+
+/* 毛玻璃按钮内的焦点环 — 适配圆角 */
+.btn-primary:focus-visible,
+.btn-glass:focus-visible,
+.glass-card:focus-visible,
+button.glass:focus-visible {
+  border-radius: 12px;
+}
+
+/* 输入框已有自己的 focus 样式，移除全局双环 */
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: none;
+}
+
+/* ===== 无障碍：色彩对比度修复 ===== */
+/* text-slate-500 (#64748b) 在 #0B1020 上对比度约 3.2:1，不满足 WCAG AA 正文 4.5:1 */
+/* 用更亮的 slate-300/400 替代作为二级文本色 */
+@layer components {
+  .text-secondary {
+    color: #b0bec5; /* ~slate-300 级别，对比度约 6.5:1 */
+  }
+
+  .text-muted {
+    color: #90a4ae; /* 介于 slate-300~400，对比度约 5.5:1 */
+  }
+}
+
 /* ---- 减弱动画偏好 ---- */
 @media (prefers-reduced-motion: reduce) {
   *,

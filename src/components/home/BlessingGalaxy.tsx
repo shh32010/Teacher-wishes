@@ -1,11 +1,12 @@
 // ============================================================
 // 祝福星河 — 每条祝福 = 小星星，每位教师 = 大天体
 // 斐波那契螺旋分布 + 悬浮预览气泡 + 点击弹窗详情
+// 键盘可访问 + 焦点 trap
 // ============================================================
 
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useRouter } from 'next/navigation';
 import type { Blessing, Teacher } from '@/types';
@@ -97,6 +98,75 @@ export default function BlessingGalaxy() {
       .catch(() => {});
   }, []);
 
+  // 键盘事件处理 — Enter/Space 打开详情
+  const handleStarKeyDown = useCallback((e: React.KeyboardEvent, star: Star) => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      setSelectedStar(star);
+    }
+  }, []);
+
+  // 焦点 trap — 详情弹窗打开时
+  useEffect(() => {
+    if (!selectedStar) return;
+
+    const modalEl = document.querySelector('[data-modal="galaxy-detail"]');
+    if (!modalEl) return;
+
+    const focusableSelector = 'button:not([disabled]), [href], [tabindex]:not([tabindex="-1"])';
+
+    const getFocusableElements = (): HTMLElement[] => {
+      const elements = modalEl.querySelectorAll<HTMLElement>(focusableSelector);
+      return Array.from(elements).filter(
+        (el) => !el.hasAttribute('disabled') && el.offsetParent !== null
+      );
+    };
+
+    // 自动聚焦关闭按钮
+    const timer = setTimeout(() => {
+      const closeBtn = modalEl.querySelector<HTMLElement>('button[aria-label="关闭详情"]');
+      if (closeBtn) closeBtn.focus();
+      else {
+        const firstEl = getFocusableElements()[0];
+        firstEl?.focus();
+      }
+    }, 100);
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') {
+        setSelectedStar(null);
+        return;
+      }
+      if (e.key !== 'Tab') return;
+
+      const focusables = getFocusableElements();
+      if (focusables.length === 0) return;
+
+      const firstEl = focusables[0];
+      const lastEl = focusables[focusables.length - 1];
+      const activeEl = document.activeElement;
+
+      if (e.shiftKey) {
+        if (activeEl === firstEl || !modalEl.contains(activeEl)) {
+          e.preventDefault();
+          lastEl.focus();
+        }
+      } else {
+        if (activeEl === lastEl || !modalEl.contains(activeEl)) {
+          e.preventDefault();
+          firstEl.focus();
+        }
+      }
+    };
+
+    document.addEventListener('keydown', handleKeyDown);
+
+    return () => {
+      clearTimeout(timer);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [selectedStar]);
+
   if (stars.length === 0) {
     return null;
   }
@@ -115,6 +185,10 @@ export default function BlessingGalaxy() {
                   transition={{ delay: 0.5 + Math.random() * 0.5, duration: 0.8 }}
                   className="group absolute cursor-pointer"
                   style={{ left: `${star.x}%`, top: `${star.y}%` }}
+                  role="button"
+                  tabIndex={0}
+                  aria-label={`${star.teacher!.name}老师，点击查看详情`}
+                  onKeyDown={(e) => handleStarKeyDown(e, star)}
                   onMouseEnter={() => setHovered(star.id)}
                   onMouseLeave={() => setHovered(null)}
                   onClick={() => setSelectedStar(star)}
@@ -139,7 +213,10 @@ export default function BlessingGalaxy() {
                         className="h-full w-full rounded-full object-cover"
                       />
                     ) : (
-                      <span className="text-xs font-bold text-white drop-shadow-lg">
+                      <span
+                        className="text-xs font-bold text-white drop-shadow-lg"
+                        aria-hidden="true"
+                      >
                         {star.teacher!.name[0]}
                       </span>
                     )}
@@ -179,6 +256,14 @@ export default function BlessingGalaxy() {
                 transition={{ delay: Math.random() * 2, duration: 0.8 }}
                 className="group absolute cursor-pointer"
                 style={{ left: `${star.x}%`, top: `${star.y}%` }}
+                role="button"
+                tabIndex={0}
+                aria-label={
+                  star.blessing
+                    ? `来自${star.blessing.is_anonymous ? '匿名' : star.blessing.nickname || '同学'}的祝福：${star.blessing.content.slice(0, 20)}...`
+                    : '祝福星星'
+                }
+                onKeyDown={(e) => handleStarKeyDown(e, star)}
                 onMouseEnter={() => setHovered(star.id)}
                 onMouseLeave={() => setHovered(null)}
                 onClick={() => setSelectedStar(star)}
@@ -209,7 +294,7 @@ export default function BlessingGalaxy() {
                           {star.blessing.content.slice(0, 30)}
                           {star.blessing.content.length > 30 ? '...' : ''}
                         </p>
-                        <p className="mt-1 text-xs text-slate-500">
+                        <p className="mt-1 text-xs text-slate-400">
                           — {star.blessing.is_anonymous ? '匿名' : star.blessing.nickname || '同学'}
                         </p>
                         <p className="text-xs text-pink-400">❤️ {star.blessing.likes}</p>
@@ -244,6 +329,14 @@ export default function BlessingGalaxy() {
               exit={{ opacity: 0, scale: 0.9, y: 20 }}
               transition={{ type: 'spring', damping: 25, stiffness: 300 }}
               className="fixed inset-0 z-50 flex items-center justify-center p-4"
+              role="dialog"
+              aria-modal="true"
+              aria-label={
+                selectedStar.type === 'teacher'
+                  ? `${selectedStar.teacher!.name}老师的详情`
+                  : '祝福详情'
+              }
+              data-modal="galaxy-detail"
               onClick={() => setSelectedStar(null)}
             >
               <div
@@ -253,9 +346,16 @@ export default function BlessingGalaxy() {
                 {/* 关闭按钮 */}
                 <button
                   onClick={() => setSelectedStar(null)}
+                  aria-label="关闭详情"
                   className="absolute right-4 top-4 rounded-full p-1.5 text-slate-400 hover:text-white transition-colors"
                 >
-                  <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg
+                    className="h-5 w-5"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    aria-hidden="true"
+                  >
                     <path
                       strokeLinecap="round"
                       strokeLinejoin="round"
@@ -293,7 +393,7 @@ export default function BlessingGalaxy() {
                               className="h-full w-full rounded-full object-cover"
                             />
                           ) : (
-                            <span className="text-2xl font-bold text-blue-300">
+                            <span className="text-2xl font-bold text-blue-300" aria-hidden="true">
                               {selectedStar.teacher!.name[0]}
                             </span>
                           )}
@@ -316,7 +416,7 @@ export default function BlessingGalaxy() {
                         {/* 关联祝福列表 */}
                         {teacherBlessings.length > 0 && (
                           <div className="mt-5 border-t border-white/10 pt-4">
-                            <p className="mb-3 text-xs font-medium text-slate-500">
+                            <p className="mb-3 text-xs font-medium text-slate-400">
                               💬 收到的祝福（{teacherBlessings.length}条）
                             </p>
                             <div className="max-h-48 space-y-2 overflow-y-auto pr-1 text-left">
@@ -325,7 +425,7 @@ export default function BlessingGalaxy() {
                                   <p className="text-sm leading-relaxed text-slate-200">
                                     {bs.blessing!.content}
                                   </p>
-                                  <p className="mt-1 text-xs text-slate-500">
+                                  <p className="mt-1 text-xs text-slate-400">
                                     —{' '}
                                     {bs.blessing!.is_anonymous
                                       ? '匿名'
@@ -355,7 +455,7 @@ export default function BlessingGalaxy() {
                   <div className="text-center">
                     {/* 发送者头像 */}
                     <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-primary/20">
-                      <span className="text-lg font-bold text-primary-light">
+                      <span className="text-lg font-bold text-primary-light" aria-hidden="true">
                         {(selectedStar.blessing.nickname || '匿')[0]}
                       </span>
                     </div>
@@ -373,7 +473,7 @@ export default function BlessingGalaxy() {
                     </p>
 
                     {/* 元信息 */}
-                    <div className="mt-4 flex items-center justify-center gap-4 text-xs text-slate-500">
+                    <div className="mt-4 flex items-center justify-center gap-4 text-xs text-slate-400">
                       <span>❤️ {selectedStar.blessing.likes} 赞</span>
                       <span>{formatDate(selectedStar.blessing.created_at)}</span>
                     </div>

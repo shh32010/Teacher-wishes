@@ -11,6 +11,7 @@ import useSWR from 'swr';
 import { createClient } from '@/lib/supabase/client';
 import type { Blessing, BlessingStats, AdminUpdateBlessing } from '@/types';
 import { formatDateTime } from '@/lib/utils';
+import { getCsrfToken } from '@/lib/csrf-client';
 
 const TeacherManager = dynamic(() => import('@/components/admin/TeacherManager'), {
   ssr: false,
@@ -62,9 +63,13 @@ export default function AdminPage() {
   const handleBatchUpdate = async (updates: AdminUpdateBlessing) => {
     if (selectedIds.size === 0) return;
     try {
+      const csrfToken = await getCsrfToken();
       await fetch('/api/admin/blessings', {
         method: 'PATCH',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...(csrfToken ? { 'X-CSRF-Token': csrfToken } : {}),
+        },
         body: JSON.stringify({ ids: Array.from(selectedIds), updates }),
       });
       setSelectedIds(new Set());

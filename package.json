@@ -12,7 +12,8 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest",
     "test:run": "vitest run",
-    "prepare": "husky"
+    "prepare": "husky",
+    "analyze": "ANALYZE=true next build"
   },
   "lint-staged": {
     "*.{js,jsx,ts,tsx}": [
@@ -37,10 +38,10 @@
     "qrcode": "^1.5.4",
     "react": "^18",
     "react-dom": "^18",
-    "swr": "^2.5.0",
-    "tsparticles": "^4.3.2"
+    "swr": "^2.5.0"
   },
   "devDependencies": {
+    "@next/bundle-analyzer": "^16.3.0",
     "@testing-library/jest-dom": "^7.0.0",
     "@testing-library/react": "^16.3.2",
     "@types/canvas-confetti": "^1.9.0",

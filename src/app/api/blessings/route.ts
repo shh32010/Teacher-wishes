@@ -6,6 +6,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient, createAnonClient } from '@/lib/supabase/server';
 import type { Blessing, CreateBlessingPayload, PaginatedResponse } from '@/types';
+import { validateCsrfToken, csrfErrorResponse } from '@/lib/csrf';
 
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
@@ -53,6 +54,11 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
+  // CSRF 验证（如果未设置 csrf_token Cookie 则跳过）
+  if (!validateCsrfToken(request)) {
+    return csrfErrorResponse();
+  }
+
   try {
     const body: CreateBlessingPayload & { turnstile_token?: string } = await request.json();
 

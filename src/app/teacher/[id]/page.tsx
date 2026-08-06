@@ -47,6 +47,7 @@ export default async function TeacherPage({ params }: TeacherPageProps) {
       .select('*')
       .eq('teacher_id', params.id)
       .eq('status', 'approved')
+      .order('is_featured', { ascending: false })
       .order('created_at', { ascending: false })
       .limit(50),
   ]);
@@ -111,9 +112,19 @@ export default async function TeacherPage({ params }: TeacherPageProps) {
             {blessings.map((blessing) => (
               <div
                 key={blessing.id}
-                className="glass-card"
+                className={`glass-card relative ${
+                  blessing.is_featured
+                    ? 'border-amber-400/30 bg-amber-400/5 ring-1 ring-amber-400/20'
+                    : ''
+                }`}
                 style={{ '--hover': 'none' } as React.CSSProperties}
               >
+                {/* 精选标记 */}
+                {blessing.is_featured && (
+                  <div className="absolute -right-2 -top-2 rounded-full bg-amber-400 px-2.5 py-0.5 text-xs font-bold text-amber-900 shadow-lg shadow-amber-400/30">
+                    ⭐ 精选
+                  </div>
+                )}
                 <div className="mb-3 flex items-center justify-between">
                   <span className="text-sm font-medium text-white">
                     {blessing.is_anonymous ? '匿名同学' : blessing.nickname || '匿名同学'}

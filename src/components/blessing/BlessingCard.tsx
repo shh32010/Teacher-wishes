@@ -83,7 +83,7 @@ export default function BlessingCard({ blessing, index = 0, onLike }: BlessingCa
               {blessing.class && <p className="text-xs text-slate-400">{blessing.class}</p>}
             </div>
           </div>
-          <span className="text-xs text-slate-500">{formatDate(blessing.created_at)}</span>
+          <span className="text-xs text-slate-400">{formatDate(blessing.created_at)}</span>
         </div>
 
         {/* 祝福内容 */}
@@ -98,6 +98,7 @@ export default function BlessingCard({ blessing, index = 0, onLike }: BlessingCa
                 router.push(`/teacher/${blessing.teacher!.id}`);
               }}
               className="flex items-center gap-1.5 rounded-full bg-accent/10 pl-0.5 pr-3 py-0.5 text-xs text-accent-light hover:bg-accent/20 transition-colors cursor-pointer"
+              aria-label={`查看${blessing.teacher.name}老师的详情页`}
             >
               {blessing.teacher.avatar_url ? (
                 <img
@@ -118,6 +119,7 @@ export default function BlessingCard({ blessing, index = 0, onLike }: BlessingCa
           <button
             onClick={handleLike}
             disabled={liked}
+            aria-label={liked ? `已点赞，共${likesCount}赞` : `点赞，当前${likesCount}赞`}
             className={cn(
               'flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs transition-all duration-200',
               liked
@@ -125,7 +127,9 @@ export default function BlessingCard({ blessing, index = 0, onLike }: BlessingCa
                 : 'glass hover:bg-white/15 text-slate-400 hover:text-pink-400'
             )}
           >
-            <span className={cn(liked && 'animate-pulse')}>{liked ? '❤️' : '🤍'}</span>
+            <span className={cn(liked && 'animate-pulse')} aria-hidden="true">
+              {liked ? '❤️' : '🤍'}
+            </span>
             <span>{likesCount}</span>
           </button>
         </div>
