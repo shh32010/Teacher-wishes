@@ -287,3 +287,10 @@
 | 08-07 | ✅ 监控接入：Vercel Analytics + Sentry（零配置，DSN 可选激活） |
 | 08-07 | ✅ 容量评估文档：docs/CAPACITY.md — 当前可支撑 200-500 并发用户 |
 | 08-07 | 进度更新：Phase 4 收尾完成 |
+| 08-07 | ✅ README 升级：改名 Platform + 截图 1280×720 + Vercel Deploy Button + 徽章 |
+| 08-07 | ✅ GitHub Actions CI：lint → typecheck → test → build 流水线 |
+| 08-07 | ✅ ARCHITECTURE_REVIEW.md：全栈深度审查（4 P0 + 10 P1 + 14 P2） |
+| 08-07 | ✅ TECHNICAL_DESIGN.md：647 行深度技术设计文档（架构/ER/API/安全/性能） |
+| 08-07 | ✅ 安全修复：8 文件（P0×4 + P1×2 + P2×4），middleware/CSRF/限流/密码/日期 |
+| 08-07 | ✅ CHANGELOG.md + v1.0.0 tag + Project Board 模板 |
+| 08-07 | 🎉 正式发布 v1.0.0 |

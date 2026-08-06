@@ -1,4 +1,4 @@
-# 🌟 Teacher Wishes Platform · 教师节祝福平台
+# 🌟 Teacher Wishes Platform · 教师节祝福平台 · v1.0.0
 
 <p align="center">
   <strong>沉浸式教师节活动平台</strong> — 星空祝福星河 · 实时互动 · 大屏展示
@@ -157,21 +157,22 @@ docs/                         # ARCHITECTURE / API / CAPACITY
 
 | 文档 | 说明 |
 | :--- | :--- |
-| [PROGRESS.md](./PROGRESS.md) | 开发进度追踪（73/74 项） |
+| [PROGRESS.md](./PROGRESS.md) | 开发进度追踪 |
+| [CHANGELOG.md](./CHANGELOG.md) | v1.0.0 发布日志 |
 | [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md) | 架构图 + ER 图 + 数据流 |
 | [docs/API.md](./docs/API.md) | API 端点文档 |
 | [docs/CAPACITY.md](./docs/CAPACITY.md) | 容量评估 + 扩容指南 |
+| [docs/ARCHITECTURE_REVIEW.md](./docs/ARCHITECTURE_REVIEW.md) | 全栈深度架构审查 |
+| [docs/TECHNICAL_DESIGN.md](./docs/TECHNICAL_DESIGN.md) | 技术设计文档 |
 
 ---
 
 ## 🔮 后续计划
 
 - [ ] 敏感词过滤（`bad-words` 已安装，服务端逻辑待接入）
-- [ ] GitHub Actions CI（lint → typecheck → test → build）
-- [ ] `TECHNICAL_DESIGN.md` 深度设计文档
-- [ ] `ARCHITECTURE_REVIEW.md` 模块级代码审查
-- [ ] Demo 视频 + Project Board
-- [ ] v1.0 Release + Semantic Release
+- [ ] Demo 演示视频（30 秒功能展示）
+- [ ] 移动端 PWA — 独立应用体验
+- [ ] 多活动模板 — 毕业季 / 校庆快速复用
 
 ---
 
