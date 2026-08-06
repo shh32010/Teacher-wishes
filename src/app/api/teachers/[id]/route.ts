@@ -27,17 +27,24 @@ export async function GET(request: NextRequest, { params }: { params: { id: stri
         .range(offset, offset + pageSize - 1),
     ]);
 
+    // 区分错误类型：PGRST116 = 单行查询无结果（404），其他 = 服务端错误（500）
     if (teacherResult.error) {
-      return NextResponse.json({ error: '教师不存在' }, { status: 404 });
+      if (teacherResult.error.code === 'PGRST116') {
+        return NextResponse.json({ error: '教师不存在' }, { status: 404 });
+      }
+      console.error('[API] 教师查询失败:', teacherResult.error);
+      return NextResponse.json({ error: '查询失败' }, { status: 500 });
     }
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       teacher: teacherResult.data,
       blessings: blessingsResult.data || [],
       count: blessingsResult.count || 0,
       page,
       pageSize,
     });
+    response.headers.set('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=300');
+    return response;
   } catch (err) {
     console.error('[API] 获取教师信息异常:', err);
     return NextResponse.json({ error: '服务器内部错误' }, { status: 500 });

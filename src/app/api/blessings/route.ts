@@ -80,11 +80,12 @@ export async function POST(request: NextRequest) {
   try {
     const body: CreateBlessingPayload & { turnstile_token?: string } = await request.json();
 
-    // 基础校验
-    if (!body.content || body.content.trim().length === 0) {
+    // 基础校验：先 trim 再做空值 + 长度检查，防止纯空格绕过
+    const trimmedContent = (body.content || '').trim();
+    if (trimmedContent.length === 0) {
       return NextResponse.json({ error: '祝福内容不能为空' }, { status: 400 });
     }
-    if (body.content.length > 500) {
+    if (trimmedContent.length > 500) {
       return NextResponse.json({ error: '祝福内容不能超过500字' }, { status: 400 });
     }
 
@@ -104,7 +105,12 @@ export async function POST(request: NextRequest) {
       window_minutes: 10,
     });
 
-    if (!rateError && remaining !== null && remaining <= 0) {
+    // fail-closed：RPC 异常时拒绝请求，防止攻击者通过制造 RPC 故障绕过限流
+    if (rateError || remaining === null) {
+      console.error('[API] 速率限制检查异常:', rateError);
+      return NextResponse.json({ error: '系统繁忙，请稍后重试' }, { status: 503 });
+    }
+    if (remaining <= 0) {
       return NextResponse.json({ error: '发送太频繁，请10分钟后再试' }, { status: 429 });
     }
 
@@ -134,7 +140,7 @@ export async function POST(request: NextRequest) {
         teacher_id: body.teacher_id || null,
         nickname: body.nickname || null,
         class: body.class || null,
-        content: body.content.trim(),
+        content: trimmedContent,
         is_anonymous: body.is_anonymous || false,
       },
     ]);

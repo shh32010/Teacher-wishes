@@ -59,8 +59,12 @@ export function setCsrfCookie(response: NextResponse, token: string): void {
 export function validateCsrfToken(request: NextRequest): boolean {
   const csrfCookie = request.cookies.get(CSRF_COOKIE_NAME);
 
-  // 如果没有设置 CSRF cookie，跳过验证（向后兼容）
+  // 生产环境：Cookie 缺失 → 拒绝（防止攻击者不携带 Cookie 绕过 CSRF）
+  // 开发环境：向后兼容，跳过验证
   if (!csrfCookie) {
+    if (process.env.NODE_ENV === 'production') {
+      return false;
+    }
     return true;
   }
 

@@ -16,6 +16,7 @@ export function cn(...classes: (string | boolean | undefined | null)[]): string 
  */
 export function formatDate(dateStr: string): string {
   const date = new Date(dateStr);
+  if (isNaN(date.getTime())) return '日期无效';
   return `${date.getMonth() + 1}月${date.getDate()}日`;
 }
 
@@ -25,6 +26,7 @@ export function formatDate(dateStr: string): string {
  */
 export function formatDateTime(dateStr: string): string {
   const date = new Date(dateStr);
+  if (isNaN(date.getTime())) return '日期无效';
   const year = date.getFullYear();
   const month = date.getMonth() + 1;
   const day = date.getDate();
