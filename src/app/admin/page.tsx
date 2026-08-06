@@ -6,17 +6,24 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import dynamic from 'next/dynamic';
 import useSWR from 'swr';
 import { createClient } from '@/lib/supabase/client';
 import type { Blessing, BlessingStats, AdminUpdateBlessing } from '@/types';
 import { formatDateTime } from '@/lib/utils';
 
+const TeacherManager = dynamic(() => import('@/components/admin/TeacherManager'), {
+  ssr: false,
+});
+
 const fetcher = (url: string) => fetch(url).then((res) => res.json());
 
 type FilterStatus = 'pending' | 'approved' | 'rejected' | 'all';
+type AdminTab = 'blessings' | 'teachers';
 
 export default function AdminPage() {
   const router = useRouter();
+  const [tab, setTab] = useState<AdminTab>('blessings');
   const [filter, setFilter] = useState<FilterStatus>('pending');
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
@@ -80,6 +87,24 @@ export default function AdminPage() {
             <a href="/" className="text-sm text-slate-400 hover:text-white">
               返回首页 →
             </a>
+            <div className="ml-4 flex gap-1">
+              <button
+                onClick={() => setTab('blessings')}
+                className={`rounded-lg px-3 py-1 text-sm transition-colors ${
+                  tab === 'blessings' ? 'bg-primary text-white' : 'text-slate-400 hover:text-white'
+                }`}
+              >
+                祝福管理
+              </button>
+              <button
+                onClick={() => setTab('teachers')}
+                className={`rounded-lg px-3 py-1 text-sm transition-colors ${
+                  tab === 'teachers' ? 'bg-primary text-white' : 'text-slate-400 hover:text-white'
+                }`}
+              >
+                教师管理
+              </button>
+            </div>
           </div>
           <button
             onClick={async () => {
@@ -94,147 +119,157 @@ export default function AdminPage() {
       </header>
 
       <div className="mx-auto max-w-6xl px-4 py-8">
-        {/* 统计看板 */}
-        {stats && (
-          <div className="mb-8 grid grid-cols-3 gap-4">
-            <div className="glass-card text-center">
-              <p className="text-3xl font-bold text-accent">{stats.total_blessings}</p>
-              <p className="text-sm text-slate-400">总祝福数</p>
-            </div>
-            <div className="glass-card text-center">
-              <p className="text-3xl font-bold text-primary-light">{stats.total_participants}</p>
-              <p className="text-sm text-slate-400">参与人数</p>
-            </div>
-            <div className="glass-card text-center">
-              <p className="text-3xl font-bold text-secondary">{stats.total_likes}</p>
-              <p className="text-sm text-slate-400">点赞总数</p>
-            </div>
-          </div>
-        )}
-
-        {/* 工具栏 */}
-        <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
-          {/* 筛选 */}
-          <div className="flex gap-2">
-            {(
-              [
-                { value: 'pending', label: '待审核' },
-                { value: 'approved', label: '已通过' },
-                { value: 'rejected', label: '已拒绝' },
-                { value: 'all', label: '全部' },
-              ] as const
-            ).map(({ value, label }) => (
-              <button
-                key={value}
-                onClick={() => {
-                  setFilter(value);
-                  setSelectedIds(new Set());
-                }}
-                className={`rounded-lg px-3 py-1.5 text-sm transition-colors ${
-                  filter === value
-                    ? 'bg-primary text-white'
-                    : 'glass text-slate-400 hover:text-white'
-                }`}
-              >
-                {label}
-              </button>
-            ))}
-          </div>
-
-          {/* 批量操作 */}
-          {selectedIds.size > 0 && (
-            <div className="flex gap-2">
-              <button
-                onClick={() => handleBatchUpdate({ status: 'approved' })}
-                className="rounded-lg bg-green-600 px-3 py-1.5 text-sm text-white hover:bg-green-500"
-              >
-                ✅ 通过 ({selectedIds.size})
-              </button>
-              <button
-                onClick={() => handleBatchUpdate({ status: 'rejected' })}
-                className="rounded-lg bg-red-600 px-3 py-1.5 text-sm text-white hover:bg-red-500"
-              >
-                ❌ 拒绝
-              </button>
-              <button
-                onClick={() => handleBatchUpdate({ is_featured: true })}
-                className="rounded-lg bg-accent px-3 py-1.5 text-sm text-black hover:bg-accent-light"
-              >
-                ⭐ 精选
-              </button>
-            </div>
-          )}
-        </div>
-
-        {/* 表格 */}
-        {isLoading ? (
-          <div className="py-20 text-center text-slate-400">加载中...</div>
-        ) : error ? (
-          <div className="py-20 text-center text-red-400">加载失败</div>
-        ) : blessings.length === 0 ? (
-          <div className="py-20 text-center text-slate-500">暂无数据</div>
+        {tab === 'teachers' ? (
+          <TeacherManager />
         ) : (
-          <div className="glass overflow-hidden rounded-2xl">
-            <table className="w-full text-left text-sm">
-              <thead className="border-b border-white/10 text-slate-400">
-                <tr>
-                  <th className="p-4">
-                    <input
-                      type="checkbox"
-                      checked={selectedIds.size === blessings.length && blessings.length > 0}
-                      onChange={toggleAll}
-                      className="rounded"
-                    />
-                  </th>
-                  <th className="p-4">发送者</th>
-                  <th className="p-4">祝福内容</th>
-                  <th className="p-4">状态</th>
-                  <th className="p-4">点赞</th>
-                  <th className="p-4">时间</th>
-                </tr>
-              </thead>
-              <tbody>
-                {blessings.map((blessing) => (
-                  <tr
-                    key={blessing.id}
-                    className="border-b border-white/5 hover:bg-white/5 transition-colors"
+          <>
+            {/* 统计看板 */}
+            {stats && (
+              <div className="mb-8 grid grid-cols-3 gap-4">
+                <div className="glass-card text-center">
+                  <p className="text-3xl font-bold text-accent">{stats.total_blessings}</p>
+                  <p className="text-sm text-slate-400">总祝福数</p>
+                </div>
+                <div className="glass-card text-center">
+                  <p className="text-3xl font-bold text-primary-light">
+                    {stats.total_participants}
+                  </p>
+                  <p className="text-sm text-slate-400">参与人数</p>
+                </div>
+                <div className="glass-card text-center">
+                  <p className="text-3xl font-bold text-secondary">{stats.total_likes}</p>
+                  <p className="text-sm text-slate-400">点赞总数</p>
+                </div>
+              </div>
+            )}
+
+            {/* 工具栏 */}
+            <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
+              {/* 筛选 */}
+              <div className="flex gap-2">
+                {(
+                  [
+                    { value: 'pending', label: '待审核' },
+                    { value: 'approved', label: '已通过' },
+                    { value: 'rejected', label: '已拒绝' },
+                    { value: 'all', label: '全部' },
+                  ] as const
+                ).map(({ value, label }) => (
+                  <button
+                    key={value}
+                    onClick={() => {
+                      setFilter(value);
+                      setSelectedIds(new Set());
+                    }}
+                    className={`rounded-lg px-3 py-1.5 text-sm transition-colors ${
+                      filter === value
+                        ? 'bg-primary text-white'
+                        : 'glass text-slate-400 hover:text-white'
+                    }`}
                   >
-                    <td className="p-4">
-                      <input
-                        type="checkbox"
-                        checked={selectedIds.has(blessing.id)}
-                        onChange={() => toggleSelect(blessing.id)}
-                        className="rounded"
-                      />
-                    </td>
-                    <td className="p-4 text-white">
-                      {blessing.is_anonymous ? '匿名' : blessing.nickname || '-'}
-                    </td>
-                    <td className="max-w-xs p-4 text-slate-300 truncate">{blessing.content}</td>
-                    <td className="p-4">
-                      <span
-                        className={`rounded-full px-2 py-0.5 text-xs ${
-                          blessing.status === 'approved'
-                            ? 'bg-green-500/20 text-green-400'
-                            : blessing.status === 'rejected'
-                              ? 'bg-red-500/20 text-red-400'
-                              : 'bg-yellow-500/20 text-yellow-400'
-                        }`}
-                      >
-                        {blessing.status === 'approved'
-                          ? '已通过'
-                          : blessing.status === 'rejected'
-                            ? '已拒绝'
-                            : '待审核'}
-                      </span>
-                    </td>
-                    <td className="p-4 text-slate-400">{blessing.likes}</td>
-                    <td className="p-4 text-slate-500">{formatDateTime(blessing.created_at)}</td>
-                  </tr>
+                    {label}
+                  </button>
                 ))}
-              </tbody>
-            </table>
-          </div>
+              </div>
+
+              {/* 批量操作 */}
+              {selectedIds.size > 0 && (
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => handleBatchUpdate({ status: 'approved' })}
+                    className="rounded-lg bg-green-600 px-3 py-1.5 text-sm text-white hover:bg-green-500"
+                  >
+                    ✅ 通过 ({selectedIds.size})
+                  </button>
+                  <button
+                    onClick={() => handleBatchUpdate({ status: 'rejected' })}
+                    className="rounded-lg bg-red-600 px-3 py-1.5 text-sm text-white hover:bg-red-500"
+                  >
+                    ❌ 拒绝
+                  </button>
+                  <button
+                    onClick={() => handleBatchUpdate({ is_featured: true })}
+                    className="rounded-lg bg-accent px-3 py-1.5 text-sm text-black hover:bg-accent-light"
+                  >
+                    ⭐ 精选
+                  </button>
+                </div>
+              )}
+            </div>
+
+            {/* 表格 */}
+            {isLoading ? (
+              <div className="py-20 text-center text-slate-400">加载中...</div>
+            ) : error ? (
+              <div className="py-20 text-center text-red-400">加载失败</div>
+            ) : blessings.length === 0 ? (
+              <div className="py-20 text-center text-slate-500">暂无数据</div>
+            ) : (
+              <div className="glass overflow-hidden rounded-2xl">
+                <table className="w-full text-left text-sm">
+                  <thead className="border-b border-white/10 text-slate-400">
+                    <tr>
+                      <th className="p-4">
+                        <input
+                          type="checkbox"
+                          checked={selectedIds.size === blessings.length && blessings.length > 0}
+                          onChange={toggleAll}
+                          className="rounded"
+                        />
+                      </th>
+                      <th className="p-4">发送者</th>
+                      <th className="p-4">祝福内容</th>
+                      <th className="p-4">状态</th>
+                      <th className="p-4">点赞</th>
+                      <th className="p-4">时间</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {blessings.map((blessing) => (
+                      <tr
+                        key={blessing.id}
+                        className="border-b border-white/5 hover:bg-white/5 transition-colors"
+                      >
+                        <td className="p-4">
+                          <input
+                            type="checkbox"
+                            checked={selectedIds.has(blessing.id)}
+                            onChange={() => toggleSelect(blessing.id)}
+                            className="rounded"
+                          />
+                        </td>
+                        <td className="p-4 text-white">
+                          {blessing.is_anonymous ? '匿名' : blessing.nickname || '-'}
+                        </td>
+                        <td className="max-w-xs p-4 text-slate-300 truncate">{blessing.content}</td>
+                        <td className="p-4">
+                          <span
+                            className={`rounded-full px-2 py-0.5 text-xs ${
+                              blessing.status === 'approved'
+                                ? 'bg-green-500/20 text-green-400'
+                                : blessing.status === 'rejected'
+                                  ? 'bg-red-500/20 text-red-400'
+                                  : 'bg-yellow-500/20 text-yellow-400'
+                            }`}
+                          >
+                            {blessing.status === 'approved'
+                              ? '已通过'
+                              : blessing.status === 'rejected'
+                                ? '已拒绝'
+                                : '待审核'}
+                          </span>
+                        </td>
+                        <td className="p-4 text-slate-400">{blessing.likes}</td>
+                        <td className="p-4 text-slate-500">
+                          {formatDateTime(blessing.created_at)}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </>
         )}
       </div>
     </main>
