@@ -1,6 +1,6 @@
 # 📐 TECHNICAL_DESIGN.md — 教师节祝福平台 技术设计文档
 
-> 版本：v1.0 | 日期：2026-08-07 | 作者：Teacher Wishes Team
+> 版本：v1.1.0 | 日期：2026-08-07 | 作者：Teacher Wishes Team
 
 ---
 

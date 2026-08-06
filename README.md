@@ -163,7 +163,7 @@ docs/                         # ARCHITECTURE / API / CAPACITY
 | 文档 | 说明 |
 | :--- | :--- |
 | [PROGRESS.md](./PROGRESS.md) | 开发进度追踪 |
-| [CHANGELOG.md](./CHANGELOG.md) | v1.0.0 发布日志 |
+| [CHANGELOG.md](./CHANGELOG.md) | v1.1.0 发布日志 |
 | [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md) | 架构图 + ER 图 + 数据流 |
 | [docs/API.md](./docs/API.md) | API 端点文档 |
 | [docs/CAPACITY.md](./docs/CAPACITY.md) | 容量评估 + 扩容指南 |
