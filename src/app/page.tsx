@@ -20,6 +20,10 @@ const StatsPanel = dynamic(() => import('@/components/home/StatsPanel'), {
   ssr: false,
 });
 
+const BlessingGalaxy = dynamic(() => import('@/components/home/BlessingGalaxy'), {
+  ssr: false,
+});
+
 /** 首页展示的语录 */
 const QUOTES = ['教育不是灌满一桶水，而是点燃一把火。', '一支粉笔，两袖清风，三尺讲台，四季晴雨。'];
 
@@ -50,8 +54,11 @@ export default function HomePage() {
 
   return (
     <main className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden">
-      {/* 星空背景 */}
+      {/* 星空背景（装饰） */}
       <StarBackground count={120} />
+
+      {/* 祝福星河层（标题后显示） */}
+      {isActive('title') && <BlessingGalaxy />}
 
       {/* 内容层 */}
       <div className="relative z-10 flex flex-col items-center gap-8 px-4 text-center">
