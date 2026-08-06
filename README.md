@@ -5,7 +5,7 @@
 </p>
 
 <p align="center">
-  <a href="https://github.com/shh32010/Teacher-wishes/actions"><img src="https://img.shields.io/badge/build-passing-brightgreen" alt="Build Status"></a>
+  <a href="https://github.com/shh32010/Teacher-wishes/actions"><img src="https://github.com/shh32010/Teacher-wishes/actions/workflows/ci.yml/badge.svg" alt="Build"></a>
   <a href="./LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="License"></a>
   <a href="./PROGRESS.md"><img src="https://img.shields.io/badge/progress-94%25-success" alt="Progress"></a>
   <a href="https://nextjs.org"><img src="https://img.shields.io/badge/Next.js-14-black" alt="Next.js 14"></a>

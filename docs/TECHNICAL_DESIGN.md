@@ -588,8 +588,8 @@ NEXT_PUBLIC_SENTRY_DSN ← 可选
          │ 集成  │  Vitest · API 类型守卫
          │ ~10  │  验证逻辑 + 状态机
          ├──────┤
-         │ 单元  │  Vitest · 71 用例
-         │ 71   │  utils + 组件 + hooks
+         │ 单元  │  Vitest · 83 用例
+         │ 83   │  utils + 组件 + hooks
          └──────┘
               ↑
          ┌──────┐

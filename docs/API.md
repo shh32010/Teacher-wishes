@@ -124,11 +124,11 @@
 
 ### `POST /api/blessings/[id]/like`
 
-为指定祝福点赞（原子递增，通过 PostgreSQL RPC 实现）。
+为指定祝福点赞（IP 唯一约束 + RPC 原子递增）。
 
 **路径参数:** `id` — 祝福 UUID
 
-**响应:**
+**响应（200 — 首次点赞）:**
 
 ```json
 {
@@ -137,7 +137,15 @@
 }
 ```
 
-> ⚠️ 前端使用 `localStorage` 记录已点赞 ID，防止重复点赞。后端 RPC 函数 `increment_likes` 使用 `SECURITY DEFINER` 绕过 RLS。
+**响应（409 — 重复点赞）:**
+
+```json
+{
+  "error": "你已经点过赞了"
+}
+```
+
+> 🔒 服务端通过 `blessing_likes` 表 + `UNIQUE(blessing_id, ip_address)` 约束保证点赞唯一性。客户端 IP 从 `x-forwarded-for` / `x-real-ip` 头提取。前端 `localStorage` 仅作乐观 UI 辅助，真正防重复的是服务端 IP 约束。
 
 ---
 
@@ -326,7 +334,7 @@ teachers                   blessings                  rate_limits
 
 | 函数 | 说明 | 权限 |
 | :--- | :--- | :--- |
-| `increment_likes(blessing_id UUID)` | 原子递增点赞数 | `SECURITY DEFINER` |
+| `increment_likes(blessing_id UUID, client_ip TEXT)` | 原子递增点赞数（重复返回 -1） | `SECURITY DEFINER` |
 | `check_rate_limit(client_ip, action_name, max_requests, window_minutes)` | IP 限流检查 | `SECURITY DEFINER` |
 
 ---
