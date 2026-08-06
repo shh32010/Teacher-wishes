@@ -9,6 +9,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import type { Blessing, Teacher } from '@/types';
 
 interface Star {
@@ -195,7 +196,7 @@ export default function BlessingGalaxy() {
                 >
                   {/* 教师天体 — 光晕 + 头像 */}
                   <div
-                    className="flex items-center justify-center rounded-full"
+                    className="relative flex items-center justify-center overflow-hidden rounded-full"
                     style={{
                       width: star.size,
                       height: star.size,
@@ -207,10 +208,12 @@ export default function BlessingGalaxy() {
                     }}
                   >
                     {star.teacher!.avatar_url ? (
-                      <img
+                      <Image
                         src={star.teacher!.avatar_url}
                         alt={star.teacher!.name}
-                        className="h-full w-full rounded-full object-cover"
+                        fill
+                        sizes="28px"
+                        className="object-cover"
                       />
                     ) : (
                       <span
@@ -380,17 +383,19 @@ export default function BlessingGalaxy() {
                       <div className="text-center">
                         {/* 教师头像 */}
                         <div
-                          className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-blue-500/20"
+                          className="relative mx-auto mb-4 flex h-20 w-20 items-center justify-center overflow-hidden rounded-full bg-blue-500/20"
                           style={{
                             boxShadow:
                               '0 0 32px rgba(59,130,246,0.5), 0 0 64px rgba(59,130,246,0.2)',
                           }}
                         >
                           {selectedStar.teacher!.avatar_url ? (
-                            <img
+                            <Image
                               src={selectedStar.teacher!.avatar_url}
                               alt={selectedStar.teacher!.name}
-                              className="h-full w-full rounded-full object-cover"
+                              fill
+                              sizes="80px"
+                              className="object-cover"
                             />
                           ) : (
                             <span className="text-2xl font-bold text-blue-300" aria-hidden="true">
@@ -487,11 +492,15 @@ export default function BlessingGalaxy() {
                         className="mt-4 flex items-center gap-1.5 mx-auto rounded-full bg-accent/10 px-4 py-1.5 text-xs text-accent-light hover:bg-accent/20 transition-colors"
                       >
                         {selectedStar.blessing.teacher.avatar_url ? (
-                          <img
-                            src={selectedStar.blessing.teacher.avatar_url}
-                            alt={selectedStar.blessing.teacher.name}
-                            className="h-5 w-5 rounded-full object-cover"
-                          />
+                          <span className="relative inline-block h-5 w-5 overflow-hidden rounded-full">
+                            <Image
+                              src={selectedStar.blessing.teacher.avatar_url}
+                              alt={selectedStar.blessing.teacher.name}
+                              fill
+                              sizes="20px"
+                              className="object-cover"
+                            />
+                          </span>
                         ) : (
                           <span className="flex h-5 w-5 items-center justify-center rounded-full bg-accent/20 text-xs">
                             {selectedStar.blessing.teacher.name[0]}

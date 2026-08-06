@@ -18,10 +18,12 @@ const StarBackground = dynamic(() => import('@/components/home/StarBackground'),
 
 const StatsPanel = dynamic(() => import('@/components/home/StatsPanel'), {
   ssr: false,
+  loading: () => <div className="h-[140px]" aria-hidden="true" />,
 });
 
 const BlessingGalaxy = dynamic(() => import('@/components/home/BlessingGalaxy'), {
   ssr: false,
+  loading: () => <div className="absolute inset-0 -z-5" aria-hidden="true" />,
 });
 
 /** 首页展示的语录 */

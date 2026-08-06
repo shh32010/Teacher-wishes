@@ -7,6 +7,7 @@
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import GlassCard from '@/components/ui/GlassCard';
 import { cn, formatDate } from '@/lib/utils';
 import type { Blessing } from '@/types';
@@ -101,11 +102,15 @@ export default function BlessingCard({ blessing, index = 0, onLike }: BlessingCa
               aria-label={`查看${blessing.teacher.name}老师的详情页`}
             >
               {blessing.teacher.avatar_url ? (
-                <img
-                  src={blessing.teacher.avatar_url}
-                  alt={blessing.teacher.name}
-                  className="h-5 w-5 rounded-full object-cover ring-1 ring-accent/30"
-                />
+                <span className="relative inline-block h-5 w-5 overflow-hidden rounded-full ring-1 ring-accent/30">
+                  <Image
+                    src={blessing.teacher.avatar_url}
+                    alt={blessing.teacher.name}
+                    fill
+                    sizes="20px"
+                    className="object-cover"
+                  />
+                </span>
               ) : (
                 <span className="flex h-5 w-5 items-center justify-center rounded-full bg-accent/20 text-xs">
                   {blessing.teacher.name[0]}

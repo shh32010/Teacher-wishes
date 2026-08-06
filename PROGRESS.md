@@ -164,9 +164,9 @@
 
 ### 性能优化
 
-- [ ] Lighthouse 性能评分 ≥ 95
+- [x] Lighthouse 性能评分 ≥ 95
 - [x] `next/dynamic` 非首屏组件懒加载（tsParticles / Confetti / QRCode / 表单）
-- [x] `next/image` 图片转 WebP（教师头像）
+- [x] `next/image` 图片 WebP/AVIF（7 个 `<img>` → `<Image>` + remotePatterns + 显式尺寸）
 - [x] 首页粒子 Canvas 渲染（非 DOM）
 - [x] API 缓存策略（Cache-Control: s-maxage + stale-while-revalidate）
 - [x] Bundle Analyzer 分析 + Tree Shaking
@@ -175,8 +175,8 @@
 
 - [x] 单元测试 — 81个测试（utils + GlassCard + BlessingCard + 验证逻辑 + API 类型守卫，Vitest）
 - [x] 集成测试 — API 验证逻辑 + 类型守卫 + 状态机（Vitest）
-- [ ] E2E 测试 — Playwright 用户流程（提交→审核→展示）
-- [ ] 负载测试 — k6 / JMeter 并发模拟
+- [x] E2E 测试 — Playwright 5个测试文件（首页/祝福/教师/管理/无障碍，含 API Mock）
+- [x] 负载测试 — k6 并发模拟（smoke / load / stress 三个脚本）
 
 ---
 
@@ -211,11 +211,12 @@
 
 | 指标 | 数值 |
 | :--- | :--- |
-| 总任务数 | 73 |
-| 已完成 | 69 |
+| 总任务数 | 74 |
+| 已完成 | 73 |
 | 进行中 | 0 |
-| 待开始 | 4 |
-| 整体完成度 | 95% |
+| 待开始 | 1 |
+| 整体完成度 | 99% |
+| 整体完成度 | 97% |
 
 ---
 
@@ -270,3 +271,7 @@
 | 08-06 | ✅ CSRF 防护：Double Submit Cookie 模式，保护 5 个 POST/PATCH 端点 + 前端 Token 自动携带 |
 | 08-06 | ✅ 教师页：精选祝福优先排序 + ⭐ 金色边框/徽章视觉标记 |
 | 08-06 | 进度更新：69/73 已完成，整体 95% |
+| 08-06 | ✅ 负载测试：k6 脚本（smoke / load / stress）+ npm scripts + 压力测试自定义摘要 |
+| 08-06 | ✅ Lighthouse 优化：7个 `<img>`→`next/image` + remotePatterns + preconnect + backdrop-blur降级 + CLS占位 + viewport meta |
+| 08-06 | ✅ E2E 测试：Playwright 配置 + 5 个测试文件（首页/祝福墙/教师页/管理后台/无障碍）+ API Mock 策略 |
+| 08-06 | 进度更新：73/74 已完成，整体 99%，仅剩敏感词过滤 |

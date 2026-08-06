@@ -7,6 +7,7 @@
 import { useEffect, useState } from 'react';
 import { motion } from 'framer-motion';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import type { Teacher } from '@/types';
 
 interface TeacherTeamProps {
@@ -47,11 +48,13 @@ export default function TeacherTeam({ visible }: TeacherTeamProps) {
             className="flex flex-col items-center gap-1.5 group"
           >
             {teacher.avatar_url ? (
-              <div className="h-14 w-14 rounded-full ring-2 ring-accent/20 overflow-hidden group-hover:ring-accent/60 transition-all duration-300">
-                <img
+              <div className="relative h-14 w-14 rounded-full ring-2 ring-accent/20 overflow-hidden group-hover:ring-accent/60 transition-all duration-300">
+                <Image
                   src={teacher.avatar_url}
                   alt={teacher.name}
-                  className="h-full w-full object-cover"
+                  fill
+                  sizes="56px"
+                  className="object-cover"
                 />
               </div>
             ) : (

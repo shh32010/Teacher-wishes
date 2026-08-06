@@ -6,6 +6,7 @@
 
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import Image from 'next/image';
 import GlassCard from '@/components/ui/GlassCard';
 import { getCsrfToken } from '@/lib/csrf-client';
 
@@ -304,11 +305,15 @@ export default function BlessingForm({
                       {selectedTeacher ? (
                         <span className="flex items-center gap-2">
                           {selectedTeacher.avatar_url ? (
-                            <img
-                              src={selectedTeacher.avatar_url}
-                              className="h-5 w-5 rounded-full object-cover"
-                              alt=""
-                            />
+                            <span className="relative inline-block h-5 w-5 overflow-hidden rounded-full">
+                              <Image
+                                src={selectedTeacher.avatar_url}
+                                alt=""
+                                fill
+                                sizes="20px"
+                                className="object-cover"
+                              />
+                            </span>
                           ) : (
                             <span className="flex h-5 w-5 items-center justify-center rounded-full bg-accent/20 text-xs">
                               {selectedTeacher.name[0]}
@@ -375,11 +380,15 @@ export default function BlessingForm({
                               }`}
                             >
                               {t.avatar_url ? (
-                                <img
-                                  src={t.avatar_url}
-                                  className="h-6 w-6 rounded-full object-cover"
-                                  alt=""
-                                />
+                                <span className="relative inline-block h-6 w-6 overflow-hidden rounded-full">
+                                  <Image
+                                    src={t.avatar_url}
+                                    alt=""
+                                    fill
+                                    sizes="24px"
+                                    className="object-cover"
+                                  />
+                                </span>
                               ) : (
                                 <span
                                   className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/20 text-xs text-primary-light"

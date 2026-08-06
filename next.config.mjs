@@ -8,6 +8,20 @@ const withBundleAnalyzerConfig = withBundleAnalyzer({
 const nextConfig = {
   compress: true,
 
+  // 图片优化 — 允许加载 Supabase Storage 远程图片
+  images: {
+    formats: ['image/avif', 'image/webp'],
+    remotePatterns: [
+      {
+        protocol: 'https',
+        hostname: '*.supabase.co',
+        pathname: '/storage/v1/object/public/**',
+      },
+    ],
+    // 外部图片不强制设 deviceSizes，避免生成过多变体
+    deviceSizes: [640, 768, 1024, 1280, 1536],
+  },
+
   webpack: (config, { isServer }) => {
     if (!isServer) {
       config.optimization.splitChunks = {
