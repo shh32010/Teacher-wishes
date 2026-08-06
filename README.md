@@ -8,8 +8,8 @@
 
 ## ✨ 功能
 
-- 🎆 **沉浸式首页** — 星空粒子背景 + 语录渐显 + 渐变标题动画
-- 🌌 **祝福星河** — 斐波那契螺旋分布，教师天体（蓝色光晕）+ 祝福星星（金色闪烁），点击弹窗预览详情
+- 🎆 **沉浸式首页** — 星空粒子背景 + 语录渐显 + 渐变标题动画 + 页面过渡动画
+- 🌌 **祝福星河** — 斐波那契螺旋分布，教师天体（蓝色光晕）+ 祝福星星（金色闪烁），layoutId 平滑重排
 - 📝 **发布祝福** — 昵称 / 班级 / 祝福内容 / 教师搜索下拉（含头像）（玻璃态弹窗）
 - 💬 **祝福墙** — 瀑布流卡片 + 时间/点赞排序 + Supabase Realtime 实时更新 + 无限滚动
 - 👩‍🏫 **教师主页** — `/teacher/:id` 教师信息 + 时间/点赞排序 + 精选祝福标记 + 一键分享
@@ -30,6 +30,7 @@
 | 动画 | Framer Motion / tsParticles v4 / Canvas Confetti |
 | 数据请求 | SWR / useSWRInfinite |
 | 安全 | CSRF Token + IP Rate Limit + Turnstile + RLS |
+| 监控 | Vercel Analytics + Sentry（DSN 可选激活） |
 | 测试 | Vitest（81 单元测试） + Playwright（25 E2E）+ k6（负载） |
 | 性能 | Bundle Analyzer + next/image WebP/AVIF + 懒加载 |
 | 部署 | Vercel |

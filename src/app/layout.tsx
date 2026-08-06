@@ -1,5 +1,7 @@
 import type { Metadata, Viewport } from 'next';
 import localFont from 'next/font/local';
+import { Analytics } from '@vercel/analytics/react';
+import PageTransition from '@/components/ui/PageTransition';
 import './globals.css';
 
 const geistSans = localFont({
@@ -57,7 +59,10 @@ export default function RootLayout({
         {/* Turnstile 人机验证（按需加载，提前 DNS 预解析） */}
         <link rel="dns-prefetch" href="https://challenges.cloudflare.com" />
       </head>
-      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>{children}</body>
+      <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+        <PageTransition>{children}</PageTransition>
+        <Analytics />
+      </body>
     </html>
   );
 }

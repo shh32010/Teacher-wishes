@@ -62,12 +62,15 @@ export default function BlessingCard({ blessing, index = 0, onLike }: BlessingCa
 
   return (
     <motion.div
+      layout
+      layoutId={`blessing-${blessing.id}`}
       initial={{ opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{
         duration: 0.5,
         delay: index * 0.08,
         ease: 'easeOut',
+        layout: { duration: 0.4, ease: 'easeInOut' },
       }}
     >
       <GlassCard className="flex flex-col gap-3">

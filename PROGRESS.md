@@ -131,6 +131,7 @@
 - [x] 祝福卡片入场 stagger 动画
 - [ ] 页面转场动画（Framer Motion `layoutId`）
 - [x] 移动端动画降级（prefers-reduced-motion 适配）
+- [x] 页面转场动画（Framer Motion layoutId + AnimatePresence）
 - [ ] 粒子数量/帧率自适应
 
 ### 响应式与无障碍
@@ -194,16 +195,16 @@
 
 - [x] 预置教师数据导入（王老师/李老师/张老师）
 - [x] 活动数据预热（31条测试祝福）
-- [ ] 监控告警配置（Sentry / Vercel Analytics）
+- [x] 监控告警配置（Vercel Analytics + Sentry）
 - [x] 数据库备份策略确认（Supabase 每日自动备份）
 - [ ] 应急预案
 
 ### 文档
 
 - [x] README（中文，含功能介绍、技术栈、本地运行指南、项目结构）
-- [ ] 演示文稿
 - [x] 架构图 + ER 图（`docs/ARCHITECTURE.md`，含 Mermaid 图）
 - [x] API 文档（`docs/API.md`，含所有端点说明）
+- [x] 容量评估（`docs/CAPACITY.md`，含扩容指南）
 
 ---
 
@@ -282,3 +283,7 @@
 | 08-06 | ✅ 首页星河引导文案：蓝色星辉是老师，金色光芒是祝福 |
 | 08-06 | ✅ 祝福墙排序：🕐 最新 / 🔥 最热切换，SWR key 驱动自动刷新 |
 | 08-06 | ✅ 教师页排序：URL searchParam 驱动 + SortToggle 客户端组件 |
+| 08-07 | ✅ 页面转场动画：PageTransition 组件 + BlessingCard layoutId 排序重排 |
+| 08-07 | ✅ 监控接入：Vercel Analytics + Sentry（零配置，DSN 可选激活） |
+| 08-07 | ✅ 容量评估文档：docs/CAPACITY.md — 当前可支撑 200-500 并发用户 |
+| 08-07 | 进度更新：Phase 4 收尾完成 |

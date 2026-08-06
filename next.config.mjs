@@ -1,3 +1,4 @@
+import { withSentryConfig } from '@sentry/nextjs';
 import withBundleAnalyzer from '@next/bundle-analyzer';
 
 const withBundleAnalyzerConfig = withBundleAnalyzer({
@@ -73,4 +74,16 @@ const nextConfig = {
   },
 };
 
-export default withBundleAnalyzerConfig(nextConfig);
+// Sentry 构建配置（仅在配置了 DSN 且为生产构建时生效）
+const sentryOptions = {
+  org: process.env.SENTRY_ORG,
+  project: process.env.SENTRY_PROJECT,
+  silent: !process.env.SENTRY_DSN,
+  widenClientFileUpload: true,
+  tunnelRoute: '/monitoring',
+  hideSourceMaps: true,
+  disableLogger: true,
+  automaticVercelMonitors: true,
+};
+
+export default withSentryConfig(withBundleAnalyzerConfig(nextConfig), sentryOptions);
