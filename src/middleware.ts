@@ -8,12 +8,9 @@ import { NextResponse, type NextRequest } from 'next/server';
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // 仅拦截管理后台路径
-  if (
-    !pathname.startsWith('/admin') ||
-    pathname.startsWith('/admin/login') ||
-    pathname.startsWith('/admin/api')
-  ) {
+  // 仅拦截管理后台路径和 admin API
+  const isAdminPath = pathname.startsWith('/admin') || pathname.startsWith('/api/admin');
+  if (!isAdminPath || pathname.startsWith('/admin/login')) {
     return NextResponse.next();
   }
 
@@ -56,5 +53,5 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ['/admin/:path*'],
+  matcher: ['/admin/:path*', '/api/admin/:path*'],
 };

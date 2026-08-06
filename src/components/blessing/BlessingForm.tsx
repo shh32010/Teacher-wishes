@@ -20,7 +20,7 @@ interface BlessingFormProps {
     teacherId: string;
     turnstileToken?: string;
   }) => void;
-  teachers?: { id: string; name: string }[];
+  teachers?: { id: string; name: string; avatar_url?: string | null }[];
   isSubmitting?: boolean;
 }
 
@@ -35,9 +35,33 @@ export default function BlessingForm({
   const [class_, setClass] = useState('');
   const [content, setContent] = useState('');
   const [teacherId, setTeacherId] = useState('');
+  const [teacherSearch, setTeacherSearch] = useState('');
+  const [showTeacherDropdown, setShowTeacherDropdown] = useState(false);
   const [error, setError] = useState('');
   const turnstileRef = useRef<HTMLDivElement>(null);
   const turnstileLoaded = useRef(false);
+  const teacherDropdownRef = useRef<HTMLDivElement>(null);
+
+  // 点击外部关闭下拉
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (teacherDropdownRef.current && !teacherDropdownRef.current.contains(e.target as Node)) {
+        setShowTeacherDropdown(false);
+        setTeacherSearch('');
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
+  // 根据搜索词过滤教师
+  const filteredTeachers = teachers.filter((t) => {
+    if (!teacherSearch.trim()) return true;
+    return t.name.includes(teacherSearch.trim());
+  });
+
+  // 当前选中的教师名
+  const selectedTeacher = teachers.find((t) => t.id === teacherId);
 
   // 加载 Turnstile 脚本（如果配置了 site key）
   useEffect(() => {
@@ -174,26 +198,105 @@ export default function BlessingForm({
                   />
                 </div>
 
-                {/* 教师选择 */}
+                {/* 教师选择 — 可搜索 */}
                 {teachers.length > 0 && (
-                  <div>
+                  <div ref={teacherDropdownRef} className="relative">
                     <label className="mb-1.5 block text-sm text-slate-400">
                       送给哪位老师（选填）
                     </label>
-                    <select
-                      value={teacherId}
-                      onChange={(e) => setTeacherId(e.target.value)}
-                      className="w-full rounded-xl glass border-white/10 bg-transparent px-4 py-2.5 text-white outline-none transition-all focus:border-primary/50 focus:ring-1 focus:ring-primary/30"
+                    {/* 已选/搜索框 */}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setShowTeacherDropdown(!showTeacherDropdown);
+                        setTeacherSearch('');
+                      }}
+                      className="w-full rounded-xl glass border-white/10 bg-transparent px-4 py-2.5 text-left text-white outline-none transition-all focus:border-primary/50 focus:ring-1 focus:ring-primary/30"
                     >
-                      <option value="" className="bg-night">
-                        送给全体老师
-                      </option>
-                      {teachers.map((t) => (
-                        <option key={t.id} value={t.id} className="bg-night">
-                          {t.name}老师
-                        </option>
-                      ))}
-                    </select>
+                      {selectedTeacher ? (
+                        <span className="flex items-center gap-2">
+                          {selectedTeacher.avatar_url ? (
+                            <img
+                              src={selectedTeacher.avatar_url}
+                              className="h-5 w-5 rounded-full object-cover"
+                              alt=""
+                            />
+                          ) : (
+                            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-accent/20 text-xs">
+                              {selectedTeacher.name[0]}
+                            </span>
+                          )}
+                          {selectedTeacher.name}老师
+                        </span>
+                      ) : (
+                        <span className="text-slate-500">送给全体老师</span>
+                      )}
+                    </button>
+
+                    {/* 下拉面板 */}
+                    {showTeacherDropdown && (
+                      <div className="absolute left-0 right-0 top-full z-50 mt-1 rounded-xl glass border border-white/10 bg-night-light/95 backdrop-blur-xl overflow-hidden">
+                        {/* 搜索输入 */}
+                        <div className="border-b border-white/5 p-2">
+                          <input
+                            type="text"
+                            autoFocus
+                            value={teacherSearch}
+                            onChange={(e) => setTeacherSearch(e.target.value)}
+                            placeholder="搜索教师姓名..."
+                            className="w-full rounded-lg bg-white/5 px-3 py-2 text-sm text-white placeholder-slate-500 outline-none"
+                          />
+                        </div>
+                        {/* 选项列表 */}
+                        <div className="max-h-48 overflow-y-auto">
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setTeacherId('');
+                              setShowTeacherDropdown(false);
+                              setTeacherSearch('');
+                            }}
+                            className={`w-full px-4 py-2.5 text-left text-sm transition-colors hover:bg-white/10 ${
+                              !teacherId ? 'text-accent-light bg-accent/10' : 'text-slate-300'
+                            }`}
+                          >
+                            🌟 送给全体老师
+                          </button>
+                          {filteredTeachers.map((t) => (
+                            <button
+                              key={t.id}
+                              type="button"
+                              onClick={() => {
+                                setTeacherId(t.id);
+                                setShowTeacherDropdown(false);
+                                setTeacherSearch('');
+                              }}
+                              className={`w-full px-4 py-2.5 text-left text-sm transition-colors hover:bg-white/10 flex items-center gap-2 ${
+                                teacherId === t.id
+                                  ? 'text-accent-light bg-accent/10'
+                                  : 'text-slate-300'
+                              }`}
+                            >
+                              {t.avatar_url ? (
+                                <img
+                                  src={t.avatar_url}
+                                  className="h-6 w-6 rounded-full object-cover"
+                                  alt=""
+                                />
+                              ) : (
+                                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-primary/20 text-xs text-primary-light">
+                                  {t.name[0]}
+                                </span>
+                              )}
+                              {t.name}老师
+                            </button>
+                          ))}
+                          {filteredTeachers.length === 0 && (
+                            <p className="px-4 py-3 text-sm text-slate-500">未找到匹配的教师</p>
+                          )}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 )}
 

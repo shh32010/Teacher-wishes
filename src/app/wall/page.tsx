@@ -6,6 +6,7 @@
 
 import { useState, useCallback, useEffect, useMemo } from 'react';
 import useSWRInfinite from 'swr/infinite';
+import useSWR from 'swr';
 import dynamic from 'next/dynamic';
 import { createRealtimeClient } from '@/lib/supabase/client';
 import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
@@ -32,6 +33,11 @@ export default function WallPage() {
   const [showForm, setShowForm] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // 获取教师列表（用于表单下拉）
+  const { data: teacherData } = useSWR('/api/teachers', fetcher);
+  const teachers: { id: string; name: string; avatar_url?: string | null }[] =
+    teacherData?.teachers || [];
 
   // 无限滚动数据
   const {
@@ -206,8 +212,17 @@ export default function WallPage() {
         isOpen={showForm}
         onClose={() => setShowForm(false)}
         onSubmit={handleSubmit}
+        teachers={teachers}
         isSubmitting={isSubmitting}
       />
+
+      {/* 底部浮动按钮 */}
+      <button
+        onClick={() => setShowForm(true)}
+        className="btn-primary fixed bottom-6 right-6 z-40 animate-breathe shadow-lg shadow-primary/30 text-lg px-6 py-3"
+      >
+        ✨ 送出祝福
+      </button>
     </main>
   );
 }

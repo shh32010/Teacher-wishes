@@ -4,11 +4,13 @@
 
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
+import dynamicImport from 'next/dynamic';
 import { createClient } from '@/lib/supabase/server';
-import ShareButton from '@/components/ui/ShareButton';
 import type { Teacher, Blessing } from '@/types';
 import { formatDate } from '@/lib/utils';
 import { Metadata } from 'next';
+
+const ShareButton = dynamicImport(() => import('@/components/ui/ShareButton'), { ssr: false });
 
 /** 教师页面按需 SSR（未来可改为 ISR） */
 export const dynamic = 'force-dynamic';

@@ -6,6 +6,7 @@
 
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
+import { useRouter } from 'next/navigation';
 import GlassCard from '@/components/ui/GlassCard';
 import { cn, formatDate } from '@/lib/utils';
 import type { Blessing } from '@/types';
@@ -37,6 +38,7 @@ interface BlessingCardProps {
 }
 
 export default function BlessingCard({ blessing, index = 0, onLike }: BlessingCardProps) {
+  const router = useRouter();
   const [liked, setLiked] = useState(false);
   const [likesCount, setLikesCount] = useState(blessing.likes);
 
@@ -90,9 +92,26 @@ export default function BlessingCard({ blessing, index = 0, onLike }: BlessingCa
         {/* 底部：教师标签 + 点赞 */}
         <div className="flex items-center justify-between pt-1">
           {blessing.teacher ? (
-            <span className="rounded-full bg-accent/10 px-3 py-1 text-xs text-accent-light">
-              ❤️ {blessing.teacher.name}老师
-            </span>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                router.push(`/teacher/${blessing.teacher!.id}`);
+              }}
+              className="flex items-center gap-1.5 rounded-full bg-accent/10 pl-0.5 pr-3 py-0.5 text-xs text-accent-light hover:bg-accent/20 transition-colors cursor-pointer"
+            >
+              {blessing.teacher.avatar_url ? (
+                <img
+                  src={blessing.teacher.avatar_url}
+                  alt={blessing.teacher.name}
+                  className="h-5 w-5 rounded-full object-cover ring-1 ring-accent/30"
+                />
+              ) : (
+                <span className="flex h-5 w-5 items-center justify-center rounded-full bg-accent/20 text-xs">
+                  {blessing.teacher.name[0]}
+                </span>
+              )}
+              {blessing.teacher.name}老师 →
+            </button>
           ) : (
             <span />
           )}

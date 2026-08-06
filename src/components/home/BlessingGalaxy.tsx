@@ -1,5 +1,6 @@
 // ============================================================
-// 祝福星河 — 每条祝福对应一颗星星，悬浮预览、点击跳转
+// 祝福星河 — 每条祝福 = 小星星，每位教师 = 大天体
+// 斐波那契螺旋分布 + 悬浮预览气泡 + 点击弹窗详情
 // ============================================================
 
 'use client';
@@ -7,39 +8,41 @@
 import { useEffect, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useRouter } from 'next/navigation';
-import type { Blessing } from '@/types';
+import type { Blessing, Teacher } from '@/types';
 
-/** 每颗星的坐标 + 祝福数据 */
 interface Star {
   id: string;
-  x: number; // 百分比 0-100
+  x: number;
   y: number;
-  size: number; // 像素
-  blessing: Blessing;
+  size: number;
+  type: 'blessing' | 'teacher';
+  blessing?: Blessing;
+  teacher?: Teacher;
 }
 
 /**
- * 用斐波那契球面分布生成均匀的 2D 坐标
- * 避免星星重叠，呈现自然的夜空分布
+ * 用斐波那契螺旋生成均匀分布的 2D 坐标
  */
 function generatePositions(count: number): { x: number; y: number }[] {
   const points: { x: number; y: number }[] = [];
-  const phi = Math.PI * (3 - Math.sqrt(5)); // 黄金角度
+  const phi = Math.PI * (3 - Math.sqrt(5));
 
   for (let i = 0; i < count; i++) {
-    // 螺旋半径从边缘到中心
     const t = i / (count - 1 || 1);
-    const radius = 0.15 + t * 0.7; // 15%-85% 半径
+    const radius = 0.12 + t * 0.72;
     const angle = i * phi;
-
-    // 转换为笛卡尔坐标，映射到屏幕百分比
     const x = 50 + radius * 50 * Math.cos(angle);
     const y = 50 + radius * 50 * Math.sin(angle);
-
-    points.push({ x: Math.max(5, Math.min(95, x)), y: Math.max(5, Math.min(90, y)) });
+    points.push({ x: Math.max(3, Math.min(97, x)), y: Math.max(3, Math.min(94, y)) });
   }
 
   return points;
+}
+
+/** 格式化日期 */
+function formatDate(dateStr: string): string {
+  const d = new Date(dateStr);
+  return `${d.getMonth() + 1}月${d.getDate()}日`;
 }
 
 export default function BlessingGalaxy() {
@@ -47,84 +50,363 @@ export default function BlessingGalaxy() {
   const [stars, setStars] = useState<Star[]>([]);
   const [hovered, setHovered] = useState<string | null>(null);
   const [visible, setVisible] = useState(false);
+  const [selectedStar, setSelectedStar] = useState<Star | null>(null);
 
   useEffect(() => {
-    fetch('/api/blessings?pageSize=50')
-      .then((res) => res.json())
-      .then(({ data }: { data: Blessing[] }) => {
-        const positions = generatePositions(data.length);
-        setStars(
-          data.map((blessing, i) => ({
-            id: blessing.id,
-            x: positions[i].x,
-            y: positions[i].y,
+    Promise.all([
+      fetch('/api/blessings?pageSize=50').then((r) => r.json()),
+      fetch('/api/teachers').then((r) => r.json()),
+    ])
+      .then(([blessingsRes, teachersRes]) => {
+        const blessings: Blessing[] = blessingsRes.data || [];
+        const teachers: Teacher[] = teachersRes.teachers || [];
+
+        const total = teachers.length + blessings.length;
+        const positions = generatePositions(total);
+
+        const allStars: Star[] = [];
+
+        // 教师星体 — 占据最外层显眼位置（靠后生成的位置 = 外圈）
+        teachers.forEach((teacher, i) => {
+          const posIdx = blessings.length + i;
+          allStars.push({
+            id: `teacher-${teacher.id}`,
+            x: positions[posIdx]?.x ?? 50,
+            y: positions[posIdx]?.y ?? 50,
+            size: 28,
+            type: 'teacher',
+            teacher,
+          });
+        });
+
+        // 祝福星星 — 内圈到中圈
+        blessings.forEach((blessing, i) => {
+          allStars.push({
+            id: `blessing-${blessing.id}`,
+            x: positions[i]?.x ?? 50,
+            y: positions[i]?.y ?? 50,
             size: 2.5 + (blessing.likes > 10 ? 2 : blessing.likes > 5 ? 1.5 : 0),
+            type: 'blessing',
             blessing,
-          }))
-        );
-        // 数据到位后渐显
+          });
+        });
+
+        setStars(allStars);
         setTimeout(() => setVisible(true), 500);
       })
       .catch(() => {});
   }, []);
 
-  if (stars.length === 0) return null;
+  if (stars.length === 0) {
+    return null;
+  }
 
   return (
-    <div className="absolute inset-0 z-5 overflow-hidden pointer-events-none">
-      {stars.map((star) => (
-        <div key={star.id} className="pointer-events-auto">
-          {/* 星星 */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: visible ? 1 : 0 }}
-            transition={{ delay: Math.random() * 2, duration: 0.8 }}
-            className="absolute cursor-pointer group"
-            style={{ left: `${star.x}%`, top: `${star.y}%` }}
-            onMouseEnter={() => setHovered(star.id)}
-            onMouseLeave={() => setHovered(null)}
-            onClick={() => router.push('/wall')}
-          >
-            {/* 星点 */}
-            <div
-              className="rounded-full animate-star-twinkle"
-              style={{
-                width: star.size * 2,
-                height: star.size * 2,
-                marginLeft: -star.size,
-                marginTop: -star.size,
-                background: `radial-gradient(circle, rgba(255,233,166,0.9) 0%, rgba(245,158,11,0.4) 50%, transparent 70%)`,
-                boxShadow: `0 0 ${star.size * 3}px rgba(245,158,11,0.5)`,
-              }}
+    <>
+      {/* ==================== 星河层 ==================== */}
+      <div className="pointer-events-none absolute inset-0 z-5 overflow-hidden">
+        {stars.map((star) => {
+          if (star.type === 'teacher') {
+            return (
+              <div key={star.id} className="pointer-events-auto">
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.5 }}
+                  animate={{ opacity: visible ? 1 : 0, scale: visible ? 1 : 0.5 }}
+                  transition={{ delay: 0.5 + Math.random() * 0.5, duration: 0.8 }}
+                  className="group absolute cursor-pointer"
+                  style={{ left: `${star.x}%`, top: `${star.y}%` }}
+                  onMouseEnter={() => setHovered(star.id)}
+                  onMouseLeave={() => setHovered(null)}
+                  onClick={() => setSelectedStar(star)}
+                >
+                  {/* 教师天体 — 光晕 + 头像 */}
+                  <div
+                    className="flex items-center justify-center rounded-full"
+                    style={{
+                      width: star.size,
+                      height: star.size,
+                      marginLeft: -star.size / 2,
+                      marginTop: -star.size / 2,
+                      background:
+                        'radial-gradient(circle, rgba(59,130,246,0.6) 0%, rgba(37,99,235,0.3) 50%, transparent 70%)',
+                      boxShadow: `0 0 ${star.size}px rgba(59,130,246,0.6), 0 0 ${star.size * 2}px rgba(59,130,246,0.2)`,
+                    }}
+                  >
+                    {star.teacher!.avatar_url ? (
+                      <img
+                        src={star.teacher!.avatar_url}
+                        alt={star.teacher!.name}
+                        className="h-full w-full rounded-full object-cover"
+                      />
+                    ) : (
+                      <span className="text-xs font-bold text-white drop-shadow-lg">
+                        {star.teacher!.name[0]}
+                      </span>
+                    )}
+                  </div>
+
+                  {/* 悬浮气泡 */}
+                  <AnimatePresence>
+                    {hovered === star.id && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 5, scale: 0.9 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0 }}
+                        className="absolute bottom-full left-1/2 z-20 mb-3 -translate-x-1/2"
+                      >
+                        <div className="glass whitespace-nowrap rounded-xl px-4 py-3 text-center">
+                          <p className="text-sm font-bold text-white">{star.teacher!.name}老师</p>
+                          {star.teacher!.department && (
+                            <p className="text-xs text-slate-400">{star.teacher!.department}</p>
+                          )}
+                          <p className="mt-1 text-xs text-accent-light">点击查看详情</p>
+                        </div>
+                        <div className="mx-auto h-0 w-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-white/10" />
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </motion.div>
+              </div>
+            );
+          }
+
+          // 祝福星星
+          return (
+            <div key={star.id} className="pointer-events-auto">
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: visible ? 1 : 0 }}
+                transition={{ delay: Math.random() * 2, duration: 0.8 }}
+                className="group absolute cursor-pointer"
+                style={{ left: `${star.x}%`, top: `${star.y}%` }}
+                onMouseEnter={() => setHovered(star.id)}
+                onMouseLeave={() => setHovered(null)}
+                onClick={() => setSelectedStar(star)}
+              >
+                <div
+                  className="animate-star-twinkle rounded-full"
+                  style={{
+                    width: star.size * 2,
+                    height: star.size * 2,
+                    marginLeft: -star.size,
+                    marginTop: -star.size,
+                    background:
+                      'radial-gradient(circle, rgba(255,233,166,0.9) 0%, rgba(245,158,11,0.4) 50%, transparent 70%)',
+                    boxShadow: `0 0 ${star.size * 3}px rgba(245,158,11,0.5)`,
+                  }}
+                />
+
+                <AnimatePresence>
+                  {hovered === star.id && star.blessing && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 5, scale: 0.9 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0 }}
+                      className="absolute bottom-full left-1/2 z-20 mb-2 -translate-x-1/2"
+                    >
+                      <div className="glass max-w-[200px] whitespace-nowrap rounded-xl px-4 py-3 text-center">
+                        <p className="truncate text-xs text-slate-300">
+                          {star.blessing.content.slice(0, 30)}
+                          {star.blessing.content.length > 30 ? '...' : ''}
+                        </p>
+                        <p className="mt-1 text-xs text-slate-500">
+                          — {star.blessing.is_anonymous ? '匿名' : star.blessing.nickname || '同学'}
+                        </p>
+                        <p className="text-xs text-pink-400">❤️ {star.blessing.likes}</p>
+                      </div>
+                      <div className="mx-auto h-0 w-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-white/10" />
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </motion.div>
+            </div>
+          );
+        })}
+      </div>
+
+      {/* ==================== 详情弹窗 ==================== */}
+      <AnimatePresence>
+        {selectedStar && (
+          <>
+            {/* 遮罩 */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm"
+              onClick={() => setSelectedStar(null)}
             />
 
-            {/* 悬浮气泡 */}
-            <AnimatePresence>
-              {hovered === star.id && (
-                <motion.div
-                  initial={{ opacity: 0, y: 5, scale: 0.9 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0 }}
-                  className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 z-20"
+            {/* 弹窗卡片 */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.9, y: 20 }}
+              transition={{ type: 'spring', damping: 25, stiffness: 300 }}
+              className="fixed inset-0 z-50 flex items-center justify-center p-4"
+              onClick={() => setSelectedStar(null)}
+            >
+              <div
+                className="glass w-full max-w-md rounded-2xl p-6"
+                onClick={(e) => e.stopPropagation()}
+              >
+                {/* 关闭按钮 */}
+                <button
+                  onClick={() => setSelectedStar(null)}
+                  className="absolute right-4 top-4 rounded-full p-1.5 text-slate-400 hover:text-white transition-colors"
                 >
-                  <div className="glass rounded-xl px-4 py-3 text-center whitespace-nowrap max-w-[200px]">
-                    <p className="text-xs text-slate-300 truncate">
-                      {star.blessing.content.slice(0, 30)}
-                      {star.blessing.content.length > 30 ? '...' : ''}
+                  <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M6 18L18 6M6 6l12 12"
+                    />
+                  </svg>
+                </button>
+
+                {selectedStar.type === 'teacher' &&
+                  selectedStar.teacher &&
+                  (() => {
+                    const teacherBlessings = stars
+                      .filter(
+                        (s) =>
+                          s.type === 'blessing' &&
+                          s.blessing?.teacher_id === selectedStar.teacher!.id
+                      )
+                      .slice(0, 5);
+
+                    return (
+                      <div className="text-center">
+                        {/* 教师头像 */}
+                        <div
+                          className="mx-auto mb-4 flex h-20 w-20 items-center justify-center rounded-full bg-blue-500/20"
+                          style={{
+                            boxShadow:
+                              '0 0 32px rgba(59,130,246,0.5), 0 0 64px rgba(59,130,246,0.2)',
+                          }}
+                        >
+                          {selectedStar.teacher!.avatar_url ? (
+                            <img
+                              src={selectedStar.teacher!.avatar_url}
+                              alt={selectedStar.teacher!.name}
+                              className="h-full w-full rounded-full object-cover"
+                            />
+                          ) : (
+                            <span className="text-2xl font-bold text-blue-300">
+                              {selectedStar.teacher!.name[0]}
+                            </span>
+                          )}
+                        </div>
+
+                        <h2 className="text-xl font-bold text-white">
+                          {selectedStar.teacher!.name}老师
+                        </h2>
+                        {selectedStar.teacher!.department && (
+                          <p className="mt-1 text-sm text-slate-400">
+                            {selectedStar.teacher!.department}
+                          </p>
+                        )}
+                        {selectedStar.teacher!.description && (
+                          <p className="mt-3 text-sm leading-relaxed text-slate-300">
+                            {selectedStar.teacher!.description}
+                          </p>
+                        )}
+
+                        {/* 关联祝福列表 */}
+                        {teacherBlessings.length > 0 && (
+                          <div className="mt-5 border-t border-white/10 pt-4">
+                            <p className="mb-3 text-xs font-medium text-slate-500">
+                              💬 收到的祝福（{teacherBlessings.length}条）
+                            </p>
+                            <div className="max-h-48 space-y-2 overflow-y-auto pr-1 text-left">
+                              {teacherBlessings.map((bs) => (
+                                <div key={bs.id} className="rounded-xl bg-white/5 px-3 py-2.5">
+                                  <p className="text-sm leading-relaxed text-slate-200">
+                                    {bs.blessing!.content}
+                                  </p>
+                                  <p className="mt-1 text-xs text-slate-500">
+                                    —{' '}
+                                    {bs.blessing!.is_anonymous
+                                      ? '匿名'
+                                      : bs.blessing!.nickname || '同学'}
+                                    {bs.blessing!.class && <span> · {bs.blessing!.class}</span>}
+                                    <span className="ml-2 text-pink-400">
+                                      ❤️ {bs.blessing!.likes}
+                                    </span>
+                                  </p>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        <button
+                          onClick={() => router.push(`/teacher/${selectedStar.teacher!.id}`)}
+                          className="btn-primary mt-5 inline-block"
+                        >
+                          📖 查看老师主页
+                        </button>
+                      </div>
+                    );
+                  })()}
+
+                {selectedStar.type === 'blessing' && selectedStar.blessing && (
+                  <div className="text-center">
+                    {/* 发送者头像 */}
+                    <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-primary/20">
+                      <span className="text-lg font-bold text-primary-light">
+                        {(selectedStar.blessing.nickname || '匿')[0]}
+                      </span>
+                    </div>
+
+                    <p className="text-sm text-slate-400">
+                      {selectedStar.blessing.is_anonymous
+                        ? '匿名同学'
+                        : selectedStar.blessing.nickname || '匿名同学'}
+                      {selectedStar.blessing.class && <span> · {selectedStar.blessing.class}</span>}
                     </p>
-                    <p className="mt-1 text-xs text-slate-500">
-                      — {star.blessing.is_anonymous ? '匿名' : star.blessing.nickname || '同学'}
+
+                    {/* 祝福内容 */}
+                    <p className="mt-4 text-base leading-relaxed text-slate-100">
+                      {selectedStar.blessing.content}
                     </p>
-                    <p className="text-xs text-pink-400">❤️ {star.blessing.likes}</p>
+
+                    {/* 元信息 */}
+                    <div className="mt-4 flex items-center justify-center gap-4 text-xs text-slate-500">
+                      <span>❤️ {selectedStar.blessing.likes} 赞</span>
+                      <span>{formatDate(selectedStar.blessing.created_at)}</span>
+                    </div>
+
+                    {/* 关联教师 */}
+                    {selectedStar.blessing.teacher && (
+                      <button
+                        onClick={() =>
+                          router.push(`/teacher/${selectedStar.blessing!.teacher!.id}`)
+                        }
+                        className="mt-4 flex items-center gap-1.5 mx-auto rounded-full bg-accent/10 px-4 py-1.5 text-xs text-accent-light hover:bg-accent/20 transition-colors"
+                      >
+                        {selectedStar.blessing.teacher.avatar_url ? (
+                          <img
+                            src={selectedStar.blessing.teacher.avatar_url}
+                            alt={selectedStar.blessing.teacher.name}
+                            className="h-5 w-5 rounded-full object-cover"
+                          />
+                        ) : (
+                          <span className="flex h-5 w-5 items-center justify-center rounded-full bg-accent/20 text-xs">
+                            {selectedStar.blessing.teacher.name[0]}
+                          </span>
+                        )}
+                        {selectedStar.blessing.teacher.name}老师 →
+                      </button>
+                    )}
                   </div>
-                  {/* 小三角 */}
-                  <div className="mx-auto w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-white/10" />
-                </motion.div>
-              )}
-            </AnimatePresence>
-          </motion.div>
-        </div>
-      ))}
-    </div>
+                )}
+              </div>
+            </motion.div>
+          </>
+        )}
+      </AnimatePresence>
+    </>
   );
 }
