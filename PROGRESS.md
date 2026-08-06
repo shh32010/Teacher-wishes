@@ -228,6 +228,8 @@
 | 3 | 敏感词过滤已安装 `bad-words`，服务端逻辑待接入 | 🟢 低 | 可延后 |
 | 4 | 移动端适配基础完成，未全面测试 | 🟢 低 | 可延后 |
 | 5 | Vercel 域名大陆被墙 → 已解决：CF 代理 `teacher.shh32010.dpdns.org` | 🟢 | ✅ 已修复 |
+| 6 | ~~PGRST103：/api/blessings?page=3 超出范围 500~~ → 捕获后返回空列表 | 🟢 | ✅ 已修复 |
+| 7 | ~~SWR fetcher 不检查 res.ok 导致无限重试崩溃~~ → 防御性错误处理 | 🟢 | ✅ 已修复 |
 
 ---
 
@@ -274,3 +276,9 @@
 | 08-06 | ✅ Lighthouse 优化：7个 `<img>`→`next/image` + remotePatterns + preconnect + backdrop-blur降级 + CLS占位 + viewport meta |
 | 08-06 | ✅ E2E 测试：Playwright 配置 + 5 个测试文件（首页/祝福墙/教师页/管理后台/无障碍）+ API Mock 策略 |
 | 08-06 | 进度更新：73/74 已完成，整体 99%，仅剩敏感词过滤 |
+| 08-06 | 🐛 修复：PGRST103 — API page 超出范围返回 500，捕获后返回空列表 |
+| 08-06 | 🐛 修复：SWR fetcher 不检查 res.ok 导致 `undefined.length` 无限重试崩溃 |
+| 08-06 | ✅ Supabase 客户端单例模式：消除 Multiple GoTrueClient 实例警告 |
+| 08-06 | ✅ 首页星河引导文案：蓝色星辉是老师，金色光芒是祝福 |
+| 08-06 | ✅ 祝福墙排序：🕐 最新 / 🔥 最热切换，SWR key 驱动自动刷新 |
+| 08-06 | ✅ 教师页排序：URL searchParam 驱动 + SortToggle 客户端组件 |

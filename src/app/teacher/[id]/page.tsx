@@ -5,18 +5,21 @@
 import { notFound } from 'next/navigation';
 import Image from 'next/image';
 import dynamicImport from 'next/dynamic';
+import { Suspense } from 'react';
 import { createClient } from '@/lib/supabase/server';
 import type { Teacher, Blessing } from '@/types';
 import { formatDate } from '@/lib/utils';
 import { Metadata } from 'next';
 
 const ShareButton = dynamicImport(() => import('@/components/ui/ShareButton'), { ssr: false });
+const SortToggle = dynamicImport(() => import('@/components/blessing/SortToggle'), { ssr: false });
 
 /** 教师页面按需 SSR（未来可改为 ISR） */
 export const dynamic = 'force-dynamic';
 
 interface TeacherPageProps {
   params: { id: string };
+  searchParams: { sort?: string };
 }
 
 /** 动态生成元数据 */
@@ -36,8 +39,10 @@ export async function generateMetadata({ params }: TeacherPageProps): Promise<Me
   };
 }
 
-export default async function TeacherPage({ params }: TeacherPageProps) {
+export default async function TeacherPage({ params, searchParams }: TeacherPageProps) {
   const supabase = createClient();
+  const sort = searchParams.sort === 'likes' ? 'likes' : 'time';
+  const sortField = sort === 'likes' ? 'likes' : 'created_at';
 
   // 并行获取教师信息和祝福列表
   const [teacherResult, blessingsResult] = await Promise.all([
@@ -48,7 +53,7 @@ export default async function TeacherPage({ params }: TeacherPageProps) {
       .eq('teacher_id', params.id)
       .eq('status', 'approved')
       .order('is_featured', { ascending: false })
-      .order('created_at', { ascending: false })
+      .order(sortField, { ascending: false })
       .limit(50),
   ]);
 
@@ -102,7 +107,14 @@ export default async function TeacherPage({ params }: TeacherPageProps) {
           </div>
         </div>
 
-        {/* 祝福列表 */}
+        {/* 排序切换 + 祝福列表 */}
+        <div className="mb-4 flex items-center justify-between">
+          <h2 className="text-sm font-medium text-slate-300">{blessings.length} 条祝福</h2>
+          <Suspense fallback={<div className="h-8 w-24 rounded-lg bg-white/5" />}>
+            <SortToggle />
+          </Suspense>
+        </div>
+
         {blessings.length === 0 ? (
           <div className="py-20 text-center">
             <p className="text-slate-500">还没有祝福，快来送上第一条吧 💌</p>

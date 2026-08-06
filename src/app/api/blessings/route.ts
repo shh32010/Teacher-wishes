@@ -4,7 +4,7 @@
 // ============================================================
 
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient, createAnonClient } from '@/lib/supabase/server';
+import { createAnonClient } from '@/lib/supabase/server';
 import type { Blessing, CreateBlessingPayload, PaginatedResponse } from '@/types';
 import { validateCsrfToken, csrfErrorResponse } from '@/lib/csrf';
 
@@ -13,16 +13,21 @@ export async function GET(request: NextRequest) {
   const page = Math.max(1, parseInt(searchParams.get('page') || '1', 10));
   const pageSize = Math.min(50, Math.max(1, parseInt(searchParams.get('pageSize') || '20', 10)));
   const teacherId = searchParams.get('teacher_id');
+  const sort = searchParams.get('sort') || 'time'; // 'time' | 'likes'
   const offset = (page - 1) * pageSize;
 
+  // 排序字段映射
+  const sortField = sort === 'likes' ? 'likes' : 'created_at';
+
   try {
-    const supabase = createClient();
+    // GET 接口为公开读，使用 anon client（不依赖 Cookie/Session）
+    const supabase = createAnonClient();
 
     let query = supabase
       .from('blessings')
       .select('*, teacher:teachers(*)', { count: 'exact' })
       .eq('status', 'approved')
-      .order('created_at', { ascending: false })
+      .order(sortField, { ascending: false })
       .range(offset, offset + pageSize - 1);
 
     // 按教师筛选
@@ -33,8 +38,21 @@ export async function GET(request: NextRequest) {
     const { data, error, count } = await query;
 
     if (error) {
-      console.error('[API] 获取祝福列表失败:', error);
-      return NextResponse.json({ error: '获取祝福列表失败' }, { status: 500 });
+      // PGRST103: 请求范围超出数据总量（如请求第3页但只有40条数据）
+      // 这不是真的错误，返回空列表即可
+      if (error.code === 'PGRST103') {
+        return NextResponse.json({
+          data: [],
+          count: 0,
+          page,
+          pageSize,
+        });
+      }
+      console.error('[API] 获取祝福列表失败:', JSON.stringify(error));
+      return NextResponse.json(
+        { error: '获取祝福列表失败', detail: error.message, code: error.code },
+        { status: 500 }
+      );
     }
 
     const response: PaginatedResponse<Blessing> = {

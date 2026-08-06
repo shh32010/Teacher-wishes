@@ -1,6 +1,6 @@
 // ============================================================
 // 首页 — 故事式沉浸体验
-// 时间线：星空 → 语录淡入 → 标题放大 → 按钮出现
+// 时间线：星空 → 语录淡入 → 标题放大 → 星河提示 → 按钮出现
 // ============================================================
 
 'use client';
@@ -30,7 +30,7 @@ const BlessingGalaxy = dynamic(() => import('@/components/home/BlessingGalaxy'),
 const QUOTES = ['教育不是灌满一桶水，而是点燃一把火。', '一支粉笔，两袖清风，三尺讲台，四季晴雨。'];
 
 /** 动画阶段 */
-type Stage = 'stars' | 'quote1' | 'quote2' | 'title' | 'button';
+type Stage = 'stars' | 'quote1' | 'quote2' | 'title' | 'galaxyHint' | 'button';
 
 export default function HomePage() {
   const router = useRouter();
@@ -41,7 +41,8 @@ export default function HomePage() {
       { stage: 'quote1', delay: 2000 },
       { stage: 'quote2', delay: 4000 },
       { stage: 'title', delay: 6000 },
-      { stage: 'button', delay: 8000 },
+      { stage: 'galaxyHint', delay: 8000 },
+      { stage: 'button', delay: 10000 },
     ];
 
     const timers = timeline.map(({ stage: s, delay }) => setTimeout(() => setStage(s), delay));
@@ -50,7 +51,7 @@ export default function HomePage() {
   }, []);
 
   const isActive = (s: Stage): boolean => {
-    const order: Stage[] = ['stars', 'quote1', 'quote2', 'title', 'button'];
+    const order: Stage[] = ['stars', 'quote1', 'quote2', 'title', 'galaxyHint', 'button'];
     return order.indexOf(stage) >= order.indexOf(s);
   };
 
@@ -107,6 +108,40 @@ export default function HomePage() {
                 教师节快乐
               </h1>
               <p className="mt-3 text-lg text-slate-400">致敬每一位引路人</p>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
+        {/* 星河引导文案 */}
+        <AnimatePresence>
+          {isActive('galaxyHint') && (
+            <motion.div
+              key="galaxyHint"
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 1, ease: 'easeOut' }}
+              className="flex flex-col items-center gap-3 text-center"
+            >
+              <p className="text-base leading-relaxed text-slate-300">
+                <span
+                  className="mx-1 inline-block h-3.5 w-3.5 rounded-full align-middle"
+                  style={{
+                    background:
+                      'radial-gradient(circle, rgba(59,130,246,0.8) 0%, rgba(37,99,235,0.4) 50%, transparent 70%)',
+                    boxShadow: '0 0 8px rgba(59,130,246,0.6)',
+                  }}
+                />
+                蓝色星辉是老师，金色光芒是祝福
+                <span
+                  className="mx-1 inline-block h-2.5 w-2.5 animate-star-twinkle rounded-full align-middle"
+                  style={{
+                    background:
+                      'radial-gradient(circle, rgba(255,233,166,0.9) 0%, rgba(245,158,11,0.4) 50%, transparent 70%)',
+                    boxShadow: '0 0 6px rgba(245,158,11,0.5)',
+                  }}
+                />
+              </p>
+              <p className="text-sm text-slate-500">轻触任意光点，听听他们的故事</p>
             </motion.div>
           )}
         </AnimatePresence>

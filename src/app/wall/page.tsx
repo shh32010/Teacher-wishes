@@ -22,18 +22,32 @@ const ConfettiTrigger = dynamic(() => import('@/components/blessing/ConfettiTrig
 });
 
 const PAGE_SIZE = 20;
-const fetcher = (url: string) => fetch(url).then((res) => res.json());
+type SortMode = 'time' | 'likes';
 
-/** SWR 分页 key 生成器 */
-const getKey = (pageIndex: number, prevPage: PaginatedResponse<Blessing> | null) => {
-  if (prevPage && prevPage.data.length === 0) return null; // 到末尾了
-  return `/api/blessings?page=${pageIndex + 1}&pageSize=${PAGE_SIZE}`;
+/** SWR fetcher：检查 HTTP 状态码，非 2xx 抛出错误 */
+const fetcher = async (url: string) => {
+  const res = await fetch(url);
+  if (!res.ok) {
+    const body = await res.json().catch(() => ({}));
+    throw new Error(body.error || `请求失败 (${res.status})`);
+  }
+  return res.json();
 };
 
 export default function WallPage() {
   const [showForm, setShowForm] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [sortBy, setSortBy] = useState<SortMode>('time');
+
+  /** SWR 分页 key 生成器（依赖 sortBy，切换排序时 key 变化 → 自动重新拉取） */
+  const getKey = useCallback(
+    (pageIndex: number, prevPage: PaginatedResponse<Blessing> | null) => {
+      if (prevPage && (!prevPage.data || prevPage.data.length === 0)) return null;
+      return `/api/blessings?page=${pageIndex + 1}&pageSize=${PAGE_SIZE}&sort=${sortBy}`;
+    },
+    [sortBy]
+  );
 
   // 获取教师列表（用于表单下拉）
   const { data: teacherData } = useSWR('/api/teachers', fetcher);
@@ -50,7 +64,16 @@ export default function WallPage() {
     mutate,
   } = useSWRInfinite<PaginatedResponse<Blessing>>(getKey, fetcher, {
     revalidateFirstPage: false,
+    revalidateOnFocus: false,
     refreshInterval: 5 * 60 * 1000, // 5分钟兜底
+    errorRetryCount: 3, // 最多重试 3 次，避免无限循环
+    onErrorRetry: (err, _key, _config, revalidate, { retryCount }) => {
+      // 4xx 错误不重试
+      if (err.message?.includes('请求失败')) return;
+      if (retryCount >= 3) return;
+      // 指数退避重试
+      setTimeout(() => revalidate({ retryCount }), 2000 * Math.pow(2, retryCount));
+    },
   });
 
   // 展平所有页
@@ -59,7 +82,9 @@ export default function WallPage() {
     return pages.flatMap((p) => p.data);
   }, [pages]);
 
-  const hasMore = pages ? pages[pages.length - 1]?.data.length === PAGE_SIZE : true;
+  // 防御性：pages 某项可能为 undefined（SWR 并行请求时），过滤掉
+  const lastPage = pages?.filter(Boolean).at(-1);
+  const hasMore = lastPage ? (lastPage.data?.length ?? 0) === PAGE_SIZE : true;
   const totalCount = pages?.[0]?.count || 0;
 
   // 加载更多
@@ -73,6 +98,11 @@ export default function WallPage() {
     isLoading,
     onLoadMore: loadMore,
   });
+
+  // 切换排序时重置到第一页
+  useEffect(() => {
+    setSize(1);
+  }, [sortBy, setSize]);
 
   // Supabase Realtime 订阅
   useEffect(() => {
@@ -183,6 +213,39 @@ export default function WallPage() {
           </a>
           <div className="flex items-center gap-3">
             <span className="text-xs text-slate-400">共 {totalCount} 条</span>
+
+            {/* 排序切换 */}
+            <div
+              className="flex rounded-lg bg-white/5 p-0.5"
+              role="radiogroup"
+              aria-label="排序方式"
+            >
+              <button
+                onClick={() => setSortBy('time')}
+                role="radio"
+                aria-checked={sortBy === 'time'}
+                className={`rounded-md px-3 py-1 text-xs transition-all ${
+                  sortBy === 'time'
+                    ? 'bg-primary/20 text-primary'
+                    : 'text-slate-400 hover:text-slate-200'
+                }`}
+              >
+                🕐 最新
+              </button>
+              <button
+                onClick={() => setSortBy('likes')}
+                role="radio"
+                aria-checked={sortBy === 'likes'}
+                className={`rounded-md px-3 py-1 text-xs transition-all ${
+                  sortBy === 'likes'
+                    ? 'bg-primary/20 text-primary'
+                    : 'text-slate-400 hover:text-slate-200'
+                }`}
+              >
+                🔥 最热
+              </button>
+            </div>
+
             <button onClick={() => setShowForm(true)} className="btn-primary text-sm">
               ✏️ 写祝福
             </button>
