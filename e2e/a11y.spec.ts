@@ -3,11 +3,12 @@
 // ============================================================
 
 import { test, expect } from '@playwright/test';
-import { registerAllApiMocks } from './mocks';
+import { registerAllApiMocks, disableAnimations } from './mocks';
 
 test.describe('无障碍基础检查', () => {
   test.beforeEach(async ({ page }) => {
     await registerAllApiMocks(page);
+    await disableAnimations(page);
   });
 
   test('首页关键元素有可访问的 aria-label', async ({ page }) => {
@@ -46,7 +47,8 @@ test.describe('无障碍基础检查', () => {
     // 打开弹窗
     const submitBtn = page.getByRole('button', { name: '✨ 送出祝福' });
     await submitBtn.waitFor({ state: 'visible', timeout: 5_000 });
-    await submitBtn.click();
+    // animate-breathe 动画会导致 Playwright 判断按钮"不稳定"，使用 force 跳过
+    await submitBtn.click({ force: true });
 
     // 等待弹窗渲染 + 焦点设置（100ms timeout 在组件中）
     await page.waitForTimeout(300);
@@ -55,11 +57,17 @@ test.describe('无障碍基础检查', () => {
     const dialog = page.getByRole('dialog');
     await expect(dialog).toBeVisible();
 
-    // dialog 标签的 form 应该有 focused 元素
-    const focusedElement = page.locator('form *:focus');
-    const hasFocused = (await focusedElement.count()) > 0;
-    // 理想情况是焦点在输入框上
-    expect(hasFocused).toBeTruthy();
+    // 焦点应在弹窗内（组件 useEffect 中 100ms 后自动聚焦第一个输入框）
+    // 给 React 渲染 + setTimeout 充足时间
+    await page.waitForTimeout(500);
+
+    // 检查弹窗内是否有元素获得焦点
+    const focusedInDialog = await page.evaluate(() => {
+      const active = document.activeElement;
+      const modal = document.querySelector('[data-modal="blessing-form"]');
+      return modal ? modal.contains(active) : false;
+    });
+    expect(focusedInDialog).toBeTruthy();
   });
 
   test('管理后台登录页表单可 accessibility 访问', async ({ page }) => {

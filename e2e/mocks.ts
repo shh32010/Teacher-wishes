@@ -297,3 +297,20 @@ export async function mockAdminLogin(page: Page): Promise<void> {
     );
   });
 }
+
+/**
+ * 禁用页面所有动画/过渡效果
+ * 避免 Playwright 因 animate-breathe 等动画而永远等不到"稳定"状态
+ */
+export async function disableAnimations(page: Page): Promise<void> {
+  await page.addStyleTag({
+    content: `
+      *, *::before, *::after {
+        animation-duration: 0s !important;
+        animation-delay: 0s !important;
+        transition-duration: 0s !important;
+        transition-delay: 0s !important;
+      }
+    `,
+  });
+}

@@ -13,20 +13,19 @@ test.describe('教师详情页', () => {
     // 这会触发 /teacher/not-found 页面
     await page.goto('/teacher/nonexistent-id-12345');
 
-    // 404 页面应包含友好的提示信息
-    // 注意：Next.js 的 notFound() 会渲染 app/teacher/not-found.tsx，或者默认 404 页面
+    // 自定义 not-found.tsx 显示 "找不到这位老师"
     const notFoundIndicator =
+      (await page
+        .getByText('找不到这位老师')
+        .isVisible()
+        .catch(() => false)) ||
       (await page
         .getByText('教师未找到')
         .isVisible()
         .catch(() => false)) ||
       (await page
-        .locator('h2')
-        .filter({ hasText: 'Not Found' })
-        .isVisible()
-        .catch(() => false)) ||
-      (await page
-        .locator('text=404')
+        .locator('h1')
+        .filter({ hasText: /找不到|Not Found|未找到|找不到/i })
         .isVisible()
         .catch(() => false));
 

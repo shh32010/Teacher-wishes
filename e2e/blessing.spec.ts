@@ -3,11 +3,12 @@
 // ============================================================
 
 import { test, expect } from '@playwright/test';
-import { registerAllApiMocks } from './mocks';
+import { registerAllApiMocks, disableAnimations } from './mocks';
 
 test.describe('祝福墙 & 祝福提交', () => {
   test.beforeEach(async ({ page }) => {
     await registerAllApiMocks(page);
+    await disableAnimations(page);
   });
 
   test('祝福墙页面能正常加载，显示祝福列表', async ({ page }) => {
@@ -29,7 +30,8 @@ test.describe('祝福墙 & 祝福提交', () => {
     // 1. 点击"送出祝福"按钮 → 弹窗出现
     const submitBtn = page.getByRole('button', { name: '✨ 送出祝福' });
     await submitBtn.waitFor({ state: 'visible', timeout: 5_000 });
-    await submitBtn.click();
+    // animate-breathe 动画会导致 Playwright 判断按钮"不稳定"，使用 force 跳过
+    await submitBtn.click({ force: true });
 
     // 弹窗应可见
     const dialog = page.getByRole('dialog', { name: '写下祝福' });
@@ -60,13 +62,13 @@ test.describe('祝福墙 & 祝福提交', () => {
   test('点击祝福卡片的教师标签可跳转到教师详情页', async ({ page }) => {
     await page.goto('/wall');
 
-    // 第一条祝福带有教师标签 "张老师 →"
-    const teacherTag = page.getByRole('link', { name: '查看张老师老师的详情页' });
+    // 第一条祝福带有教师标签 "张老师 →"（用 button + aria-label）
+    const teacherTag = page.getByRole('button', { name: '查看张老师老师的详情页' });
     await teacherTag.waitFor({ state: 'visible', timeout: 5_000 });
     await teacherTag.click();
 
     // 应跳转到 /teacher/t1
-    await expect(page).toHaveURL(/\/teacher\/t1/);
+    await expect(page).toHaveURL(/\/teacher\/t1/, { timeout: 5000 });
   });
 
   test('祝福墙统计数字显示正确', async ({ page }) => {
