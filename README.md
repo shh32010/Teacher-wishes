@@ -7,10 +7,10 @@
 <p align="center">
   <a href="https://github.com/shh32010/Teacher-wishes/actions"><img src="https://img.shields.io/badge/build-passing-brightgreen" alt="Build Status"></a>
   <a href="./LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="License"></a>
-  <a href="./PROGRESS.md"><img src="https://img.shields.io/badge/progress-99%25-success" alt="Progress"></a>
+  <a href="./PROGRESS.md"><img src="https://img.shields.io/badge/progress-94%25-success" alt="Progress"></a>
   <a href="https://nextjs.org"><img src="https://img.shields.io/badge/Next.js-14-black" alt="Next.js 14"></a>
   <a href="https://supabase.com"><img src="https://img.shields.io/badge/Supabase-backend-3ecf8e" alt="Supabase"></a>
-  <img src="https://img.shields.io/badge/tests-81%2B%20unit%20%7C%2025%20E2E%20%7C%20k6%20load-8b5cf6" alt="Tests">
+  <img src="https://img.shields.io/badge/tests-83%20unit%20%7C%2025%20E2E%20%7C%20k6%20load-8b5cf6" alt="Tests">
 </p>
 
 ---
@@ -66,7 +66,7 @@
 | 数据请求 | SWR / useSWRInfinite |
 | 安全 | CSRF Token + IP Rate Limit + Turnstile + RLS |
 | 监控 | Vercel Analytics + Sentry（DSN 可选激活，零配置） |
-| 测试 | Vitest（81+ 单元测试）+ Playwright（25 E2E）+ k6（负载） |
+| 测试 | Vitest（83 单元测试）+ Playwright（25 E2E）+ k6（负载） |
 | 性能 | Bundle Analyzer + next/image WebP/AVIF + 懒加载 + CDN 缓存 |
 | 部署 | Vercel + Supabase Free（可支撑 200-500 并发） |
 | 工程化 | ESLint + Prettier + Husky + lint-staged |
@@ -117,7 +117,7 @@ npm run dev
 ## 🧪 测试
 
 ```bash
-npm test                     # Vitest 单元测试（81+ 用例）
+npm test                     # Vitest 单元测试（83 用例）
 npm run test:e2e             # Playwright E2E（25 用例）
 npm run test:e2e:ui          # E2E UI 模式
 npm run test:smoke           # k6 冒烟测试
