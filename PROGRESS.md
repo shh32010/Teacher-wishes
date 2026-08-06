@@ -12,13 +12,13 @@
 | **Phase 1：核心 MVP** | 08/05 - 08/06 | ✅ 已完成 | 95% |
 | **Phase 2：增强体验** | 08/06 | ✅ 已完成 | 70% |
 | **Phase 3：安全 + 测试** | 08/06 | ✅ 已完成 | 60% |
-| **Phase 4：上线准备** | 08/06 | 🔄 进行中 | 50% |
+| **Phase 4：上线准备** | 08/06 → 08/07 | 🔄 进行中 | 90% |
 
 > 状态图例：⬜ 待开始 · 🔄 进行中 · ✅ 已完成 · ⏸️ 暂停 · ❌ 取消
 
 ---
 
-## Phase 0：基建（2026-08-05 → 08-07）
+## Phase 0：基建（2026-08-05）
 
 ### 项目脚手架
 
@@ -237,65 +237,68 @@
 
 ## 📝 更新日志
 
-| 日期 | 内容 |
-| :--- | :--- |
-| 08-05 | 项目初始化完成，Phase 0 基础架构搭建，构建验证通过 |
-| 08-05 | Supabase 连接配置完成，数据库迁移执行，API 全链路调通 |
-| 08-05 | 修复 RLS SELECT/POST 冲突：`.select()` 链式调用改为 `return=minimal` |
-| 08-05 | 推送 GitHub：`git@github.com:shh32010/Teacher-wishes.git` |
-| 08-05 | README.md 改为中文，补充功能介绍、项目结构、本地运行指南 |
-| 08-06 | ✅ 点赞修复：RPC `increment_likes` 原子递增 + localStorage 防重复 |
-| 08-06 | ✅ 实时同步：Supabase Realtime 替代 SWR 轮询，WebSocket 即时推送 |
-| 08-06 | ✅ 首页看板：CountUp 数字滚动动画，easeOutExpo 缓动 |
-| 08-06 | ✅ 无限滚动：useSWRInfinite + IntersectionObserver 自动分页 |
-| 08-06 | 进度更新：42/73 已完成，整体 58% |
-| 08-06 | ✅ 大屏模式：Realtime 即时插入 + 鼠标隐藏 + ←→手动切换 |
-| 08-06 | ✅ 教师分享：ShareButton 一键复制链接 |
-| 08-06 | ✅ 表单记忆：localStorage 记住昵称和班级 |
-| 08-06 | ✅ 移动端适配：响应式卡片 + 动画降级 + prefers-reduced-motion |
-| 08-06 | ✅ IP 限流：rate_limits 表 + check_rate_limit RPC，每IP每10分钟3条 |
-| 08-06 | ✅ Turnstile：表单集成人机验证（可选配置） |
-| 08-06 | ✅ 单元测试：Vitest + 13个测试（utils + GlassCard） |
-| 08-06 | ✅ API 缓存：Cache-Control s-maxage + stale-while-revalidate |
-| 08-06 | ✅ 大屏 QR 码：qrcode 库生成实时二维码 |
-| 08-06 | ✅ 鉴权升级：Cookie 假登录 → Supabase Auth 邮箱密码 + 中间件验证 |
-| 08-06 | ✅ 自定义域名：CF 代理 `teacher.shh32010.dpdns.org`，大陆直连 |
-| 08-06 | 进度更新：50/73 已完成，整体 68% |
-| 08-06 | ✅ 星河教师天体：教师头像展示在星河外层（蓝色光晕），祝福星星在内层 |
-| 08-06 | ✅ 星河弹窗预览：点击教师天体/祝福星星弹出详情弹窗，不脱离首页 |
-| 08-06 | ✅ 教师弹窗关联祝福：教师弹窗内显示送给该老师的祝福列表 |
-| 08-06 | ✅ 教师头像全局可见：BlessingCard 标签、BlessingForm 下拉均显示教师头像 |
-| 08-06 | ✅ 教师搜索下拉：BlessingForm 教师选择框支持关键词搜索 |
-| 08-06 | ✅ 安全修复：Middleware 覆盖 /api/admin/* 路由鉴权 |
-| 08-06 | 🐛 修复：BlessingGalaxy SWC 解析错误（隐式箭头函数 + 嵌套三元 → 显式 if/return） |
-| 08-06 | ✅ Bundle Analyzer：安装 @next/bundle-analyzer + splitChunks 优化 + 移除未使用依赖 |
-| 08-06 | ✅ 无障碍：全局 focus-visible 焦点环 + aria-label/role 补全 + WCAG AA 对比度修复 |
-| 08-06 | ✅ 无障碍：弹窗焦点陷阱 + 键盘导航 + label 关联 + role=listbox/option |
-| 08-06 | ✅ CSRF 防护：Double Submit Cookie 模式，保护 5 个 POST/PATCH 端点 + 前端 Token 自动携带 |
-| 08-06 | ✅ 教师页：精选祝福优先排序 + ⭐ 金色边框/徽章视觉标记 |
-| 08-06 | 进度更新：69/73 已完成，整体 95% |
-| 08-06 | ✅ 负载测试：k6 脚本（smoke / load / stress）+ npm scripts + 压力测试自定义摘要 |
-| 08-06 | ✅ Lighthouse 优化：7个 `<img>`→`next/image` + remotePatterns + preconnect + backdrop-blur降级 + CLS占位 + viewport meta |
-| 08-06 | ✅ E2E 测试：Playwright 配置 + 5 个测试文件（首页/祝福墙/教师页/管理后台/无障碍）+ API Mock 策略 |
-| 08-06 | 进度更新：73/74 已完成，整体 99%，仅剩敏感词过滤 |
-| 08-06 | 🐛 修复：PGRST103 — API page 超出范围返回 500，捕获后返回空列表 |
-| 08-06 | 🐛 修复：SWR fetcher 不检查 res.ok 导致 `undefined.length` 无限重试崩溃 |
-| 08-06 | ✅ Supabase 客户端单例模式：消除 Multiple GoTrueClient 实例警告 |
-| 08-06 | ✅ 首页星河引导文案：蓝色星辉是老师，金色光芒是祝福 |
-| 08-06 | ✅ 祝福墙排序：🕐 最新 / 🔥 最热切换，SWR key 驱动自动刷新 |
-| 08-06 | ✅ 教师页排序：URL searchParam 驱动 + SortToggle 客户端组件 |
-| 08-07 | ✅ 页面转场动画：PageTransition 组件 + BlessingCard layoutId 排序重排 |
-| 08-07 | ✅ 监控接入：Vercel Analytics + Sentry（零配置，DSN 可选激活） |
-| 08-07 | ✅ 容量评估文档：docs/CAPACITY.md — 当前可支撑 200-500 并发用户 |
-| 08-07 | 进度更新：Phase 4 收尾完成 |
-| 08-07 | ✅ README 升级：改名 Platform + 截图 1280×720 + Vercel Deploy Button + 徽章 |
-| 08-07 | ✅ GitHub Actions CI：lint → typecheck → test → build 流水线 |
-| 08-07 | ✅ ARCHITECTURE_REVIEW.md：全栈深度审查（4 P0 + 10 P1 + 14 P2） |
-| 08-07 | ✅ TECHNICAL_DESIGN.md：647 行深度技术设计文档（架构/ER/API/安全/性能） |
-| 08-07 | ✅ 安全修复：8 文件（P0×4 + P1×2 + P2×4），middleware/CSRF/限流/密码/日期 |
-| 08-07 | ✅ CHANGELOG.md + v1.0.0 tag + Project Board 模板 |
-| 08-07 | 🎉 正式发布 v1.0.0 |
-| 08-07 | 🎨 **视觉重构**：暖色教师节主题 — 23 文件，金黄主色 + 白色玻璃态 + 花瓣/银杏飘落 + 霞鹜文楷 |
-| 08-07 | 🔒 **点赞唯一性**：blessing_likes 表 + IP UNIQUE 约束 + RPC 原子检查 + 409 前端回滚 |
-| 08-07 | ✨ 点赞爱心爆发特效（LikeBurst）+ 祝福星河辉光增强（三层 shadow）|
-| 08-07 | 🐛 修复：祝福墙 Realtime mutate 重复 key → flatMap + Set 去重 |
+### 08-05
+- 项目初始化完成，Phase 0 基础架构搭建，构建验证通过
+- Supabase 连接配置完成，数据库迁移执行，API 全链路调通
+- 修复 RLS SELECT/POST 冲突：`.select()` 链式调用改为 `return=minimal`
+- 推送 GitHub：`git@github.com:shh32010/Teacher-wishes.git`
+- README.md 改为中文，补充功能介绍、项目结构、本地运行指南
+
+### 08-06
+- ✅ 点赞修复：RPC `increment_likes` 原子递增 + localStorage 防重复
+- ✅ 实时同步：Supabase Realtime 替代 SWR 轮询，WebSocket 即时推送
+- ✅ 首页看板：CountUp 数字滚动动画，easeOutExpo 缓动
+- ✅ 无限滚动：useSWRInfinite + IntersectionObserver 自动分页
+- 进度更新：42/73 已完成，整体 58%
+- ✅ 大屏模式：Realtime 即时插入 + 鼠标隐藏 + ←→手动切换
+- ✅ 教师分享：ShareButton 一键复制链接
+- ✅ 表单记忆：localStorage 记住昵称和班级
+- ✅ 移动端适配：响应式卡片 + 动画降级 + prefers-reduced-motion
+- ✅ IP 限流：rate_limits 表 + check_rate_limit RPC，每IP每10分钟3条
+- ✅ Turnstile：表单集成人机验证（可选配置）
+- ✅ 单元测试：Vitest + 13个测试（utils + GlassCard）
+- ✅ API 缓存：Cache-Control s-maxage + stale-while-revalidate
+- ✅ 大屏 QR 码：qrcode 库生成实时二维码
+- ✅ 鉴权升级：Cookie 假登录 → Supabase Auth 邮箱密码 + 中间件验证
+- ✅ 自定义域名：CF 代理 `teacher.shh32010.dpdns.org`，大陆直连
+- 进度更新：50/73 已完成，整体 68%
+- ✅ 星河教师天体：教师头像展示在星河外层（蓝色光晕），祝福星星在内层
+- ✅ 星河弹窗预览：点击教师天体/祝福星星弹出详情弹窗，不脱离首页
+- ✅ 教师弹窗关联祝福：教师弹窗内显示送给该老师的祝福列表
+- ✅ 教师头像全局可见：BlessingCard 标签、BlessingForm 下拉均显示教师头像
+- ✅ 教师搜索下拉：BlessingForm 教师选择框支持关键词搜索
+- ✅ 安全修复：Middleware 覆盖 /api/admin/* 路由鉴权
+- 🐛 修复：BlessingGalaxy SWC 解析错误（隐式箭头函数 + 嵌套三元 → 显式 if/return）
+- ✅ Bundle Analyzer：安装 @next/bundle-analyzer + splitChunks 优化 + 移除未使用依赖
+- ✅ 无障碍：全局 focus-visible 焦点环 + aria-label/role 补全 + WCAG AA 对比度修复
+- ✅ 无障碍：弹窗焦点陷阱 + 键盘导航 + label 关联 + role=listbox/option
+- ✅ CSRF 防护：Double Submit Cookie 模式，保护 5 个 POST/PATCH 端点 + 前端 Token 自动携带
+- ✅ 教师页：精选祝福优先排序 + ⭐ 金色边框/徽章视觉标记
+- 进度更新：69/73 已完成，整体 95%
+- ✅ 负载测试：k6 脚本（smoke / load / stress）+ npm scripts + 压力测试自定义摘要
+- ✅ Lighthouse 优化：7个 `<img>`→`next/image` + remotePatterns + preconnect + backdrop-blur降级 + CLS占位 + viewport meta
+- ✅ E2E 测试：Playwright 配置 + 5 个测试文件（首页/祝福墙/教师页/管理后台/无障碍）+ API Mock 策略
+- 进度更新：73/74 已完成，整体 99%，仅剩敏感词过滤
+- 🐛 修复：PGRST103 — API page 超出范围返回 500，捕获后返回空列表
+- 🐛 修复：SWR fetcher 不检查 res.ok 导致 `undefined.length` 无限重试崩溃
+- ✅ Supabase 客户端单例模式：消除 Multiple GoTrueClient 实例警告
+- ✅ 首页星河引导文案：蓝色星辉是老师，金色光芒是祝福
+- ✅ 祝福墙排序：🕐 最新 / 🔥 最热切换，SWR key 驱动自动刷新
+- ✅ 教师页排序：URL searchParam 驱动 + SortToggle 客户端组件
+- ✅ 容量评估文档：docs/CAPACITY.md — 当前可支撑 200-500 并发用户
+
+### 08-07
+- ✅ 页面转场动画：PageTransition 组件 + BlessingCard layoutId 排序重排
+- ✅ 监控接入：Vercel Analytics + Sentry（零配置，DSN 可选激活）
+- 进度更新：Phase 4 收尾完成
+- ✅ README 升级：改名 Platform + 截图 1280×720 + Vercel Deploy Button + 徽章
+- ✅ GitHub Actions CI：lint → typecheck → test → build 流水线
+- ✅ ARCHITECTURE_REVIEW.md：全栈深度审查（4 P0 + 10 P1 + 14 P2）
+- ✅ TECHNICAL_DESIGN.md：647 行深度技术设计文档（架构/ER/API/安全/性能）
+- ✅ 安全修复：8 文件（P0×4 + P1×2 + P2×4），middleware/CSRF/限流/密码/日期
+- ✅ CHANGELOG.md + v1.0.0 tag + Project Board 模板
+- 🎉 正式发布 v1.0.0
+- 🎨 **视觉重构**：暖色教师节主题 — 23 文件，金黄主色 + 白色玻璃态 + 花瓣/银杏飘落 + 霞鹜文楷
+- 🔒 **点赞唯一性**：blessing_likes 表 + IP UNIQUE 约束 + RPC 原子检查 + 409 前端回滚
+- ✨ 点赞爱心爆发特效（LikeBurst）+ 祝福星河辉光增强（三层 shadow）
+- 🐛 修复：祝福墙 Realtime mutate 重复 key → flatMap + Set 去重
