@@ -8,6 +8,9 @@
 
 # testing
 /coverage
+/test-results/
+/playwright-report/
+/stress-summary.json
 
 # next.js
 /.next/
