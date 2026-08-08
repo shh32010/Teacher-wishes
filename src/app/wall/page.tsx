@@ -6,6 +6,7 @@
 'use client';
 
 import { useState, useCallback, useEffect, useMemo } from 'react';
+import { motion } from 'framer-motion';
 import useSWRInfinite from 'swr/infinite';
 import useSWR from 'swr';
 import dynamic from 'next/dynamic';
@@ -38,6 +39,7 @@ const fetcher = async (url: string) => {
 export default function WallPage() {
   const [showForm, setShowForm] = useState(false);
   const [showConfetti, setShowConfetti] = useState(false);
+  const [showSuccess, setShowSuccess] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [sortBy, setSortBy] = useState<SortMode>('time');
 
@@ -158,7 +160,9 @@ export default function WallPage() {
           return;
         }
         setShowConfetti(true);
-        setTimeout(() => setShowConfetti(false), 3000);
+        setShowSuccess(true);
+        setTimeout(() => setShowConfetti(false), 3500);
+        setTimeout(() => setShowSuccess(false), 2500);
         await mutate();
         setShowForm(false);
       } catch {
@@ -203,6 +207,21 @@ export default function WallPage() {
   return (
     <main className="min-h-screen pb-20">
       {showConfetti && <ConfettiTrigger />}
+
+      {/* 提交成功提示 */}
+      {showSuccess && (
+        <motion.div
+          initial={{ opacity: 0, y: -20, scale: 0.9 }}
+          animate={{ opacity: 1, y: 0, scale: 1 }}
+          exit={{ opacity: 0, y: -10 }}
+          className="fixed left-1/2 top-20 z-50 -translate-x-1/2"
+        >
+          <div className="glass rounded-2xl px-8 py-4 text-center shadow-lg">
+            <p className="text-lg font-bold text-[var(--color-primary)]">✨ 祝福已送出！</p>
+            <p className="mt-1 text-sm text-[var(--text-secondary)]">审核通过后将展示在祝福墙上</p>
+          </div>
+        </motion.div>
+      )}
 
       {/* 顶部导航 */}
       <NavHeader
