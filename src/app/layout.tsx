@@ -21,7 +21,9 @@ const geistMono = localFont({
 /*
  * 标题字体 — 霞鹜文楷（LXGW WenKai）
  *
- * 使用 @fontsource/lxgw-wenkai 本地 woff2（7.2MB，含 CJK 全量字形）
+ * 使用 @fontsource/lxgw-wenkai 本地 woff2
+ * ⚠️ 文件名含 "latin" 是 fontsource 命名惯例，实际 7.5MB 含 CJK 全量字形
+ * （纯 Latin 子集仅 ~50KB，7.5MB 必然是 CJK 全量）
  * preload: false — 不阻塞首屏渲染，依靠 font-display: swap 降级
  * 用户先看到系统字体，字体加载完成后自动切换
  */

@@ -383,3 +383,9 @@
 - [x] 四张页面截图更新（已更新为浅色模式 1280×720）
 - [ ] 后台"添加教师"功能 — POST /api/admin/teachers + TeacherManager 表单
 - [x] v1.2.0 tag
+
+### 代码审查修复（08/08）
+
+- [x] 🔴 P0：LXGW WenKai 字体注释补充 — 澄清 "latin" 是 fontsource 命名惯例，实际含 CJK 全量字形
+- [x] 🟠 P1：首页 CTA 时间线缩短 — 桌面 7.5s / 移动 5.0s（提速 25%~50%）
+- [x] 🟠 P1：Galaxy 视觉数据上限 — 按热度取前 100，防止大量 Motion DOM

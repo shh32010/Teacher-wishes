@@ -40,19 +40,26 @@ type Stage = 'particles' | 'quote1' | 'quote2' | 'title' | 'galaxyHint' | 'butto
 export default function HomePage() {
   const router = useRouter();
   const [stage, setStage] = useState<Stage>('particles');
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
+    setIsMobile(window.innerWidth < 768);
+  }, []);
+
+  useEffect(() => {
+    // 移动端加速 40%，让 CTA 更快出现
+    const scale = isMobile ? 0.5 : 0.75;
     const timeline: { stage: Stage; delay: number }[] = [
-      { stage: 'quote1', delay: 1800 },
-      { stage: 'quote2', delay: 3800 },
-      { stage: 'title', delay: 5800 },
-      { stage: 'galaxyHint', delay: 8000 },
-      { stage: 'button', delay: 10000 },
+      { stage: 'quote1', delay: 1800 * scale },
+      { stage: 'quote2', delay: 3800 * scale },
+      { stage: 'title', delay: 5800 * scale },
+      { stage: 'galaxyHint', delay: 8000 * scale },
+      { stage: 'button', delay: 10000 * scale },
     ];
 
     const timers = timeline.map(({ stage: s, delay }) => setTimeout(() => setStage(s), delay));
     return () => timers.forEach(clearTimeout);
-  }, []);
+  }, [isMobile]);
 
   const isActive = (s: Stage): boolean => {
     const order: Stage[] = ['particles', 'quote1', 'quote2', 'title', 'galaxyHint', 'button'];

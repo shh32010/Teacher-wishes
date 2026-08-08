@@ -68,12 +68,15 @@ export default function BlessingGalaxy() {
   const [selectedStar, setSelectedStar] = useState<Star | null>(null);
 
   useEffect(() => {
+    // 视觉上限：防止大量祝福导致 DOM/Motion 元素过多
+    // 按热度排序取前 100，超出部分不渲染为星体（不影响祝福墙展示）
+    const MAX_VISUAL_STARS = 100;
     Promise.all([
-      fetch('/api/blessings?pageSize=50').then((r) => r.json()),
+      fetch('/api/blessings?pageSize=100&sort=likes').then((r) => r.json()),
       fetch('/api/teachers').then((r) => r.json()),
     ])
       .then(([blessingsRes, teachersRes]) => {
-        const blessings: Blessing[] = blessingsRes.data || [];
+        const blessings: Blessing[] = (blessingsRes.data || []).slice(0, MAX_VISUAL_STARS);
         const teachers: Teacher[] = teachersRes.teachers || [];
 
         const total = teachers.length + blessings.length;
