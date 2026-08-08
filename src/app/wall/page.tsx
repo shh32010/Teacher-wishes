@@ -256,11 +256,14 @@ export default function WallPage() {
           </div>
         ) : (
           <>
-            <div className="columns-1 gap-6 space-y-6 md:columns-2">
+            <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
               {blessings.map((blessing, index) => (
-                <div key={blessing.id} className="break-inside-avoid">
-                  <BlessingCard blessing={blessing} index={index} onLike={handleLike} />
-                </div>
+                <BlessingCard
+                  key={blessing.id}
+                  blessing={blessing}
+                  index={index}
+                  onLike={handleLike}
+                />
               ))}
             </div>
 
