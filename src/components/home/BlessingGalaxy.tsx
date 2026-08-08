@@ -48,6 +48,18 @@ function formatDate(dateStr: string): string {
   return `${d.getMonth() + 1}月${d.getDate()}日`;
 }
 
+/**
+ * 基于字符串 ID 生成稳定的伪随机数 (0-1)
+ * 替代 render 中的 Math.random()，避免 hydration 不稳定和动画不可预测
+ */
+function stableRandom(id: string): number {
+  let hash = 0;
+  for (let i = 0; i < id.length; i++) {
+    hash = ((hash << 5) - hash + id.charCodeAt(i)) | 0;
+  }
+  return Math.abs(hash % 1000) / 1000;
+}
+
 export default function BlessingGalaxy() {
   const router = useRouter();
   const [stars, setStars] = useState<Star[]>([]);
@@ -183,7 +195,7 @@ export default function BlessingGalaxy() {
                 <motion.div
                   initial={{ opacity: 0, scale: 0.5 }}
                   animate={{ opacity: visible ? 1 : 0, scale: visible ? 1 : 0.5 }}
-                  transition={{ delay: 0.5 + Math.random() * 0.5, duration: 0.8 }}
+                  transition={{ delay: 0.5 + stableRandom(star.id) * 0.5, duration: 0.8 }}
                   className="group absolute cursor-pointer"
                   style={{ left: `${star.x}%`, top: `${star.y}%` }}
                   role="button"
@@ -256,7 +268,7 @@ export default function BlessingGalaxy() {
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: visible ? 1 : 0 }}
-                transition={{ delay: Math.random() * 2, duration: 0.8 }}
+                transition={{ delay: stableRandom(star.id) * 2, duration: 0.8 }}
                 className="group absolute cursor-pointer"
                 style={{ left: `${star.x}%`, top: `${star.y}%` }}
                 role="button"

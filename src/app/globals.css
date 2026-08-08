@@ -65,43 +65,72 @@
 /* ============================================================
    🌙 温暖夜间 Design Token
    并非简单的亮/暗反转 — 保持"教师节"氛围
+
+   触发条件（任一满足即生效）：
+   1. [data-theme="dark"] — 用户手动切换
+   2. prefers-color-scheme: dark — 自动模式跟随系统
    ============================================================ */
 @media (prefers-color-scheme: dark) {
-  :root {
-    /* ── 背景层 — 深海蓝 + 紫调，不是纯黑 ── */
+  :root:not([data-theme='light']) {
     --bg-primary: #1a1a2e;
     --bg-secondary: #16213e;
     --bg-tertiary: #0f3460;
     --bg-page-bottom: #1a1a2e;
 
-    /* ── 主色 — 降低饱和度，柔和暖金 ── */
     --color-primary: #e8a317;
     --color-primary-hover: #c9825b;
     --color-primary-soft: rgba(232, 163, 23, 0.15);
 
-    /* ── 情感点缀 — 暗金调 ── */
     --color-accent-gold: #c9825b;
     --color-accent-warm: #b98b73;
     --color-accent-earth: #8b6f5e;
     --color-accent-rose: #d4858b;
 
-    /* ── 文字层 — 暖白而非纯白，减少刺眼 ── */
     --text-primary: #e8d5c4;
     --text-secondary: #b8a898;
     --text-muted: #7a6e65;
 
-    /* ── 卡片 — 半透明深色玻璃 ── */
     --glass-bg: rgba(26, 26, 46, 0.78);
     --glass-bg-hover: rgba(26, 26, 46, 0.9);
     --glass-border: rgba(232, 163, 23, 0.14);
     --glass-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
     --glass-shadow-hover: 0 8px 32px rgba(0, 0, 0, 0.3);
 
-    /* ── 阴影 — 夜间更深 ── */
     --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.15);
     --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.2);
     --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.25);
   }
+}
+
+/* 手动强制夜间模式（覆盖 auto 模式的 light 兜底） */
+:root[data-theme='dark'] {
+  --bg-primary: #1a1a2e;
+  --bg-secondary: #16213e;
+  --bg-tertiary: #0f3460;
+  --bg-page-bottom: #1a1a2e;
+
+  --color-primary: #e8a317;
+  --color-primary-hover: #c9825b;
+  --color-primary-soft: rgba(232, 163, 23, 0.15);
+
+  --color-accent-gold: #c9825b;
+  --color-accent-warm: #b98b73;
+  --color-accent-earth: #8b6f5e;
+  --color-accent-rose: #d4858b;
+
+  --text-primary: #e8d5c4;
+  --text-secondary: #b8a898;
+  --text-muted: #7a6e65;
+
+  --glass-bg: rgba(26, 26, 46, 0.78);
+  --glass-bg-hover: rgba(26, 26, 46, 0.9);
+  --glass-border: rgba(232, 163, 23, 0.14);
+  --glass-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
+  --glass-shadow-hover: 0 8px 32px rgba(0, 0, 0, 0.3);
+
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.15);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.2);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.25);
 }
 
 /* ---- 全局基础 ---- */

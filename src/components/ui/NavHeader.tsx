@@ -3,7 +3,10 @@
 // 暖色毛玻璃效果，sticky 定位，底部暖色分隔线
 // ============================================================
 
+'use client';
+
 import type { ReactNode } from 'react';
+import ThemeToggle from '@/components/ui/ThemeToggle';
 
 interface NavHeaderProps {
   /** 左侧内容（通常是品牌/标题） */
@@ -28,7 +31,10 @@ export default function NavHeader({
     >
       <div className={`mx-auto flex ${maxWidth} items-center justify-between px-4 py-4`}>
         {left}
-        {right && <div className="flex items-center gap-3">{right}</div>}
+        <div className="flex items-center gap-3">
+          {right}
+          <ThemeToggle />
+        </div>
       </div>
     </header>
   );
