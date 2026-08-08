@@ -13,9 +13,9 @@ const ICONS: Record<string, string> = {
 };
 
 const LABELS: Record<string, string> = {
-  light: '日间模式',
-  dark: '夜间模式',
-  auto: '跟随系统',
+  light: '日间',
+  dark: '夜间',
+  auto: '自动',
 };
 
 export default function ThemeToggle() {
@@ -24,11 +24,12 @@ export default function ThemeToggle() {
   return (
     <button
       onClick={toggle}
-      className="glass rounded-full p-2 text-sm transition-all hover:scale-110 active:scale-95"
-      aria-label={`当前：${LABELS[theme]}，点击切换`}
-      title={`${LABELS[theme]} — 点击切换`}
+      className="flex items-center gap-1.5 rounded-xl border border-[var(--glass-border)] bg-[var(--color-primary-soft)] px-3 py-2 text-sm font-medium text-[var(--color-primary)] transition-all hover:bg-[var(--color-primary)] hover:text-white active:scale-95"
+      aria-label={`当前：${LABELS[theme]}模式，点击切换`}
+      title={`${LABELS[theme]}模式 — 点击切换`}
     >
-      {ICONS[theme]}
+      <span className="text-base leading-none">{ICONS[theme]}</span>
+      <span className="hidden sm:inline">{LABELS[theme]}</span>
     </button>
   );
 }
