@@ -8,6 +8,7 @@ import Image from 'next/image';
 import dynamicImport from 'next/dynamic';
 import { Suspense } from 'react';
 import { createClient } from '@/lib/supabase/server';
+import NavHeader from '@/components/ui/NavHeader';
 import type { Teacher, Blessing } from '@/types';
 import { formatDate } from '@/lib/utils';
 import { Metadata } from 'next';
@@ -65,16 +66,18 @@ export default async function TeacherPage({ params, searchParams }: TeacherPageP
   return (
     <main className="min-h-screen">
       {/* 顶部导航 */}
-      <header className="glass sticky top-0 z-30 border-b border-ink/10 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-4xl items-center justify-between px-4 py-4">
+      <NavHeader
+        left={
           <a href="/" className="text-lg font-bold text-ink">
             🌟 教师节祝福墙
           </a>
+        }
+        right={
           <a href="/wall" className="text-sm text-ink-muted hover:text-ink transition-colors">
             返回祝福墙 →
           </a>
-        </div>
-      </header>
+        }
+      />
 
       <div className="mx-auto max-w-3xl px-4 py-12">
         {/* 教师信息卡片 */}

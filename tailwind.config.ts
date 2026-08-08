@@ -38,17 +38,30 @@ const config: Config = {
           light: '#6B5B5B', // 辅助文字
           muted: '#9B8B8B', // 提示文字
         },
-        // ── 保留夜色调色板（深色模式） ──
+        // ── 情感点缀色（Accent — 氛围装饰，非功能色）──
+        sentiment: {
+          gold: '#E8A317', // 金穗色（粒子、光晕）
+          warm: '#C9825B', // 暖陶色（装饰标签）
+          earth: '#B98B73', // 大地色（分隔线、边框）
+          rose: '#F4A0B0', // 花瓣粉（花瓣装饰元素）
+        },
+        // ── 温暖夜间色板 — 深蓝紫调，非纯黑 ──
         night: {
-          DEFAULT: '#0B1020',
-          light: '#1A2040',
-          lighter: '#252D52',
+          DEFAULT: '#1A1A2E', // 深海蓝（夜间主背景）
+          light: '#16213E', // 深蓝（次级背景）
+          lighter: '#0F3460', // 蓝紫（三级背景）
+          accent: '#E8A317', // 暗金（夜间强调色）
         },
         // ── 功能色 ──
         success: {
           DEFAULT: '#10B981',
           light: '#34D399',
           dark: '#059669',
+        },
+        danger: {
+          DEFAULT: '#DC2626',
+          light: '#EF4444',
+          dark: '#B91C1C',
         },
         like: {
           DEFAULT: '#EC4899',
@@ -64,8 +77,9 @@ const config: Config = {
           '"Noto Sans SC"',
           'sans-serif',
         ],
-        // 标题字体 — 霞鹜文楷，教师节书卷气
-        wenkai: ['"LXGW WenKai"', '"霞鹜文楷"', '"Noto Serif SC"', 'serif'],
+        // 标题字体 — 霞鹜文楷（本地 woff2，next/font/local 加载）
+        // CSS 变量 --font-wenkai 由 layout.tsx 注入
+        wenkai: ['var(--font-wenkai)', '"Noto Serif SC"', '"Source Han Serif SC"', 'serif'],
       },
       animation: {
         'fade-in': 'fadeIn 0.8s ease-out forwards',

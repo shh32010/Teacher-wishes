@@ -4,6 +4,29 @@ All notable changes to Teacher Wishes Platform will be documented in this file.
 
 ---
 
+## [1.2.0] — 2026-08-08
+
+### 🎨 视觉重构 v2.0 — Design Token 体系（18 文件 + 3 新文件）
+
+全面升级为 CSS 自定义属性驱动的设计系统，告别组件内硬编码颜色。
+
+- 🎨 **Design Token 体系**：40+ CSS 自定义属性（`src/app/globals.css` `:root`），覆盖背景/主色/点缀/文字/玻璃态/阴影/圆角
+- 🌙 **温暖夜间模式**：`prefers-color-scheme: dark` 自动切换，深蓝紫 (`#1A1A2E`) + 暗金点缀，非纯黑
+- 🔤 **字体本地化**：霞鹜文楷 Bold 通过 `@fontsource/lxgw-wenkai` + `next/font/local` 加载，零 CDN 依赖
+- 🪟 **可复用 Glass UI 组件**：新增 `NavHeader`（玻璃态导航栏，覆盖 3 页面）、`input-glass`/`input-glass-sm`（统一输入框样式）、`btn-ghost`（幽灵按钮）
+- 🌸 **性能优化**：FallingPetals 从 30→20(Desktop)/10(Mobile) 花瓣、移除 `filter: blur()`、`pointer-events: none`
+- ⭐ **星光 Token 化**：BlessingGalaxy 改用 `color-mix(in srgb, var(--color-*) X%, transparent)` 替代硬编码 rgba
+- 🎯 **色板精细化**：新增 `sentiment`（gold/warm/earth/rose）情感点缀色 + `danger` 功能色
+- 📄 **文档**：新增 `CLAUDE.md`（AI 协作指南）、`docs/VISUAL_REDESIGN.md`（完整视觉重构方案）
+
+### 🔧 工程
+
+- GlassCard hover 效果改用 CSS 变量
+- 管理后台审批按钮迁移到 success/danger Token
+- 表单错误/超限提示统一为 `text-danger`
+
+---
+
 ## [1.1.0] — 2026-08-07
 
 ### 🎨 视觉重构 — 暖色教师节主题（23 文件）

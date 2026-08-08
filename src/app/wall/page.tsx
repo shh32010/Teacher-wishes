@@ -13,6 +13,7 @@ import { createRealtimeClient } from '@/lib/supabase/client';
 import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
 import type { Blessing, PaginatedResponse } from '@/types';
 import BlessingCard from '@/components/blessing/BlessingCard';
+import NavHeader from '@/components/ui/NavHeader';
 import { getCsrfToken } from '@/lib/csrf-client';
 
 const BlessingForm = dynamic(() => import('@/components/blessing/BlessingForm'), {
@@ -194,7 +195,7 @@ export default function WallPage() {
   if (error) {
     return (
       <div className="flex min-h-screen items-center justify-center">
-        <div className="text-red-500">加载失败，请刷新重试</div>
+        <div className="text-danger">加载失败，请刷新重试</div>
       </div>
     );
   }
@@ -204,12 +205,14 @@ export default function WallPage() {
       {showConfetti && <ConfettiTrigger />}
 
       {/* 顶部导航 */}
-      <header className="glass sticky top-0 z-30 border-b border-ink/10 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-5xl items-center justify-between px-4 py-4">
+      <NavHeader
+        left={
           <a href="/" className="text-lg font-bold text-ink" aria-label="返回首页 教师节祝福墙">
             🌟 教师节祝福墙
           </a>
-          <div className="flex items-center gap-3">
+        }
+        right={
+          <>
             <span className="text-xs text-ink-muted">共 {totalCount} 条</span>
 
             {/* 排序切换 */}
@@ -241,9 +244,9 @@ export default function WallPage() {
             <button onClick={() => setShowForm(true)} className="btn-primary text-sm">
               ✏️ 写祝福
             </button>
-          </div>
-        </div>
-      </header>
+          </>
+        }
+      />
 
       {/* 祝福卡片列表 */}
       <div className="mx-auto mt-8 max-w-3xl px-4">

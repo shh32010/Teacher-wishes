@@ -59,7 +59,7 @@ export default function AdminLoginPage() {
             onChange={(e) => setEmail(e.target.value)}
             placeholder="管理员邮箱"
             autoComplete="email"
-            className="w-full rounded-xl border border-ink/10 bg-white/60 px-4 py-3 text-ink placeholder-ink-muted outline-none focus:border-primary/50"
+            className="input-glass"
           />
           <input
             type="password"
@@ -67,9 +67,9 @@ export default function AdminLoginPage() {
             onChange={(e) => setPassword(e.target.value)}
             placeholder="密码"
             autoComplete="current-password"
-            className="w-full rounded-xl border border-ink/10 bg-white/60 px-4 py-3 text-ink placeholder-ink-muted outline-none focus:border-primary/50"
+            className="input-glass"
           />
-          {error && <p className="text-sm text-red-500">{error}</p>}
+          {error && <p className="text-sm text-danger">{error}</p>}
           <button type="submit" disabled={loading} className="btn-primary w-full">
             {loading ? '登录中...' : '登录'}
           </button>

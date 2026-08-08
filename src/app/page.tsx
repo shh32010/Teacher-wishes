@@ -131,8 +131,9 @@ export default function HomePage() {
                   className="mx-1 inline-block h-3.5 w-3.5 rounded-full align-middle"
                   style={{
                     background:
-                      'radial-gradient(circle, rgba(217,119,6,0.7) 0%, rgba(245,158,11,0.35) 50%, transparent 70%)',
-                    boxShadow: '0 0 8px rgba(217,119,6,0.5)',
+                      'radial-gradient(circle, var(--color-primary) 0%, var(--color-accent-gold) 50%, transparent 70%)',
+                    boxShadow: '0 0 8px var(--color-primary-soft)',
+                    opacity: 0.85,
                   }}
                 />
                 金色星辉是老师，暖光点点是祝福
@@ -140,8 +141,9 @@ export default function HomePage() {
                   className="mx-1 inline-block h-2.5 w-2.5 animate-star-twinkle rounded-full align-middle"
                   style={{
                     background:
-                      'radial-gradient(circle, rgba(255,233,166,0.9) 0%, rgba(245,158,11,0.4) 50%, transparent 70%)',
-                    boxShadow: '0 0 6px rgba(245,158,11,0.5)',
+                      'radial-gradient(circle, var(--color-accent-gold) 0%, var(--color-primary) 50%, transparent 70%)',
+                    boxShadow: '0 0 6px var(--color-primary-soft)',
+                    opacity: 0.9,
                   }}
                 />
               </p>

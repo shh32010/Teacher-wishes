@@ -252,7 +252,7 @@ export default function BlessingForm({
                     onChange={(e) => setNickname(e.target.value)}
                     maxLength={20}
                     placeholder="小明"
-                    className="w-full rounded-xl border border-ink/10 bg-white/60 px-4 py-2.5 text-ink placeholder-ink-muted outline-none transition-all focus:border-primary/50 focus:ring-1 focus:ring-primary/30"
+                    className="input-glass"
                   />
                 </div>
 
@@ -268,7 +268,7 @@ export default function BlessingForm({
                     onChange={(e) => setClass(e.target.value)}
                     maxLength={30}
                     placeholder="例如：高一(3)班"
-                    className="w-full rounded-xl border border-ink/10 bg-white/60 px-4 py-2.5 text-ink placeholder-ink-muted outline-none transition-all focus:border-primary/50 focus:ring-1 focus:ring-primary/30"
+                    className="input-glass"
                   />
                 </div>
 
@@ -331,7 +331,7 @@ export default function BlessingForm({
                             onChange={(e) => setTeacherSearch(e.target.value)}
                             placeholder="搜索教师姓名..."
                             aria-label="搜索教师姓名"
-                            className="w-full rounded-lg bg-ink/5 px-3 py-2 text-sm text-ink placeholder-ink-muted outline-none"
+                            className="input-glass-sm"
                           />
                         </div>
                         <div className="max-h-48 overflow-y-auto">
@@ -402,7 +402,7 @@ export default function BlessingForm({
                     className="mb-1.5 flex items-center justify-between text-sm text-ink-light"
                   >
                     <span>祝福语 *</span>
-                    <span className={content.length > 500 ? 'text-red-500' : 'text-ink-muted'}>
+                    <span className={content.length > 500 ? 'text-danger' : 'text-ink-muted'}>
                       {content.length}/500
                     </span>
                   </label>
@@ -418,7 +418,7 @@ export default function BlessingForm({
                 </div>
 
                 {/* 错误提示 */}
-                {error && <p className="text-sm text-red-500">{error}</p>}
+                {error && <p className="text-sm text-danger">{error}</p>}
 
                 {/* Turnstile */}
                 {TURNSTILE_SITE_KEY && <div ref={turnstileRef} className="flex justify-center" />}

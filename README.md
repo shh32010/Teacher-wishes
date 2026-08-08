@@ -1,7 +1,7 @@
-# 🌟 Teacher Wishes Platform · 教师节祝福平台 · v1.1.0
+# 🌟 Teacher Wishes Platform · 教师节祝福平台 · v1.2.0
 
 <p align="center">
-  <strong>沉浸式教师节活动平台</strong> — 暖色秋天美学 · 祝福星河 · 实时互动 · 大屏展示
+  <strong>沉浸式教师节活动平台</strong> — 暖色秋天美学 · Design Token 体系 · 祝福星河 · 实时互动 · 大屏展示
 </p>
 
 <p align="center">
@@ -140,7 +140,7 @@ src/
 │   ├── admin/                #   管理后台
 │   └── api/                  #   API 路由
 ├── components/
-│   ├── ui/                   #   GlassCard / PageTransition / ShareButton
+│   ├── ui/                   #   GlassCard / NavHeader / PageTransition / ShareButton
 │   ├── blessing/             #   BlessingCard / BlessingForm / SortToggle / LikeBurst
 │   ├── home/                 #   StarBackground / BlessingGalaxy / StatsPanel / FallingPetals
 │   └── admin/                #   TeacherManager
@@ -163,7 +163,9 @@ docs/                         # ARCHITECTURE / API / CAPACITY
 | 文档 | 说明 |
 | :--- | :--- |
 | [PROGRESS.md](./PROGRESS.md) | 开发进度追踪 |
-| [CHANGELOG.md](./CHANGELOG.md) | v1.1.0 发布日志 |
+| [CHANGELOG.md](./CHANGELOG.md) | v1.2.0 发布日志 |
+| [docs/VISUAL_REDESIGN.md](./docs/VISUAL_REDESIGN.md) | 视觉重构 v2.0 方案 |
+| [CLAUDE.md](./CLAUDE.md) | AI 协作指南 |
 | [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md) | 架构图 + ER 图 + 数据流 |
 | [docs/API.md](./docs/API.md) | API 端点文档 |
 | [docs/CAPACITY.md](./docs/CAPACITY.md) | 容量评估 + 扩容指南 |
@@ -174,8 +176,10 @@ docs/                         # ARCHITECTURE / API / CAPACITY
 
 ## 🔮 后续计划
 
+- [x] Design Token 体系 — CSS 自定义属性驱动的视觉设计系统
+- [x] 温暖夜间模式 — `prefers-color-scheme: dark` 深蓝紫 + 暗金
+- [x] 字体本地化 — 霞鹜文楷零 CDN 依赖
 - [ ] 敏感词过滤（`bad-words` 已安装，服务端逻辑待接入）
-- [ ] Demo 演示视频（30 秒功能展示）
 - [ ] 移动端 PWA — 独立应用体验
 - [ ] 多活动模板 — 毕业季 / 校庆快速复用
 

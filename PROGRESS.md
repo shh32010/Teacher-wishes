@@ -12,7 +12,8 @@
 | **Phase 1：核心 MVP** | 08/05 - 08/06 | ✅ 已完成 | 94% |
 | **Phase 2：增强体验** | 08/06 | ✅ 已完成 | 90% |
 | **Phase 3：安全 + 测试** | 08/06 | ✅ 已完成 | 95% |
-| **Phase 4：上线准备** | 08/06 → 08/07 | 🔄 进行中 | 86% |
+| **Phase 4：上线准备** | 08/06 → 08/07 | ✅ 已完成 | 86% |
+| **Phase 5：视觉重构 v2.0** | 08/08 | ✅ 已完成 | 95% |
 
 > 状态图例：⬜ 待开始 · 🔄 进行中 · ✅ 已完成 · ⏸️ 暂停 · ❌ 取消
 
@@ -302,3 +303,49 @@
 - 🐛 修复：祝福墙 Realtime mutate 重复 key → flatMap + Set 去重
 - 🐛 修复：Vercel Analytics 导入路径 `/react` → `/next`（App Router 正确用法），已上线确认在线
 - 📝 文档全面审查：17 项修复（LICENSE/环境变量/徽章/百分比/版本号/API 文档/Analytics）
+
+---
+
+## Phase 5：视觉重构 v2.0（2026-08-08）
+
+### Design Token 体系
+
+- [x] 40+ CSS 自定义属性（`:root` + 夜间模式 `@media`），禁止组件硬编码颜色
+- [x] 三层色彩体系：背景层 / 主色（仅CTA） / 情感点缀（氛围色非功能色）
+- [x] Tailwind `sentiment` 色板（gold/warm/earth/rose）+ `danger` 功能色
+- [x] 温暖夜间模式：深蓝紫 `#1A1A2E` + 暗金 `#E8A317`，`prefers-color-scheme: dark`
+
+### 组件重构
+
+- [x] `NavHeader` 可复用玻璃态导航栏组件（wall/teacher/admin 三页面统一）
+- [x] `input-glass` / `input-glass-sm` 统一输入框样式（BlessingForm + admin login）
+- [x] `btn-ghost` 幽灵按钮变体
+- [x] GlassCard hover 效果改用 CSS 变量（`--glass-bg-hover`, `--glass-shadow-hover`）
+
+### 性能优化
+
+- [x] FallingPetals 从 30→20(Desktop)/10(Mobile) 花瓣
+- [x] 移除花瓣 `filter: blur()` 减少 GPU 开销
+- [x] 装饰元素统一 `pointer-events: none`
+- [x] `prefers-reduced-motion` + `prefers-reduced-transparency` 降级
+
+### 颜色迁移
+
+- [x] 管理后台审批按钮 → success/danger Token
+- [x] 表单错误/超限提示 → `text-danger` Token
+- [x] BlessingGalaxy 5 处星光色 → `color-mix(in srgb, var(--color-*) X%, transparent)`
+- [x] 首页星光示例圆点 → CSS 变量
+- [x] ConfettiTrigger / StarBackground 暖色确认（已是暖色系）
+
+### 字体本地化
+
+- [x] `@fontsource/lxgw-wenkai` + `next/font/local` 加载霞鹜文楷 Bold (700)
+- [x] 移除 Google Fonts CDN 依赖（`<link>` + preconnect）
+- [x] 正文用系统无衬线，标题用 `font-wenkai` Tailwind 类
+
+### 文档
+
+- [x] `docs/VISUAL_REDESIGN.md` — 完整视觉重构方案（验收标准 + 8 Phase + 素材系统）
+- [x] `CLAUDE.md` — AI 协作指南（架构/命令/设计系统/模式）
+- [x] `CHANGELOG.md` — v1.2.0 发布日志
+- [x] `README.md` — 更新项目描述、文档链接

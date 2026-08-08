@@ -12,6 +12,7 @@ import useSWR from 'swr';
 import { createClient } from '@/lib/supabase/client';
 import type { Blessing, BlessingStats, AdminUpdateBlessing } from '@/types';
 import { formatDateTime } from '@/lib/utils';
+import NavHeader from '@/components/ui/NavHeader';
 import { getCsrfToken } from '@/lib/csrf-client';
 
 const TeacherManager = dynamic(() => import('@/components/admin/TeacherManager'), {
@@ -80,8 +81,9 @@ export default function AdminPage() {
   return (
     <main className="min-h-screen">
       {/* 顶部导航 */}
-      <header className="glass sticky top-0 z-30 border-b border-ink/10">
-        <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
+      <NavHeader
+        maxWidth="max-w-6xl"
+        left={
           <div className="flex items-center gap-4">
             <h1 className="text-lg font-bold text-ink">⚙️ 管理后台</h1>
             <a href="/" className="text-sm text-ink-muted hover:text-ink">
@@ -106,17 +108,19 @@ export default function AdminPage() {
               </button>
             </div>
           </div>
+        }
+        right={
           <button
             onClick={async () => {
               await createClient().auth.signOut();
               router.push('/admin/login');
             }}
-            className="text-sm text-ink-muted hover:text-red-500 transition-colors"
+            className="text-sm text-ink-muted hover:text-danger transition-colors"
           >
             退出登录
           </button>
-        </div>
-      </header>
+        }
+      />
 
       <div className="mx-auto max-w-6xl px-4 py-8">
         {tab === 'teachers' ? (
@@ -173,13 +177,13 @@ export default function AdminPage() {
                 <div className="flex gap-2">
                   <button
                     onClick={() => handleBatchUpdate({ status: 'approved' })}
-                    className="rounded-lg bg-green-600 px-3 py-1.5 text-sm text-white hover:bg-green-500"
+                    className="rounded-lg bg-success px-3 py-1.5 text-sm text-white hover:bg-success-dark"
                   >
                     ✅ 通过 ({selectedIds.size})
                   </button>
                   <button
                     onClick={() => handleBatchUpdate({ status: 'rejected' })}
-                    className="rounded-lg bg-red-600 px-3 py-1.5 text-sm text-white hover:bg-red-500"
+                    className="rounded-lg bg-danger px-3 py-1.5 text-sm text-white hover:bg-danger-light"
                   >
                     ❌ 拒绝
                   </button>

@@ -203,8 +203,8 @@ export default function BlessingGalaxy() {
                       marginLeft: -star.size / 2,
                       marginTop: -star.size / 2,
                       background:
-                        'radial-gradient(circle, rgba(217,119,6,0.55) 0%, rgba(245,158,11,0.3) 50%, transparent 70%)',
-                      boxShadow: `0 0 ${star.size}px rgba(217,119,6,0.5), 0 0 ${star.size * 2}px rgba(245,158,11,0.18)`,
+                        'radial-gradient(circle, color-mix(in srgb, var(--color-primary) 55%, transparent) 0%, color-mix(in srgb, var(--color-accent-gold) 30%, transparent) 50%, transparent 70%)',
+                      boxShadow: `0 0 ${star.size}px color-mix(in srgb, var(--color-primary) 50%, transparent), 0 0 ${star.size * 2}px color-mix(in srgb, var(--color-accent-gold) 18%, transparent)`,
                     }}
                   >
                     {star.teacher!.avatar_url ? (
@@ -279,8 +279,8 @@ export default function BlessingGalaxy() {
                     marginLeft: -star.size * 1.25,
                     marginTop: -star.size * 1.25,
                     background:
-                      'radial-gradient(circle, rgba(255,210,80,0.95) 0%, rgba(245,158,11,0.55) 35%, rgba(217,119,6,0.15) 65%, transparent 75%)',
-                    boxShadow: `0 0 ${star.size * 4}px rgba(245,158,11,0.6), 0 0 ${star.size * 8}px rgba(245,158,11,0.25), 0 0 ${star.size * 14}px rgba(245,158,11,0.1)`,
+                      'radial-gradient(circle, color-mix(in srgb, var(--color-accent-gold) 95%, transparent) 0%, color-mix(in srgb, var(--color-accent-gold) 55%, transparent) 35%, color-mix(in srgb, var(--color-primary) 15%, transparent) 65%, transparent 75%)',
+                    boxShadow: `0 0 ${star.size * 4}px color-mix(in srgb, var(--color-accent-gold) 60%, transparent), 0 0 ${star.size * 8}px color-mix(in srgb, var(--color-accent-gold) 25%, transparent), 0 0 ${star.size * 14}px color-mix(in srgb, var(--color-accent-gold) 10%, transparent)`,
                   }}
                 />
 
@@ -386,7 +386,7 @@ export default function BlessingGalaxy() {
                           className="relative mx-auto mb-4 flex h-20 w-20 items-center justify-center overflow-hidden rounded-full bg-primary/15"
                           style={{
                             boxShadow:
-                              '0 0 32px rgba(217,119,6,0.4), 0 0 64px rgba(245,158,11,0.15)',
+                              '0 0 32px color-mix(in srgb, var(--color-primary) 40%, transparent), 0 0 64px color-mix(in srgb, var(--color-accent-gold) 15%, transparent)',
                           }}
                         >
                           {selectedStar.teacher!.avatar_url ? (
