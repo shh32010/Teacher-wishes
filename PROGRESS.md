@@ -213,9 +213,9 @@
 | 指标 | 数值 |
 | :--- | :--- |
 | 总任务数 | 117 |
-| 已完成 | 110 |
-| 待开始 | 7 |
-| 整体完成度 | 94% |
+| 已完成 | 113 |
+| 待开始 | 4 |
+| 整体完成度 | 97% |
 
 ---
 
@@ -349,3 +349,19 @@
 - [x] `CLAUDE.md` — AI 协作指南（架构/命令/设计系统/模式）
 - [x] `CHANGELOG.md` — v1.2.0 发布日志
 - [x] `README.md` — 更新项目描述、文档链接
+
+### Bug 修复 + 主题切换（08/08）
+
+- [x] 🌓 **ThemeToggle** 三态切换组件（☀️日间/🌙夜间/🖥自动）+ `useTheme` hook（localStorage 持久化）
+- [x] 🌙 **CSS 双触发**：`[data-theme]` 属性 + `@media (prefers-color-scheme)` 覆盖手动/自动场景
+- [x] 🎲 **确定性动画**：BlessingGalaxy `Math.random()` → `stableRandom(id)` 哈希函数，消除 hydration 不一致
+- [x] 🔤 **字体优化**：霞鹜文楷 `preload: false`（7MB woff2 不阻塞首屏，`font-display: swap` 渐进增强）
+- [x] NavHeader 集成 ThemeToggle，所有子页面统一展示主题按钮
+
+### 移动端走查（08/08）
+
+- [x] 生产构建验证通过（首页 205kB / 祝福墙 289kB）
+- [ ] 真实设备测试（建议 iPhone SE / Android 中端机各一）
+- [ ] Lighthouse 性能审计（需 Chrome 环境）
+- [ ] 四张页面截图更新（需浏览器环境）
+- [ ] v1.2.0 tag

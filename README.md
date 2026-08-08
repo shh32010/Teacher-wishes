@@ -7,7 +7,7 @@
 <p align="center">
   <a href="https://github.com/shh32010/Teacher-wishes/actions"><img src="https://github.com/shh32010/Teacher-wishes/actions/workflows/ci.yml/badge.svg" alt="Build"></a>
   <a href="./LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="License"></a>
-  <a href="./PROGRESS.md"><img src="https://img.shields.io/badge/progress-94%25-success" alt="Progress"></a>
+  <a href="./PROGRESS.md"><img src="https://img.shields.io/badge/progress-97%25-success" alt="Progress"></a>
   <a href="https://nextjs.org"><img src="https://img.shields.io/badge/Next.js-14-black" alt="Next.js 14"></a>
   <a href="https://supabase.com"><img src="https://img.shields.io/badge/Supabase-backend-3ecf8e" alt="Supabase"></a>
   <img src="https://img.shields.io/badge/tests-83%20unit%20%7C%2025%20E2E%20%7C%20k6%20load-8b5cf6" alt="Tests">
@@ -42,7 +42,8 @@
 ## ✨ 功能
 
 - 🎆 **沉浸式首页** — 暖色渐变背景 + 花瓣/银杏飘落 + 语录渐显 + 渐变标题动画
-- 🌌 **祝福星河** — 斐波那契螺旋分布，教师天体（金色光晕）+ 祝福星星（三层辉光），悬浮预览气泡
+- 🌌 **祝福星河** — 斐波那契螺旋分布，教师天体（金色光晕）+ 祝福星星（三层辉光），悬浮预览气泡，确定性动画
+- 🌓 **主题切换** — 三态循环（☀️ 日间 / 🌙 夜间 / 🖥 自动），localStorage 持久化，温暖深蓝紫夜间模式
 - 📝 **发布祝福** — 昵称 / 班级 / 祝福内容 / 教师搜索下拉（含头像）（白色玻璃态弹窗）
 - 💬 **祝福墙** — 瀑布流卡片 + 时间/点赞排序 + Supabase Realtime 实时更新 + 无限滚动 + 点赞爱心爆发
 - 👩‍🏫 **教师主页** — `/teacher/:id` 教师信息 + 时间/点赞排序 + 精选祝福标记 + 一键分享
@@ -177,8 +178,8 @@ docs/                         # ARCHITECTURE / API / CAPACITY
 ## 🔮 后续计划
 
 - [x] Design Token 体系 — CSS 自定义属性驱动的视觉设计系统
-- [x] 温暖夜间模式 — `prefers-color-scheme: dark` 深蓝紫 + 暗金
-- [x] 字体本地化 — 霞鹜文楷零 CDN 依赖
+- [x] 温暖夜间模式 + 三态切换 — `prefers-color-scheme: dark` 深蓝紫 + 暗金 + ThemeToggle (☀️/🌙/🖥)
+- [x] 字体本地化 — 霞鹜文楷零 CDN 依赖，`preload: false` 渐进加载
 - [ ] 敏感词过滤（`bad-words` 已安装，服务端逻辑待接入）
 - [ ] 移动端 PWA — 独立应用体验
 - [ ] 多活动模板 — 毕业季 / 校庆快速复用

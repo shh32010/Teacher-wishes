@@ -1,6 +1,6 @@
 # 🎨 视觉重构方案 v2.0 — 从深色科技风到暖色教师节
 
-**版本**：v1.0 | **日期**：2026-08-08 | **状态**：Phase 0 ✅ → Phase 1 ✅ → Phase 2 ✅ → Phase 3 ✅ → Phase 4 ✅ → Phase 5 ✅ → Phase 6 ✅ → Phase 7/8 待开始
+**版本**：v1.1 | **日期**：2026-08-08 | **状态**：Phase 0 ✅ → Phase 1 ✅ → Phase 2 ✅ → Phase 3 ✅ → Phase 4 ✅ → Phase 5 ✅ → Phase 6 ✅ → Phase 7/8 待开始
 
 ---
 
@@ -146,9 +146,9 @@ Amber (#D97706)           Muted Gold (#C9825B)
 Ginkgo / Petals           Stars / Galaxy
 ```
 
-- [ ] CSS 媒体查询 `prefers-color-scheme: dark` 自动切换
-- [ ] 手动切换开关（localStorage 记忆）
-- [ ] 夜间模式仍保持"教师节"氛围
+- [x] CSS 媒体查询 `prefers-color-scheme: dark` 自动切换
+- [x] 手动切换开关（ThemeToggle 三态循环：☀️/🌙/🖥，localStorage 记忆）
+- [x] 夜间模式仍保持"教师节"氛围
 
 ### Phase 7 — 响应式 + 性能 + 无障碍
 

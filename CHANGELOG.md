@@ -25,6 +25,13 @@ All notable changes to Teacher Wishes Platform will be documented in this file.
 - 管理后台审批按钮迁移到 success/danger Token
 - 表单错误/超限提示统一为 `text-danger`
 
+### 🔧 Bug 修复 + 主题切换 (2026-08-08)
+
+- 🌓 **主题切换系统**：新增 `ThemeToggle` 组件（三态循环 ☀️/🌙/🖥）+ `useTheme` hook（localStorage 持久化），已集成至 NavHeader
+- 🎲 **确定性动画**：BlessingGalaxy 中 `Math.random()` 替换为 `stableRandom(id)` 哈希函数，消除 hydration/重渲染不一致
+- 🔤 **字体加载优化**：霞鹄文楷 woff2 设置 `preload: false`（7MB 不阻塞首屏，靠 `font-display: swap` 渐进增强）
+- 🌙 **昼夜双触发**：CSS 同时支持 `[data-theme]` 属性 + `@media (prefers-color-scheme)`，覆盖手动/自动两种使用场景
+
 ---
 
 ## [1.1.0] — 2026-08-07
