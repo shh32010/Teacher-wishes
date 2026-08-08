@@ -180,8 +180,9 @@ docs/                         # ARCHITECTURE / API / CAPACITY
 - [x] Design Token 体系 — CSS 自定义属性驱动的视觉设计系统
 - [x] 温暖夜间模式 + 三态切换 — `prefers-color-scheme: dark` 深蓝紫 + 暗金 + ThemeToggle (☀️/🌙/🖥)
 - [x] 字体本地化 — 霞鹜文楷零 CDN 依赖，`preload: false` 渐进加载
-- [ ] 敏感词过滤（`bad-words` 已安装，服务端逻辑待接入）
-- [ ] 后台添加教师 UI — 目前需通过 Supabase SQL / 表编辑器手动插入
+- [ ] 敏感词过滤（`bad-words` 已安装，服务端逻辑待接入）🔴
+- [ ] 后台添加教师 UI — 目前需通过 Supabase SQL / 表编辑器手动插入 🔴
+- [ ] 移动端真机走查 + 截图更新 + Lighthouse 审计 🔴
 - [ ] 移动端 PWA — 独立应用体验
 - [ ] 多活动模板 — 毕业季 / 校庆快速复用
 

@@ -9,6 +9,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
+import ThemeToggle from '@/components/ui/ThemeToggle';
 
 // tsParticles 黄昏暖色背景（懒加载）
 const StarBackground = dynamic(() => import('@/components/home/StarBackground'), {
@@ -172,6 +173,11 @@ export default function HomePage() {
             </motion.button>
           )}
         </AnimatePresence>
+      </div>
+
+      {/* 主题切换 — 固定在右上角，始终可见 */}
+      <div className="fixed right-4 top-4 z-20">
+        <ThemeToggle />
       </div>
 
       {/* 底部入口 */}
