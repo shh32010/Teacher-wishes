@@ -26,7 +26,7 @@ export default function DisplayPage() {
   const containerRef = useRef<HTMLDivElement>(null);
 
   const { data, mutate } = useSWR<PaginatedResponse<Blessing>>(
-    '/api/blessings?pageSize=50',
+    '/api/blessings?pageSize=50&sort=likes',
     fetcher,
     { refreshInterval: 10 * 60 * 1000 }
   );
