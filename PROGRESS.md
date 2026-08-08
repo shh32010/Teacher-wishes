@@ -231,6 +231,7 @@
 | 6 | ~~PGRST103：/api/blessings?page=3 超出范围 500~~ → 捕获后返回空列表 | 🟢 | ✅ 已修复 |
 | 7 | ~~SWR fetcher 不检查 res.ok 导致无限重试崩溃~~ → 防御性错误处理 | 🟢 | ✅ 已修复 |
 | 8 | 敏感词过滤已安装 `bad-words`，服务端逻辑待接入 | 🟢 低 | 可延后 |
+| 9 | 后台缺少"添加教师"入口，仅支持通过 Supabase SQL / 表编辑器直接插入 | 🟡 中 | 待开发 |
 
 ---
 
@@ -364,4 +365,5 @@
 - [ ] 真实设备测试（建议 iPhone SE / Android 中端机各一）
 - [ ] Lighthouse 性能审计（需 Chrome 环境）
 - [ ] 四张页面截图更新（需浏览器环境）
+- [ ] 后台"添加教师"功能 — POST /api/admin/teachers + TeacherManager 表单
 - [ ] v1.2.0 tag
