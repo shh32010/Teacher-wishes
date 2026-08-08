@@ -42,6 +42,7 @@
 | `page` | int | `1` | 页码，最小 1 |
 | `pageSize` | int | `20` | 每页数量，最大 50 |
 | `teacher_id` | UUID | — | 按教师筛选 |
+| `sort` | string | `time` | 排序方式：`time`（最新）/ `likes`（最热） |
 
 **响应:**
 
@@ -178,9 +179,7 @@
       "id": "uuid",
       "name": "王老师",
       "department": "语文组",
-      "avatar_url": "https://...",
-      "description": "从教20年",
-      "created_at": "2026-01-01T00:00:00Z"
+      "avatar_url": "https://..."
     }
   ]
 }
@@ -213,16 +212,10 @@
     "description": "从教20年的资深语文教师",
     "created_at": "2026-01-01T00:00:00Z"
   },
-  "stats": {
-    "total_blessings": 12,
-    "total_likes": 35
-  },
-  "blessings": {
-    "data": [...],
-    "count": 12,
-    "page": 1,
-    "pageSize": 20
-  }
+  "blessings": [...],
+  "count": 12,
+  "page": 1,
+  "pageSize": 20
 }
 ```
 
@@ -306,12 +299,12 @@
 ### 表结构
 
 ```
-teachers                   blessings                  rate_limits
-┌──────────────┐          ┌──────────────┐          ┌──────────────┐
-│ id (PK)      │──┐       │ id (PK)      │          │ id (PK)      │
-│ name         │  │      ┌│ teacher_id → │          │ ip           │
-│ department   │  │      ││ user_id      │          │ action       │
-│ avatar_url   │  │      ││ nickname     │          │ created_at   │
+teachers                   blessings                  rate_limits          blessing_likes
+┌──────────────┐          ┌──────────────┐          ┌──────────────┐     ┌─────────────────┐
+│ id (PK)      │──┐       │ id (PK)      │          │ id (PK)      │     │ blessing_id (PK)│
+│ name         │  │      ┌│ teacher_id → │          │ ip           │     │ ip_address  (PK)│
+│ department   │  │      ││ user_id      │          │ action       │     │ created_at      │
+│ avatar_url   │  │      ││ nickname     │          │ created_at   │     └─────────────────┘
 │ description  │  └──────┼│ class        │          └──────────────┘
 │ created_at   │         ││ content      │
 └──────────────┘         ││ likes        │

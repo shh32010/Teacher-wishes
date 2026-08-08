@@ -41,14 +41,22 @@
 │   │   │   ├── StarBackground.tsx # tsParticles 星空
 │   │   │   ├── BlessingGalaxy.tsx # 祝福星河（斐波那契螺旋）
 │   │   │   ├── StatsPanel.tsx     # 数据看板
-│   │   │   └── CountUp.tsx        # 数字滚动动画
+│   │   │   ├── CountUp.tsx        # 数字滚动动画
+│   │   │   ├── FallingPetals.tsx  # 花瓣飘落动画
+│   │   │   └── TeacherTeam.tsx    # 教师天体展示
 │   │   ├── blessing/              # 祝福相关组件
 │   │   │   ├── BlessingCard.tsx   # 祝福卡片（点赞）
-│   │   │   └── BlessingForm.tsx   # 提交表单（弹窗）
+│   │   │   ├── BlessingForm.tsx   # 提交表单（弹窗）
+│   │   │   ├── ConfettiTrigger.tsx # 彩带庆祝特效
+│   │   │   ├── LikeBurst.tsx      # 点赞爱心爆发动画
+│   │   │   └── SortToggle.tsx     # 排序切换按钮
 │   │   ├── admin/                 # 管理后台组件
 │   │   │   └── TeacherManager.tsx # 教师管理面板
 │   │   └── ui/                    # 通用 UI 组件
 │   │       ├── GlassCard.tsx      # 毛玻璃卡片
+│   │       ├── NavHeader.tsx      # 玻璃态导航栏
+│   │       ├── PageTransition.tsx # 页面转场动画
+│   │       ├── ThemeToggle.tsx    # 主题切换按钮
 │   │       ├── QRCode.tsx         # Canvas QR 码
 │   │       └── ShareButton.tsx    # 分享链接复制
 │   ├── lib/
@@ -57,7 +65,8 @@
 │   │   │   └── server.ts          # 服务端（含 Admin）
 │   │   └── utils.ts               # 工具函数
 │   ├── hooks/
-│   │   └── useInfiniteScroll.ts   # 无限滚动 Hook
+│   │   ├── useInfiniteScroll.ts   # 无限滚动 Hook
+│   │   └── useTheme.ts            # 主题切换 Hook
 │   ├── types/
 │   │   ├── index.ts               # 全局类型定义
 │   │   └── turnstile.d.ts         # Turnstile 类型声明
@@ -105,13 +114,29 @@ erDiagram
     }
 
     rate_limits {
-        serial id PK "自增ID"
+        uuid id PK "记录唯一标识"
         text ip "客户端IP"
         text action "操作类型"
         timestamptz created_at "记录时间"
     }
 
+    blessing_likes {
+        uuid blessing_id PK "祝福ID"
+        text ip_address PK "点赞IP"
+        timestamptz created_at "点赞时间"
+    }
+
+    events {
+        uuid id PK "活动唯一标识"
+        text name "活动名称"
+        jsonb theme_config "主题配置"
+        timestamptz start_time "开始时间"
+        timestamptz end_time "结束时间"
+        timestamptz created_at "创建时间"
+    }
+
     teachers ||--o{ blessings : "收到祝福"
+    blessings ||--o{ blessing_likes : "被点赞"
 ```
 
 ---

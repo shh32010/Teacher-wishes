@@ -125,8 +125,8 @@ if (remaining <= 0) {
 
 | 文件 | 当前行数 | 建议拆分 |
 |:---|:---|:---|
-| `BlessingForm.tsx` | 455 行 | `TeacherSelector.tsx`（~120行）+ `useTurnstile.ts` hook + 主表单缩减至 ~250 行 |
-| `BlessingGalaxy.tsx` | 521 行 | `useGalaxyData.ts` hook + `GalaxyStar.tsx` + `GalaxyDetailModal.tsx` + 主组件缩减至 ~200 行 |
+| `BlessingForm.tsx` | 441 行 | `TeacherSelector.tsx`（~120行）+ `useTurnstile.ts` hook + 主表单缩减至 ~250 行 |
+| `BlessingGalaxy.tsx` | 531 行 | `useGalaxyData.ts` hook + `GalaxyStar.tsx` + `GalaxyDetailModal.tsx` + 主组件缩减至 ~200 行 |
 
 ### 共用方案缺失
 
@@ -157,7 +157,7 @@ if (remaining <= 0) {
 | admin 页 `return null` 水合 hack | 在 SWR key 中判断状态，而非靠 return null 跳过渲染 |
 | 批量拒绝无二次确认 | 添加 Modal 确认 |
 | `display/page.tsx` fetcher 无错误检查 | 统一使用带 `res.ok` 检查的 fetcher |
-| middleware 死代码（第47-50行） | 删除不可达的代码块 |
+| ~~middleware 死代码（第47-50行）~~ | ✅ 已通过 P0 修复解决，middleware 已重构为 51 行 |
 | vitest 无覆盖率阈值 | 添加 `test.coverage.thresholds: { lines: 70, branches: 60 }` |
 
 ### 数据库迁移

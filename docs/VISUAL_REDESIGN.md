@@ -1,6 +1,6 @@
 # 🎨 视觉重构方案 v2.0 — 从深色科技风到暖色教师节
 
-**版本**：v1.1 | **日期**：2026-08-08 | **状态**：Phase 0 ✅ → Phase 1 ✅ → Phase 2 ✅ → Phase 3 ✅ → Phase 4 ✅ → Phase 5 ✅ → Phase 6 ✅ → Phase 7/8 待开始
+**版本**：v1.1 | **日期**：2026-08-08 | **状态**：Phase 0-6 ✅ → Phase 7 收尾中 → Phase 8 待开始
 
 ---
 
@@ -175,7 +175,7 @@ Ginkgo / Petals           Stars / Galaxy
 
 ### 标题字体：LXGW WenKai（霞鹜文楷）
 
-- **获取方式**：本地 `src/app/fonts/` 目录，`next/font/local` 加载
+- **获取方式**：`node_modules/@fontsource/lxgw-wenkai` 通过 `next/font/local` 加载
 - **使用范围**：页面标题（h1/h2）、Hero 大字、教师姓名
 - **不用于**：正文、按钮、表单、卡片内容
 - **子集化**：仅保留常用汉字 3500 个 + 标点，减小体积

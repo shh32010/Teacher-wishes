@@ -7,7 +7,7 @@
 <p align="center">
   <a href="https://github.com/shh32010/Teacher-wishes/actions"><img src="https://github.com/shh32010/Teacher-wishes/actions/workflows/ci.yml/badge.svg" alt="Build"></a>
   <a href="./LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="License"></a>
-  <a href="./PROGRESS.md"><img src="https://img.shields.io/badge/progress-97%25-success" alt="Progress"></a>
+  <a href="./PROGRESS.md"><img src="https://img.shields.io/badge/progress-93%25-success" alt="Progress"></a>
   <a href="https://nextjs.org"><img src="https://img.shields.io/badge/Next.js-14-black" alt="Next.js 14"></a>
   <a href="https://supabase.com"><img src="https://img.shields.io/badge/Supabase-backend-3ecf8e" alt="Supabase"></a>
   <img src="https://img.shields.io/badge/tests-83%20unit%20%7C%2025%20E2E%20%7C%20k6%20load-8b5cf6" alt="Tests">
@@ -34,8 +34,11 @@
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/shh32010/Teacher-wishes&env=NEXT_PUBLIC_SUPABASE_URL,NEXT_PUBLIC_SUPABASE_ANON_KEY,SUPABASE_SERVICE_ROLE_KEY,ADMIN_EMAIL,ADMIN_PASSWORD&envDescription=Supabase%20密钥%20+%20管理员凭据（必填）)
 
 > ⚠️ 部署前需在 [Supabase](https://supabase.com) 创建项目，并在 SQL Editor 中依次执行：
-> 1. `database/migrations/001_schema.sql` — 基础表结构
-> 2. `database/migrations/004_likes_unique.sql` — 点赞唯一性约束
+> 1. `database/migrations/001_schema.sql` — 基础表结构 + RLS + Realtime
+> 2. `database/migrations/002_likes_rpc.sql` — 点赞 RPC 函数
+> 3. `database/migrations/003_rate_limit.sql` — IP 限流 RPC 函数
+> 4. `database/migrations/004_likes_unique.sql` — 点赞唯一性约束
+> 5. `database/migrations/004_storage_avatars.sql` — 头像存储桶策略
 
 ---
 
@@ -105,7 +108,10 @@ SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
 # 4. 执行数据库迁移
 # 在 Supabase SQL Editor 中依次运行：
 #   database/migrations/001_schema.sql（基础表结构）
+#   database/migrations/002_likes_rpc.sql（点赞 RPC）
+#   database/migrations/003_rate_limit.sql（IP 限流）
 #   database/migrations/004_likes_unique.sql（点赞唯一性约束）
+#   database/migrations/004_storage_avatars.sql（头像存储桶）
 
 # 5. 启动
 npm run dev
@@ -175,11 +181,15 @@ docs/                         # ARCHITECTURE / API / CAPACITY
 
 ---
 
-## 🔮 后续计划
+## 🔮 已发布 / 后续计划
+
+### ✅ v1.2.0 已发布
 
 - [x] Design Token 体系 — CSS 自定义属性驱动的视觉设计系统
 - [x] 温暖夜间模式 + 三态切换 — `prefers-color-scheme: dark` 深蓝紫 + 暗金 + ThemeToggle (☀️/🌙/🖥)
 - [x] 字体本地化 — 霞鹜文楷零 CDN 依赖，`preload: false` 渐进加载
+
+### 📋 待完成
 - [ ] 敏感词过滤（`bad-words` 已安装，服务端逻辑待接入）🔴
 - [ ] 后台添加教师 UI — 目前需通过 Supabase SQL / 表编辑器手动插入 🔴
 - [ ] 移动端真机走查 + 截图更新 + Lighthouse 审计 🔴

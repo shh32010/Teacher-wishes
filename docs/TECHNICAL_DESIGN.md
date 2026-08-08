@@ -114,7 +114,6 @@ erDiagram
         boolean is_featured "精选标记"
         boolean is_anonymous "匿名标记"
         text status "pending|approved|rejected"
-        text reject_reason "拒绝原因"
         timestamp created_at
     }
 
@@ -126,10 +125,11 @@ erDiagram
 
     events {
         uuid id PK
-        text title "活动标题"
-        date start_date
-        date end_date
-        boolean is_active
+        text name "活动名称"
+        jsonb theme_config "主题配置"
+        timestamptz start_time "开始时间"
+        timestamptz end_time "结束时间"
+        timestamptz created_at "创建时间"
     }
 
     teachers ||--o{ blessings : "收到"
@@ -165,14 +165,19 @@ CREATE INDEX idx_ratelimit_ip_action ON rate_limits(ip, action, created_at);  --
 ### 2.4 存储过程（RPC）
 
 ```sql
--- 原子递增点赞（SECURITY DEFINER 绕过 RLS）
-CREATE OR REPLACE FUNCTION increment_likes(blessing_id UUID)
+-- 原子递增点赞 + IP 唯一约束（SECURITY DEFINER 绕过 RLS）
+CREATE OR REPLACE FUNCTION increment_likes(blessing_id UUID, client_ip TEXT)
 RETURNS INT AS $$
 DECLARE new_likes INT;
 BEGIN
+  -- 尝试插入点赞记录，重复 IP 触发 unique_violation
+  INSERT INTO blessing_likes (blessing_id, ip_address) VALUES (blessing_id, client_ip);
+  -- 更新点赞计数
   UPDATE blessings SET likes = likes + 1 WHERE id = blessing_id
   RETURNING likes INTO new_likes;
   RETURN new_likes;
+EXCEPTION WHEN unique_violation THEN
+  RETURN -1;  -- 已点赞
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 
@@ -185,7 +190,7 @@ BEGIN
   SELECT COUNT(*) INTO recent_count FROM rate_limits
   WHERE ip = client_ip AND action = action_name
     AND created_at > NOW() - (window_minutes || ' minutes')::INTERVAL;
-  RETURN GREATEST(0, max_requests - recent_count);
+  RETURN max_requests - recent_count;
 END;
 $$ LANGUAGE plpgsql SECURITY DEFINER;
 ```
@@ -202,8 +207,8 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 | POST | `/api/blessings` | CSRF | 无 | 提交祝福，IP 限流 3/10min |
 | POST | `/api/blessings/[id]/like` | CSRF | 无 | 点赞（RPC 原子递增） |
 | GET | `/api/blessings/stats` | 无 | s-maxage=30s | 统计数据看板 |
-| GET | `/api/teachers` | 无 | s-maxage=300s | 教师列表 |
-| GET | `/api/teachers/[id]` | 无 | s-maxage=300s | 教师详情 + 祝福 |
+| GET | `/api/teachers` | 无 | s-maxage=60s | 教师列表 |
+| GET | `/api/teachers/[id]` | 无 | s-maxage=60s | 教师详情 + 祝福 |
 | GET | `/api/admin/blessings` | Auth | 无 | 管理后台祝福列表 |
 | PATCH | `/api/admin/blessings` | Auth+CSRF | 无 | 批量审核/置顶 |
 | POST | `/api/admin/login` | CSRF | 无 | 管理登录 |
@@ -452,7 +457,8 @@ POST /api/blessings/:id/like
 ├── SUPABASE_URL              ├── SUPABASE_SERVICE_ROLE_KEY
 ├── SUPABASE_ANON_KEY         ├── TURNSTILE_SECRET_KEY
 ├── TURNSTILE_SITE_KEY        ├── ADMIN_EMAIL
-└── SENTRY_DSN                ├── ADMIN_PASSWORD（⚠️ 待修复）
+├── SENTRY_DSN（前端用 NEXT_PUBLIC_ 前缀）  ├── ADMIN_PASSWORD
+                              ├── SENTRY_DSN（服务端）
                               └── SENTRY_ORG / PROJECT
 ```
 
@@ -628,10 +634,10 @@ P1 — admin/blessings/route.ts → PATCH 白名单
 
 | 目录 | 文件数 | 总行数 | 最大文件 |
 |:---|:---|:---|:---|
-| `src/app/` | 15 | ~1800 | wall/page.tsx (310) |
-| `src/components/` | 14 | ~2300 | BlessingGalaxy.tsx (521 ⚠️) |
+| `src/app/` | 17 | ~2100 | wall/page.tsx (298) |
+| `src/components/` | 18 | ~2700 | BlessingGalaxy.tsx (531 ⚠️) |
 | `src/lib/` | 5 | ~250 | csrf.ts (80) |
-| `src/app/api/` | 10 | ~600 | blessings/route.ts (160) |
+| `src/app/api/` | 9 | ~550 | blessings/route.ts (160) |
 | `e2e/` | 6 | ~600 | admin.spec.ts (180) |
 | `load-tests/` | 3 | ~400 | stress.js (250) |
 
