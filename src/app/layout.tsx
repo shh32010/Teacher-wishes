@@ -51,11 +51,34 @@ export const metadata: Metadata = {
   description: '教师节活动网站，学生们可以在这里发布对老师的祝福，查看实时祝福墙，感受节日温暖。',
   keywords: ['教师节', '祝福墙', '教师节祝福', '教师节活动'],
   authors: [{ name: 'Teacher Wishes Team' }],
+  metadataBase: new URL('https://teacher.shh32010.dpdns.org'),
+  icons: {
+    icon: '/favicon.svg',
+  },
+  robots: {
+    index: true,
+    follow: true,
+  },
   openGraph: {
-    title: '教师节祝福墙',
-    description: '致敬每一位引路人，写下你最真挚的祝福。',
+    title: '教师节祝福墙 - 致敬每一位引路人',
+    description: '写下你最真挚的祝福，致敬每一位引路人。教师节祝福墙，让感恩被看见。',
     type: 'website',
     locale: 'zh_CN',
+    siteName: '教师节祝福墙',
+    images: [
+      {
+        url: '/screenshots/homepage.png',
+        width: 1200,
+        height: 630,
+        alt: '教师节祝福墙 - 暖色秋天美学，星河动画，毛玻璃设计',
+      },
+    ],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: '教师节祝福墙 - 致敬每一位引路人',
+    description: '写下你最真挚的祝福，致敬每一位引路人。',
+    images: ['/screenshots/homepage.png'],
   },
 };
 
