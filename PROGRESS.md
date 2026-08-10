@@ -1,6 +1,6 @@
 # 📋 教师节祝福墙 · 开发进度管理
 
-**项目启动**：2026-08-05 | **目标上线**：2026-09-01 | **当前阶段**：v1.2.0 已发布 / 持续优化
+**项目启动**：2026-08-05 | **目标上线**：2026-09-01 | **当前阶段**：v1.3.0 已发布 / 上线验收中
 
 ---
 
@@ -233,6 +233,12 @@
 | 7 | 大屏长时间稳定性 — 需实测 | 🟡 | ⬜ |
 | 8 | 粒子自适应 — 低端机可再降 | 🟢 | ⬜ |
 | 9 | 敏感词库扩充 — `bad-words` 英文为主，中文需补 | 🟢 | ⬜ |
+| 10 | Vercel 环境变量验证 | 🔴 | ✅ |
+| 11 | 生产冒烟测试 (6项) | 🔴 | ✅ |
+| 12 | k6 负载测试 | 🔴 | ✅ |
+| 13 | Cron fail-closed | 🟠 | ✅ |
+| 14 | 强制 ADMIN_TOKEN_SECRET | 🟠 | ✅ |
+| 15 | SEO/OG 分享卡片 | 🟡 | ✅ |
 
 ---
 
@@ -251,6 +257,12 @@
 | 9 | 后台缺少"添加教师"入口，仅支持通过 Supabase SQL / 表编辑器直接插入 | 🟡 中 | 待开发 |
 | 10 | Realtime UPDATE 订阅无 filter，所有 blessings 变更都触发全量 SWR 重取 | 🟢 低 | P2，可延后 |
 | 11 | Turnstile 可选 — 未配置时 bot 防护仅靠 IP 限流 | 🟢 低 | P2，生产建议启用 |
+| 12 | ~~点赞 IP 可伪造 (increment_likes)~~ → 已撤销 anon/PUBLIC 执行权限，仅 service_role 可调用 | 🟢 | ✅ v1.3.0 |
+| 13 | ~~rate_limits 无 RLS (数据泄露+限流瘫痪)~~ → 已启用 RLS，仅允许 INSERT | 🟢 | ✅ v1.3.0 |
+| 14 | ~~限流 TOCTOU 竞态 (check_rate_limit)~~ → 改为原子 INSERT+COUNT | 🟢 | ✅ v1.3.0 |
+| 15 | ~~blessings INSERT 可绕过审核~~ → BEFORE INSERT 触发器强制安全默认值 | 🟢 | ✅ v1.3.0 |
+| 16 | ~~Storage 策略无身份验证~~ → 删除匿名写策略 | 🟢 | ✅ v1.3.0 |
+| 17 | ~~ADMIN_PASSWORD 双重用途~~ → 拆分 ADMIN_TOKEN_SECRET | 🟢 | ✅ v1.3.0 |
 
 ---
 
@@ -429,3 +441,24 @@
 - [x] 📄 CLAUDE.md 大幅完善 — Tailwind 色板/CSS 工具类/API 路由清单/双认证/架构陷阱
 - [x] 📄 CHANGELOG.md — v1.2.1 安全修复日志
 - [x] 📄 PROGRESS.md — Phase 6 进度记录
+
+### v1.3.0 安全加固 + 上线验收（08/10）
+
+- [x] 🔴 **P1-1**：`increment_likes` IP 可伪造 → 撤销 anon/PUBLIC 执行权限，仅 service_role 可调用
+- [x] 🔴 **P1-2**：`rate_limits` 无 RLS → 启用 RLS，仅允许 INSERT
+- [x] 🔴 **P1-3**：限流非原子 → 改为原子 INSERT+COUNT 单事务
+- [x] 🟠 **P1-4**：无定时清理 → 概率自清理 + Vercel Cron 兜底
+- [x] 🟠 **P1-5**：审核可被绕过 → BEFORE INSERT 触发器强制安全默认值
+- [x] 🟡 **P2-1**：ADMIN_PASSWORD 双重用途 → 拆分 ADMIN_TOKEN_SECRET
+- [x] 🟡 **P2-2**：Storage 策略过宽 → 删除匿名写策略
+- [x] 🟡 **P2-3**：token 无过期 → 载荷编码 24h 过期时间戳
+- [x] ① Vercel 环境变量验证 — 7/7 必填全部就绪
+- [x] ② 生产冒烟测试 — 6/6 通过（限流/触发器/RLS/策略/权限/Storage）
+- [x] ③ Supabase 索引检查 — 全部就绪
+- [x] ④ k6 负载测试 — 20VU/620req/0失败/p95=1.37s
+- [x] ⑤ Cron fail-closed — 生产环境 CRON_SECRET 缺失时 500 拒绝
+- [x] ⑥ 强制 ADMIN_TOKEN_SECRET — 生产环境不回退到 ADMIN_PASSWORD
+- [x] ⑦ 删除旧 token 格式 — 仅接受 randomPart.expiry.signature
+- [x] ⑨ SEO/OG — favicon + robots.txt + OG 图片 + Twitter 卡片
+- [ ] ⑧ 移动端真机测试 — iPhone Safari / Android Chrome 实测
+- [ ] ⑩ 打 v1.3.0 tag

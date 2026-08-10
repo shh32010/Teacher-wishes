@@ -4,6 +4,48 @@ All notable changes to Teacher Wishes Platform will be documented in this file.
 
 ---
 
+## [1.3.0] — 2026-08-10
+
+### 🔒 数据库层安全加固（P1 × 5）
+
+- 🔴 **P1-1**：`increment_likes` IP 可被调用者伪造 → 撤销 `anon`/`PUBLIC` 执行权限，仅 `service_role`（admin client）可调用 RPC，API 路由作为唯一入口
+- 🔴 **P1-2**：`rate_limits` 表无 RLS → 启用 RLS，仅允许 INSERT，禁止 anon SELECT/DELETE（防隐私泄露 + 垃圾数据攻击）
+- 🔴 **P1-3**：`check_rate_limit` SELECT+INSERT 非原子 → 改为同一 PL/pgSQL 事务中原子 INSERT+COUNT，消除 TOCTOU 竞态窗口
+- 🟠 **P1-4**：`cleanup_rate_limits()` 无定时调度 → 函数内 1% 概率自清理 + Vercel Cron 每日 4:00 UTC 兜底
+- 🟠 **P1-5**：blessings INSERT RLS `WITH CHECK (true)` 可绕过审核 → `BEFORE INSERT` 触发器强制 `status='pending'`、`likes=0`、`is_featured=false`
+
+### 🔒 应用层安全硬化（P2 × 3）
+
+- 🟡 **P2-1**：`ADMIN_PASSWORD` 双重用途（密码+签名密钥）→ 拆分为 `ADMIN_TOKEN_SECRET`（签名）+ `ADMIN_PASSWORD`（登录），生产环境强制独立密钥
+- 🟡 **P2-2**：Storage 策略无身份验证 → 删除 `storage.objects` 的 INSERT/UPDATE/DELETE 匿名策略，仅保留公开 SELECT，写入走 API 路由（service_role）
+- 🟡 **P2-3**：`admin_token` 无过期标记 → 载荷编码 24h 过期时间戳（`randomPart.expiry.signature`），中间件验证过期
+
+### ✅ 上线验证
+
+- ✅ Vercel 环境变量 7/7 验证通过（含新增 `ADMIN_TOKEN_SECRET` + `CRON_SECRET`）
+- ✅ 生产冒烟测试 6/6 通过（原子限流/触发器/RLS/策略/权限/Storage）
+- ✅ k6 负载测试：20 VU / 620 req / 0 失败 / p95=1.37s
+- ✅ Supabase 索引验证：全部就绪（含 `idx_blessing_likes_unique` + `idx_rate_limits_ip_action`）
+
+### 🔧 上线前硬化
+
+- 🔧 Cron fail-closed：生产环境 `CRON_SECRET` 缺失 → 500 拒绝（不再静默跳过鉴权）
+- 🔧 强制 `ADMIN_TOKEN_SECRET`：生产环境不回退到 `ADMIN_PASSWORD` 签名
+- 🔧 删除旧 token 格式兼容：仅接受 `randomPart.expiry.signature`，旧格式 `randomPart.signature` 已移除
+
+### 🎨 SEO / 分享优化
+
+- 📱 Open Graph 图片 + Twitter `summary_large_image` 卡片
+- 🍎 SVG favicon + `robots.txt`
+- 🔗 `metadataBase` 规范 URL
+
+### 📄 文档
+
+- 📄 迁移文件：`005_security_hardening.sql`（5 项 SQL 加固）+ `006_storage_policies.sql`
+- 📄 `.env.local` 模板：新增 `SUPABASE_DB_PASSWORD` / `ADMIN_TOKEN_SECRET` / `CRON_SECRET`
+
+---
+
 ## [1.2.1] — 2026-08-10
 
 ### 🔒 安全修复（安全审查 9 条链路）
