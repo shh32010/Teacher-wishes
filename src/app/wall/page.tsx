@@ -162,7 +162,7 @@ export default function WallPage() {
         setShowConfetti(true);
         setShowSuccess(true);
         setTimeout(() => setShowConfetti(false), 3500);
-        setTimeout(() => setShowSuccess(false), 2500);
+        setTimeout(() => setShowSuccess(false), 8000);
         await mutate();
         setShowForm(false);
       } catch {
@@ -208,7 +208,7 @@ export default function WallPage() {
     <main className="min-h-screen pb-20">
       {showConfetti && <ConfettiTrigger />}
 
-      {/* 提交成功提示 */}
+      {/* 提交成功提示 — 手动关闭（8s 后自动消失作为兜底） */}
       {showSuccess && (
         <motion.div
           initial={{ opacity: 0, y: -20, scale: 0.9 }}
@@ -216,9 +216,17 @@ export default function WallPage() {
           exit={{ opacity: 0, y: -10 }}
           className="fixed left-1/2 top-20 z-50 -translate-x-1/2"
         >
-          <div className="glass rounded-2xl px-8 py-4 text-center shadow-lg">
-            <p className="text-lg font-bold text-[var(--color-primary)]">✨ 祝福已送出！</p>
-            <p className="mt-1 text-sm text-[var(--text-secondary)]">审核通过后将展示在祝福墙上</p>
+          <div className="glass rounded-2xl px-8 py-5 text-center shadow-lg">
+            <p className="text-lg font-bold text-[var(--color-primary)]">✨ 祝福已送达！</p>
+            <p className="mt-1 text-sm text-[var(--text-secondary)]">
+              已进入审核队列，审核通过后会出现在祝福墙
+            </p>
+            <button
+              onClick={() => setShowSuccess(false)}
+              className="mt-3 rounded-xl bg-[var(--color-primary)] px-6 py-1.5 text-sm text-white transition-colors hover:bg-[var(--color-primary-hover)]"
+            >
+              知道了
+            </button>
           </div>
         </motion.div>
       )}
