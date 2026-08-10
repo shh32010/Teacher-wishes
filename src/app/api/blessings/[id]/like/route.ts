@@ -3,7 +3,7 @@
 // ============================================================
 
 import { NextRequest, NextResponse } from 'next/server';
-import { createAnonClient } from '@/lib/supabase/server';
+import { createAnonClient, createAdminClient } from '@/lib/supabase/server';
 import { validateCsrfToken, csrfErrorResponse } from '@/lib/csrf';
 
 /** 从请求中提取客户端真实 IP */
@@ -27,11 +27,12 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
   const { id } = params;
 
   try {
-    const supabase = createAnonClient();
+    const anonSupabase = createAnonClient();
+    const adminSupabase = createAdminClient(); // increment_likes 仅允许 service_role 调用
     const clientIp = getClientIp(request);
 
-    // 速率限制：每 IP 每分钟最多 20 次点赞
-    const { data: remaining, error: rateError } = await supabase.rpc('check_rate_limit', {
+    // 速率限制：每 IP 每分钟最多 20 次点赞（原子化：check+insert 在同一事务）
+    const { data: remaining, error: rateError } = await anonSupabase.rpc('check_rate_limit', {
       client_ip: clientIp,
       action_name: 'like_blessing',
       max_requests: 20,
@@ -47,8 +48,8 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
       return NextResponse.json({ error: '点赞太频繁，请稍后再试' }, { status: 429 });
     }
 
-    // 调用 RPC：尝试插入点赞记录 + 递增计数
-    const { data, error } = await supabase.rpc('increment_likes', {
+    // 调用 RPC：尝试插入点赞记录 + 递增计数（使用 admin client，anon 已被撤销执行权限）
+    const { data, error } = await adminSupabase.rpc('increment_likes', {
       blessing_id: id,
       client_ip: clientIp,
     });
@@ -62,9 +63,6 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
     if (data === -1) {
       return NextResponse.json({ error: '你已经点过赞了' }, { status: 409 });
     }
-
-    // 写入速率限制记录
-    await supabase.from('rate_limits').insert([{ ip: clientIp, action: 'like_blessing' }]);
 
     return NextResponse.json({ id, likes_count: data });
   } catch (err) {

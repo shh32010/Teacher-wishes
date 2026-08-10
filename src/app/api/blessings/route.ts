@@ -97,7 +97,7 @@ export async function POST(request: NextRequest) {
 
     const supabase = createAnonClient();
 
-    // 速率限制：每10分钟最多3条
+    // 速率限制：每10分钟最多3条（原子化：check+insert 在同一事务中，无 TOCTOU 窗口）
     const { data: remaining, error: rateError } = await supabase.rpc('check_rate_limit', {
       client_ip: ip,
       action_name: 'submit_blessing',
@@ -132,17 +132,6 @@ export async function POST(request: NextRequest) {
       if (!turnstileData.success) {
         return NextResponse.json({ error: '人机验证失败，请刷新重试' }, { status: 400 });
       }
-    }
-
-    // 先写入速率限制记录（在祝福插入之前，防止 TOCTOU 并发击穿）
-    const { error: rateWriteError } = await supabase
-      .from('rate_limits')
-      .insert([{ ip, action: 'submit_blessing' }]);
-
-    if (rateWriteError) {
-      console.error('[API] 写入限流记录失败:', rateWriteError);
-      // 写入失败阻断请求，防止攻击者通过制造写入失败绕过限流
-      return NextResponse.json({ error: '系统繁忙，请稍后重试' }, { status: 503 });
     }
 
     // 插入祝福（不使用 .select()，避免 RLS SELECT 冲突）

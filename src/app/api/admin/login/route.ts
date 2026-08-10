@@ -47,8 +47,6 @@ export async function POST(request: NextRequest) {
     const { password } = await request.json();
 
     if (!password || password !== ADMIN_PASSWORD) {
-      // 写入速率限制记录
-      await supabase.from('rate_limits').insert([{ ip, action: 'admin_login' }]);
       return NextResponse.json({ error: '密码错误' }, { status: 401 });
     }
 
@@ -56,9 +54,6 @@ export async function POST(request: NextRequest) {
     const randomPart = randomBytes(16).toString('hex');
     const signature = createHmac('sha256', ADMIN_PASSWORD).update(randomPart).digest('hex');
     const token = `${randomPart}.${signature}`;
-
-    // 写入速率限制记录
-    await supabase.from('rate_limits').insert([{ ip, action: 'admin_login' }]);
 
     // 设置管理会话 Cookie（24小时有效）
     const response = NextResponse.json({ success: true });
