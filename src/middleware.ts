@@ -29,26 +29,18 @@ async function verifyHmac(payload: string, signatureHex: string, secret: string)
 
 /**
  * 验证 admin_token Cookie
- * 支持两种格式：
- *   - 旧格式: randomPart.signature (无过期标记，向后兼容)
- *   - 新格式: randomPart.expiryTimestamp.signature (含过期时间)
+ * 格式: randomPart.expiryTimestamp.signature
+ * payload = randomPart.expiryTimestamp，HMAC 签名覆盖整个 payload
  */
 async function verifyAdminToken(tokenStr: string, secret: string): Promise<boolean> {
-  const lastDot = tokenStr.lastIndexOf('.');
-  if (lastDot === -1 || lastDot === tokenStr.length - 1) return false;
+  const parts = tokenStr.split('.');
+  if (parts.length !== 3) return false; // 必须为三部分
 
-  const payload = tokenStr.slice(0, lastDot);
-  const signature = tokenStr.slice(lastDot + 1);
+  const [randomPart, expiryStr, signature] = parts;
+  const expiry = parseInt(expiryStr, 10);
+  if (isNaN(expiry) || Date.now() > expiry) return false;
 
-  // 检测新格式：payload 中包含过期时间戳 (randomPart.expiryTimestamp)
-  const firstDot = payload.indexOf('.');
-  if (firstDot !== -1) {
-    const expiry = parseInt(payload.slice(firstDot + 1), 10);
-    // 过期时间戳无效或已过期 → 拒绝
-    if (isNaN(expiry) || Date.now() > expiry) return false;
-  }
-  // 旧格式无过期标记，依赖 Cookie maxAge 控制生命周期
-
+  const payload = `${randomPart}.${expiryStr}`;
   return verifyHmac(payload, signature, secret);
 }
 
@@ -91,18 +83,17 @@ export async function middleware(request: NextRequest) {
   }
 
   // 方式2：admin_token HMAC 签名验证（后备方案，无需 Supabase Auth）
-  // 按优先级尝试：ADMIN_TOKEN_SECRET → ADMIN_PASSWORD（过渡期兼容旧 token）
-  const tokenSecrets = [process.env.ADMIN_TOKEN_SECRET, process.env.ADMIN_PASSWORD].filter(
-    (s): s is string => !!s
-  );
+  // 生产环境强制要求 ADMIN_TOKEN_SECRET，开发环境可回退到 ADMIN_PASSWORD
+  const tokenSecret =
+    process.env.ADMIN_TOKEN_SECRET ||
+    (process.env.NODE_ENV !== 'production' ? process.env.ADMIN_PASSWORD : null);
 
-  if (tokenSecrets.length > 0) {
+  if (tokenSecret) {
     const adminToken = request.cookies.get('admin_token')?.value;
     if (adminToken) {
-      for (const secret of tokenSecrets) {
-        if (await verifyAdminToken(adminToken, secret)) {
-          return response;
-        }
+      const valid = await verifyAdminToken(adminToken, tokenSecret);
+      if (valid) {
+        return response;
       }
     }
   }

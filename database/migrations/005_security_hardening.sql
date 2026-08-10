@@ -72,9 +72,10 @@ GRANT EXECUTE ON FUNCTION check_rate_limit(TEXT, TEXT, INT, INT) TO anon, authen
 -- 修复后仅 service_role（admin client）可调用，
 -- API 路由作为唯一入口，从请求头提取真实 IP 后传入
 -- ============================================================
-REVOKE EXECUTE ON FUNCTION increment_likes(UUID, TEXT) FROM anon, authenticated;
+REVOKE EXECUTE ON FUNCTION increment_likes(UUID, TEXT) FROM anon, authenticated, PUBLIC;
 
--- 注意：不 GRANT TO authenticated 也是因为攻击者可以注册 Supabase Auth 账号
+-- 注意：必须同时 REVOKE FROM PUBLIC，因为 Supabase 默认将函数执行权限授予 PUBLIC
+-- 不 GRANT TO authenticated 也是因为攻击者可以注册 Supabase Auth 账号
 -- 获取 authenticated key 后同样可以伪造 IP 调用该函数
 -- 该函数现在仅能通过 service_role key（admin client）调用
 

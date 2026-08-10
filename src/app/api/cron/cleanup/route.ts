@@ -12,7 +12,15 @@ import { createAdminClient } from '@/lib/supabase/server';
 export async function GET(request: NextRequest) {
   // 验证 Cron 请求（仅 Vercel Cron 持有 CRON_SECRET）
   const cronSecret = process.env.CRON_SECRET;
-  if (cronSecret) {
+
+  // fail-closed：生产环境必须配置 CRON_SECRET，否则拒绝所有请求
+  if (!cronSecret) {
+    if (process.env.NODE_ENV === 'production') {
+      console.error('[Cron] CRON_SECRET 未配置，拒绝请求');
+      return NextResponse.json({ error: '服务未配置，请联系管理员' }, { status: 500 });
+    }
+    // 开发环境允许无密钥访问（方便本地调试）
+  } else {
     const authHeader = request.headers.get('authorization');
     if (!authHeader || authHeader !== `Bearer ${cronSecret}`) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });

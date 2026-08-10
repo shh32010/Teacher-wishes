@@ -52,7 +52,14 @@ export async function POST(request: NextRequest) {
 
     // 生成 HMAC 签名 token（可被中间件验证，无需服务端存储）
     // ADMIN_TOKEN_SECRET 独立于 ADMIN_PASSWORD，更换密码不影响已有 token
-    const tokenSecret = process.env.ADMIN_TOKEN_SECRET || ADMIN_PASSWORD;
+    // 生产环境强制要求 ADMIN_TOKEN_SECRET，开发环境可回退到 ADMIN_PASSWORD
+    const tokenSecret =
+      process.env.ADMIN_TOKEN_SECRET ||
+      (process.env.NODE_ENV !== 'production' ? ADMIN_PASSWORD : null);
+    if (!tokenSecret) {
+      console.error('[Admin] 生产环境 ADMIN_TOKEN_SECRET 未配置，拒绝登录');
+      return NextResponse.json({ error: '服务未配置，请联系管理员' }, { status: 500 });
+    }
     const randomPart = randomBytes(16).toString('hex');
     const expiry = Date.now() + 24 * 60 * 60 * 1000; // 24 小时后过期
     const payload = `${randomPart}.${expiry}`;
