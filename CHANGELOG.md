@@ -4,6 +4,35 @@ All notable changes to Teacher Wishes Platform will be documented in this file.
 
 ---
 
+## [1.2.1] — 2026-08-10
+
+### 🔒 安全修复（安全审查 9 条链路）
+
+- 🔴 **P0**：点赞 API 零限流 → 新增 `check_rate_limit`，每 IP 每分钟 20 次，fail-closed（`api/blessings/[id]/like/route.ts`）
+- 🔴 **P0**：`admin_token` 从未被验证 → HMAC-SHA256 签名 token + 中间件 Web Crypto 验签，作为 Supabase Auth 后备方案（`middleware.ts` + `api/admin/login/route.ts`）
+- 🟠 **P1**：提交祝福 TOCTOU 竞态 → `rate_limits` 写入移到 `blessings` 插入之前，写入失败阻断请求（`api/blessings/route.ts`）
+- 🟠 **P1**：Admin PATCH 字段无白名单 → 显式过滤仅允许 `status`（含合法值校验）+ `is_featured`（`api/admin/blessings/route.ts`）
+- 🟠 **P1**：管理员登录无限流 → 每 IP 每分钟 5 次登录尝试 + 错误密码也写入限流记录（`api/admin/login/route.ts`）
+- 🟠 **P1**：点赞 IP 可伪造 → 依赖 Vercel 可信代理层（非代码修复，部署环境保障）
+
+### 🎨 提交祝福特效修复
+
+- 🐛 **Confetti 清理**：`useEffect` 返回 cleanup 函数，取消所有 `setTimeout` + `requestAnimationFrame`，防止组件卸载后继续执行
+- ♿ **prefers-reduced-motion**：减弱动画偏好时跳过全部 Confetti
+- 🎨 **教师节化视觉**：阶段 2 从「左右彩带喷射」改为「金色花瓣缓慢飘落」（低重力 0.3、微风漂移 1.5、圆形粒子），色板移除粉橙只留暖金大地色
+- 🐛 **Duration 对齐**：默认 duration 对齐组件卸载时机（3500ms）
+
+### 💬 审核 UX 优化
+
+- 🎯 成功提示文案：「✨ 祝福已送达！已进入审核队列，审核通过后会出现在祝福墙」
+- 🎯 新增「知道了」手动关闭按钮（8s 自动消失作为兜底，原 2.5s 直接消失）
+
+### 📄 文档完善
+
+- 📄 **CLAUDE.md** 大幅完善：新增 Tailwind 色板/工具类速查、API 路由清单（9 端点）、双认证系统说明、架构陷阱、Pre-commit 钩子、文档索引
+
+---
+
 ## [1.2.0] — 2026-08-08
 
 ### 🎨 视觉重构 v2.0 — Design Token 体系（18 文件 + 3 新文件）

@@ -178,6 +178,7 @@ flowchart TB
     Vercel --> Next
     Next --> Middleware
     Middleware -->|Admin 路由| Auth
+    Middleware -->|Admin 路由| Token["admin_token HMAC"]
     Middleware -->|通过| API
     API --> PG
     API --> Storage
@@ -208,6 +209,7 @@ sequenceDiagram
     API->>API: 输入校验 (长度/必填)
     API->>RPC: check_rate_limit(ip)
     RPC-->>API: remaining > 0
+    API->>DB: INSERT rate_limits (防TOCTOU并发)
     API->>DB: INSERT blessings (status=pending)
     API-->>Form: 201 Created
     Note over User,Form: 等待管理员审核
@@ -226,6 +228,7 @@ sequenceDiagram
     participant LS as localStorage
     participant API as POST /api/blessings/[id]/like
     participant RPC as increment_likes
+    participant Rate as check_rate_limit
 
     User->>Card: 点击 ❤
     Card->>LS: 检查 liked_blessings
@@ -233,8 +236,11 @@ sequenceDiagram
     Card->>Card: 乐观更新 (likes+1, 变红)
     Card->>LS: 保存已点赞 ID
     Card->>API: POST like
+    API->>Rate: check_rate_limit(ip, like_blessing)
+    Rate-->>API: remaining > 0 (20次/分钟)
     API->>RPC: increment_likes(id)
     RPC-->>API: new_likes_count
+    API->>DB: INSERT rate_limits
     API-->>Card: 200 OK
 ```
 
@@ -247,11 +253,11 @@ sequenceDiagram
 | **传输** | HTTPS (Vercel + Cloudflare) |
 | **数据库** | RLS — 公开 SELECT 仅看 `approved`，INSERT 默认 `pending` |
 | **点赞** | `SECURITY DEFINER` RPC 绕过 RLS |
-| **管理 API** | Supabase Auth 邮箱密码 + Middleware 拦截 |
+| **管理 API** | Supabase Auth session（主）+ admin_token HMAC 签名 cookie（后备），Middleware 双重鉴权 |
 | **上传** | service_role key，仅服务端使用 |
-| **限流** | `check_rate_limit` RPC — 每 IP 每 10 分钟 3 条 |
+| **限流** | `check_rate_limit` RPC：提交 3次/10分钟/IP、点赞 20次/分钟/IP、管理员登录 5次/分钟/IP |
 | **人机验证** | Cloudflare Turnstile（可选，配置密钥后激活） |
-| **输入校验** | 服务端严格校验（长度、必填、类型） |
+| **输入校验** | 服务端严格校验（长度、必填、类型）；Admin PATCH 字段白名单仅允许 status + is_featured |
 
 ---
 

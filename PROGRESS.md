@@ -14,6 +14,7 @@
 | **Phase 3：安全 + 测试** | 08/06 | ✅ 已完成 | 95% |
 | **Phase 4：上线准备** | 08/06 → 08/07 | ✅ 已完成 | 86% |
 | **Phase 5：视觉重构 v2.0** | 08/08 | ✅ 已完成 | 95% |
+| **Phase 6：安全加固 + 上线审查** | 08/10 | ✅ 已完成 | 95% |
 
 > 状态图例：⬜ 待开始 · 🔄 进行中 · ✅ 已完成 · ⏸️ 暂停 · ❌ 取消
 
@@ -212,10 +213,10 @@
 
 | 指标 | 数值 |
 | :--- | :--- |
-| 总任务数 | 156 |
-| 已完成 | 145 |
-| 待开始 | 11 |
-| 整体完成度 | 93% |
+| 总任务数 | 172 |
+| 已完成 | 162 |
+| 待开始 | 10 |
+| 整体完成度 | 94% |
 
 ---
 
@@ -248,6 +249,8 @@
 | 7 | ~~SWR fetcher 不检查 res.ok 导致无限重试崩溃~~ → 防御性错误处理 | 🟢 | ✅ 已修复 |
 | 8 | 敏感词过滤已安装 `bad-words`，服务端逻辑待接入 | 🟢 低 | 可延后 |
 | 9 | 后台缺少"添加教师"入口，仅支持通过 Supabase SQL / 表编辑器直接插入 | 🟡 中 | 待开发 |
+| 10 | Realtime UPDATE 订阅无 filter，所有 blessings 变更都触发全量 SWR 重取 | 🟢 低 | P2，可延后 |
+| 11 | Turnstile 可选 — 未配置时 bot 防护仅靠 IP 限流 | 🟢 低 | P2，生产建议启用 |
 
 ---
 
@@ -389,3 +392,40 @@
 - [x] 🔴 P0：LXGW WenKai 字体注释补充 — 澄清 "latin" 是 fontsource 命名惯例，实际含 CJK 全量字形
 - [x] 🟠 P1：首页 CTA 时间线缩短 — 桌面 7.5s / 移动 5.0s（提速 25%~50%）
 - [x] 🟠 P1：Galaxy 视觉数据上限 — 按热度取前 100，防止大量 Motion DOM
+
+### 08-10
+- ✅ 提交祝福特效增强：中央爆发 + 花瓣飘落 + 成功提示浮层（Motion + Glass UI）
+- 🔒 **安全审查**：9 条链路深度审查，发现 P0×2 + P1×5 + P2×2
+- 🔴 P0 修复：点赞 API 零限流 + admin_token HMAC 签名双重鉴权
+- 🟠 P1 修复：TOCTOU + 字段白名单 + 管理员登录限流 + IP 去重保障
+- 🐛 Confetti 清理：setTimeout/RAF cleanup + prefers-reduced-motion + 教师节化视觉
+- 💬 审核 UX：成功提示手动关闭 + "已进入审核队列"文案
+- 📄 文档：CHANGELOG v1.2.1 + PROGRESS Phase 6 + CLAUDE.md 大幅完善
+- 进度更新：172 任务 / 162 已完成，整体 94%
+
+---
+
+## Phase 6：安全加固 + 上线审查（2026-08-10）
+
+### 安全审查修复（9 条链路，6 项代码修复）
+
+- [x] 🔴 **P0-1**：点赞 API 新增 rate limit — `check_rate_limit`，每 IP 每分钟 20 次，fail-closed
+- [x] 🔴 **P0-2**：`admin_token` HMAC-SHA256 签名 + 中间件 Web Crypto 验签 — 双重鉴权（Supabase Auth + admin_token 后备）
+- [x] 🟠 **P1-3**：提交祝福 TOCTOU 修复 — `rate_limits` 写入移到 `blessings` 插入之前
+- [x] 🟠 **P1-4**：Admin PATCH 字段白名单 — 仅允许 `status`（含合法值校验）+ `is_featured`
+- [x] 🟠 **P1-5**：点赞 IP 去重 — 确认 Vercel 可信代理层保障
+- [x] 🟠 **P1-6**：管理员登录 rate limit — 每 IP 每分钟 5 次，错误密码也写入限流记录
+
+### 提交特效修复 + UX 优化
+
+- [x] 🐛 Confetti effect cleanup — `setTimeout` + `requestAnimationFrame` 取消
+- [x] ♿ Confetti 尊重 `prefers-reduced-motion` — 减弱动画偏好时跳过
+- [x] 🎨 Confetti 教师节化 — 阶段 2 金色花瓣缓慢飘落替代庆典彩带
+- [x] 🐛 Confetti duration 对齐 — 3500ms 与组件卸载时机一致
+- [x] 💬 审核 UX — 成功提示手动关闭 + 文案优化
+
+### 文档
+
+- [x] 📄 CLAUDE.md 大幅完善 — Tailwind 色板/CSS 工具类/API 路由清单/双认证/架构陷阱
+- [x] 📄 CHANGELOG.md — v1.2.1 安全修复日志
+- [x] 📄 PROGRESS.md — Phase 6 进度记录

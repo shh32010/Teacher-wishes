@@ -24,8 +24,14 @@
 
 ### 速率限制
 
-- `POST /api/blessings` — 每 IP 每 10 分钟最多 3 条
-- 超限返回 `429 Too Many Requests`
+| 端点 | 限制 | 窗口 |
+| :--- | :--- | :--- |
+| `POST /api/blessings` | 每 IP 最多 3 条 | 10 分钟 |
+| `POST /api/blessings/[id]/like` | 每 IP 最多 20 次 | 1 分钟 |
+| `POST /api/admin/login` | 每 IP 最多 5 次 | 1 分钟 |
+| 超限返回 `429 Too Many Requests` |
+
+> 所有限流均通过 `check_rate_limit` RPC（`SECURITY DEFINER`）实现，fail-closed 策略：RPC 异常时返回 503。
 
 ---
 
@@ -146,7 +152,19 @@
 }
 ```
 
-> 🔒 服务端通过 `blessing_likes` 表 + `UNIQUE(blessing_id, ip_address)` 约束保证点赞唯一性。客户端 IP 从 `x-forwarded-for` / `x-real-ip` 头提取。前端 `localStorage` 仅作乐观 UI 辅助，真正防重复的是服务端 IP 约束。
+> 🔒 服务端通过 `blessing_likes` 表 + `UNIQUE(blessing_id, ip_address)` 约束保证点赞唯一性。客户端 IP 从 `x-forwarded-for` / `x-real-ip` 头提取，Vercel 部署环境由可信代理设置。前端 `localStorage` 仅作乐观 UI 辅助，真正防重复的是服务端 IP 约束。
+
+**速率限制:** 每 IP 每分钟 20 次点赞，超限返回 429。
+
+**状态码:**
+
+| 码 | 说明 |
+| :--- | :--- |
+| 200 | 点赞成功，返回新计数 |
+| 409 | 已点过赞（IP 重复） |
+| 429 | 点赞太频繁 |
+| 500 | 服务器错误 |
+| 503 | 限流服务异常 |
 
 ---
 
@@ -223,7 +241,7 @@
 
 ## 🔒 管理后台 API（需登录）
 
-所有 `/api/admin/*` 路由通过 Supabase Auth + middleware 保护，未登录重定向至 `/admin/login`。
+所有 `/api/admin/*` 路由通过双重鉴权保护：**Supabase Auth session**（主方案）或 **admin_token HMAC 签名 cookie**（后备方案），中间件 (`middleware.ts`) 同时验证两种方式，任一通过即可访问。未认证重定向至 `/admin/login`。
 
 ### `GET /api/admin/blessings`
 
@@ -259,8 +277,10 @@
 | 字段 | 类型 | 说明 |
 | :--- | :--- | :--- |
 | `ids` | UUID[] | 必填，祝福 ID 列表 |
-| `updates.status` | string | 可选，`pending`/`approved`/`rejected` |
+| `updates.status` | string | 可选，仅允许 `pending`/`approved`/`rejected` |
 | `updates.is_featured` | boolean | 可选，是否精选 |
+
+> 🔒 **字段白名单**：服务端仅接受 `status`（含合法值校验）和 `is_featured` 字段，其他任意字段（如 `content`/`likes`/`user_id`）会被过滤，防止通过 service_role 修改任意列。
 
 **响应:**
 
