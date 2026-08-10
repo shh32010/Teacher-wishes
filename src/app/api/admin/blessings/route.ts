@@ -55,11 +55,28 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ error: '请指定要更新的祝福ID' }, { status: 400 });
     }
 
+    // 字段白名单过滤 — 防止攻击者通过 updates 修改任意列（content、likes、user_id 等）
+    const allowedUpdates: Record<string, unknown> = {};
+    if (body.updates.status !== undefined) {
+      // 仅允许有效的审核状态值
+      const validStatuses = ['pending', 'approved', 'rejected'];
+      if (validStatuses.includes(body.updates.status)) {
+        allowedUpdates.status = body.updates.status;
+      }
+    }
+    if (typeof body.updates.is_featured === 'boolean') {
+      allowedUpdates.is_featured = body.updates.is_featured;
+    }
+
+    if (Object.keys(allowedUpdates).length === 0) {
+      return NextResponse.json({ error: '没有有效的更新字段' }, { status: 400 });
+    }
+
     const supabase = createAdminClient();
 
     const { data, error } = await supabase
       .from('blessings')
-      .update(body.updates)
+      .update(allowedUpdates)
       .in('id', body.ids)
       .select('id, status, is_featured');
 

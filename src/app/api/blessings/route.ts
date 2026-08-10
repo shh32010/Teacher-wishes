@@ -134,6 +134,17 @@ export async function POST(request: NextRequest) {
       }
     }
 
+    // 先写入速率限制记录（在祝福插入之前，防止 TOCTOU 并发击穿）
+    const { error: rateWriteError } = await supabase
+      .from('rate_limits')
+      .insert([{ ip, action: 'submit_blessing' }]);
+
+    if (rateWriteError) {
+      console.error('[API] 写入限流记录失败:', rateWriteError);
+      // 写入失败阻断请求，防止攻击者通过制造写入失败绕过限流
+      return NextResponse.json({ error: '系统繁忙，请稍后重试' }, { status: 503 });
+    }
+
     // 插入祝福（不使用 .select()，避免 RLS SELECT 冲突）
     const { error } = await supabase.from('blessings').insert([
       {
@@ -149,9 +160,6 @@ export async function POST(request: NextRequest) {
       console.error('[API] 提交祝福失败:', error);
       return NextResponse.json({ error: '提交失败，请稍后再试' }, { status: 500 });
     }
-
-    // 写入速率限制记录
-    await supabase.from('rate_limits').insert([{ ip, action: 'submit_blessing' }]);
 
     return NextResponse.json(
       { success: true, message: '祝福提交成功，等待审核后展示' },
