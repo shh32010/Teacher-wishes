@@ -51,9 +51,13 @@ export async function POST(request: NextRequest) {
     }
 
     // 生成 HMAC 签名 token（可被中间件验证，无需服务端存储）
+    // ADMIN_TOKEN_SECRET 独立于 ADMIN_PASSWORD，更换密码不影响已有 token
+    const tokenSecret = process.env.ADMIN_TOKEN_SECRET || ADMIN_PASSWORD;
     const randomPart = randomBytes(16).toString('hex');
-    const signature = createHmac('sha256', ADMIN_PASSWORD).update(randomPart).digest('hex');
-    const token = `${randomPart}.${signature}`;
+    const expiry = Date.now() + 24 * 60 * 60 * 1000; // 24 小时后过期
+    const payload = `${randomPart}.${expiry}`;
+    const signature = createHmac('sha256', tokenSecret).update(payload).digest('hex');
+    const token = `${payload}.${signature}`;
 
     // 设置管理会话 Cookie（24小时有效）
     const response = NextResponse.json({ success: true });

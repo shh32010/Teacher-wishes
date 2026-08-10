@@ -5,19 +5,17 @@
 import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 
-/** Web Crypto HMAC-SHA256 验签 — 验证 admin_token cookie 的签名 */
-async function verifyAdminToken(tokenStr: string, secret: string): Promise<boolean> {
-  const dotIndex = tokenStr.lastIndexOf('.');
-  if (dotIndex === -1 || dotIndex === tokenStr.length - 1) return false;
-  const randomPart = tokenStr.slice(0, dotIndex);
-  const signature = tokenStr.slice(dotIndex + 1);
-
-  // 将 hex 签名转为 Uint8Array
-  const sigBytes = new Uint8Array(signature.length / 2);
-  for (let i = 0; i < signature.length; i += 2) {
-    sigBytes[i / 2] = parseInt(signature.substring(i, i + 2), 16);
+/** 将 hex 字符串转为 Uint8Array */
+function hexToBytes(hex: string): Uint8Array<ArrayBuffer> {
+  const bytes = new Uint8Array(hex.length / 2);
+  for (let i = 0; i < hex.length; i += 2) {
+    bytes[i / 2] = parseInt(hex.substring(i, i + 2), 16);
   }
+  return bytes as Uint8Array<ArrayBuffer>;
+}
 
+/** Web Crypto HMAC-SHA256 验签 */
+async function verifyHmac(payload: string, signatureHex: string, secret: string): Promise<boolean> {
   const encoder = new TextEncoder();
   const key = await crypto.subtle.importKey(
     'raw',
@@ -26,8 +24,32 @@ async function verifyAdminToken(tokenStr: string, secret: string): Promise<boole
     false,
     ['verify']
   );
+  return crypto.subtle.verify('HMAC', key, hexToBytes(signatureHex), encoder.encode(payload));
+}
 
-  return crypto.subtle.verify('HMAC', key, sigBytes, encoder.encode(randomPart));
+/**
+ * 验证 admin_token Cookie
+ * 支持两种格式：
+ *   - 旧格式: randomPart.signature (无过期标记，向后兼容)
+ *   - 新格式: randomPart.expiryTimestamp.signature (含过期时间)
+ */
+async function verifyAdminToken(tokenStr: string, secret: string): Promise<boolean> {
+  const lastDot = tokenStr.lastIndexOf('.');
+  if (lastDot === -1 || lastDot === tokenStr.length - 1) return false;
+
+  const payload = tokenStr.slice(0, lastDot);
+  const signature = tokenStr.slice(lastDot + 1);
+
+  // 检测新格式：payload 中包含过期时间戳 (randomPart.expiryTimestamp)
+  const firstDot = payload.indexOf('.');
+  if (firstDot !== -1) {
+    const expiry = parseInt(payload.slice(firstDot + 1), 10);
+    // 过期时间戳无效或已过期 → 拒绝
+    if (isNaN(expiry) || Date.now() > expiry) return false;
+  }
+  // 旧格式无过期标记，依赖 Cookie maxAge 控制生命周期
+
+  return verifyHmac(payload, signature, secret);
 }
 
 export async function middleware(request: NextRequest) {
@@ -69,13 +91,18 @@ export async function middleware(request: NextRequest) {
   }
 
   // 方式2：admin_token HMAC 签名验证（后备方案，无需 Supabase Auth）
-  const adminPassword = process.env.ADMIN_PASSWORD;
-  if (adminPassword) {
+  // 按优先级尝试：ADMIN_TOKEN_SECRET → ADMIN_PASSWORD（过渡期兼容旧 token）
+  const tokenSecrets = [process.env.ADMIN_TOKEN_SECRET, process.env.ADMIN_PASSWORD].filter(
+    (s): s is string => !!s
+  );
+
+  if (tokenSecrets.length > 0) {
     const adminToken = request.cookies.get('admin_token')?.value;
     if (adminToken) {
-      const valid = await verifyAdminToken(adminToken, adminPassword);
-      if (valid) {
-        return response;
+      for (const secret of tokenSecrets) {
+        if (await verifyAdminToken(adminToken, secret)) {
+          return response;
+        }
       }
     }
   }
