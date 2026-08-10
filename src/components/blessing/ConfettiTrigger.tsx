@@ -13,7 +13,7 @@ interface ConfettiTriggerProps {
   duration?: number;
 }
 
-export default function ConfettiTrigger({ duration = 4000 }: ConfettiTriggerProps) {
+export default function ConfettiTrigger({ duration = 3500 }: ConfettiTriggerProps) {
   useEffect(() => {
     // 尊重用户的减弱动画偏好
     if (
