@@ -17,5 +17,8 @@ DROP POLICY IF EXISTS "管理员上传头像" ON storage.objects;
 DROP POLICY IF EXISTS "管理员更新头像" ON storage.objects;
 DROP POLICY IF EXISTS "管理员删除头像" ON storage.objects;
 
--- 公开读取策略保持不变（任何人可以查看头像）
--- "公开读取头像" ON storage.objects FOR SELECT USING (bucket_id = 'avatars')
+-- 确保公开读取策略存在（任何人可以查看头像，idempotent）
+DROP POLICY IF EXISTS "公开读取头像" ON storage.objects;
+CREATE POLICY "公开读取头像" ON storage.objects
+  FOR SELECT
+  USING (bucket_id = 'avatars');
