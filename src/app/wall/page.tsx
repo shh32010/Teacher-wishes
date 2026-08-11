@@ -279,20 +279,7 @@ export default function WallPage() {
             </button>
           </div>
         }
-        right={
-          <>
-            {/* 桌面端显示计数，移动端隐藏 */}
-            <span className="hidden text-xs text-ink-muted md:inline">共 {totalCount} 条</span>
-
-            {/* 写祝福 — 移动端紧凑按钮 */}
-            <button
-              onClick={() => setShowForm(true)}
-              className="btn-primary shrink-0 whitespace-nowrap rounded-lg px-2 py-1 text-xs font-bold md:px-4 md:py-2 md:text-sm"
-            >
-              ✏️ 写祝福
-            </button>
-          </>
-        }
+        right={<span className="text-xs text-ink-muted">共 {totalCount} 条</span>}
       />
 
       {/* 祝福卡片列表 */}
