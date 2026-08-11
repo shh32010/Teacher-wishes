@@ -50,11 +50,11 @@ export default function HomePage() {
     // 移动端加速 40%，让 CTA 更快出现
     const scale = isMobile ? 0.5 : 0.75;
     const timeline: { stage: Stage; delay: number }[] = [
-      { stage: 'quote1', delay: 1800 * scale },
-      { stage: 'quote2', delay: 3800 * scale },
-      { stage: 'title', delay: 5800 * scale },
-      { stage: 'galaxyHint', delay: 8000 * scale },
-      { stage: 'button', delay: 10000 * scale },
+      { stage: 'quote1', delay: 600 * scale },
+      { stage: 'quote2', delay: 1500 * scale },
+      { stage: 'title', delay: 2500 * scale },
+      { stage: 'galaxyHint', delay: 3500 * scale },
+      { stage: 'button', delay: 4500 * scale },
     ];
 
     const timers = timeline.map(({ stage: s, delay }) => setTimeout(() => setStage(s), delay));
@@ -170,7 +170,7 @@ export default function HomePage() {
               key="button"
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3, duration: 0.8 }}
+              transition={{ delay: 0.2, duration: 0.5 }}
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => router.push('/wall')}
@@ -193,7 +193,7 @@ export default function HomePage() {
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            transition={{ delay: 2 }}
+            transition={{ delay: 0.8 }}
             className="fixed bottom-8 z-10 flex gap-4 text-xs text-ink-muted"
           >
             <button
