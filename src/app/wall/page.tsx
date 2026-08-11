@@ -213,7 +213,7 @@ export default function WallPage() {
   }
 
   return (
-    <main className="min-h-screen pb-28">
+    <main className="min-h-screen pb-28 overflow-x-hidden">
       {showConfetti && <ConfettiTrigger />}
 
       {/* 提交成功提示 — 手动关闭（8s 后自动消失作为兜底） */}

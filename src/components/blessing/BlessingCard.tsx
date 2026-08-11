@@ -101,7 +101,7 @@ export default function BlessingCard({ blessing, index = 0, onLike }: BlessingCa
         </div>
 
         {/* 第二层：祝福正文 */}
-        <p className="text-[13px] leading-snug text-ink">{blessing.content}</p>
+        <p className="text-[13px] leading-snug text-ink break-words">{blessing.content}</p>
 
         {/* 第三层：老师标签 + 点赞 */}
         <div className="flex items-center justify-between">
