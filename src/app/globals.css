@@ -33,6 +33,11 @@
   --text-secondary: #6b5b52; /* 辅助文                    */
   --text-muted: #9b8b8b; /* 提示文                    */
 
+  /* Tailwind 文字色 — RGB 分量，供 tailwind.config.ts 动态引用 */
+  --ink-rgb: 59, 47, 47; /* text-ink → #3B2F2F */
+  --ink-light-rgb: 107, 91, 82; /* text-ink-light → #6B5B52 */
+  --ink-muted-rgb: 155, 139, 139; /* text-ink-muted → #9B8B8B */
+
   /* ── 卡片 / 玻璃态 ── */
   --glass-bg: rgba(255, 255, 255, 0.72);
   --glass-bg-hover: rgba(255, 255, 255, 0.88);
@@ -90,6 +95,10 @@
     --text-secondary: #b8a898;
     --text-muted: #7a6e65;
 
+    --ink-rgb: 232, 213, 196; /* text-ink 夜间 → ~#E8D5C4 */
+    --ink-light-rgb: 184, 168, 152; /* text-ink-light 夜间 */
+    --ink-muted-rgb: 122, 110, 101; /* text-ink-muted 夜间 */
+
     --glass-bg: rgba(26, 26, 46, 0.78);
     --glass-bg-hover: rgba(26, 26, 46, 0.9);
     --glass-border: rgba(232, 163, 23, 0.14);
@@ -121,6 +130,10 @@
   --text-primary: #e8d5c4;
   --text-secondary: #b8a898;
   --text-muted: #7a6e65;
+
+  --ink-rgb: 232, 213, 196;
+  --ink-light-rgb: 184, 168, 152;
+  --ink-muted-rgb: 122, 110, 101;
 
   --glass-bg: rgba(26, 26, 46, 0.78);
   --glass-bg-hover: rgba(26, 26, 46, 0.9);

@@ -32,11 +32,11 @@ const config: Config = {
           dark: '#FDF6EC', // 奶油色
           deeper: '#F8F3FF', // 淡紫（渐变底部）
         },
-        // ── 暖色文字色阶 ──
+        // ── 暖色文字色阶（通过 CSS 变量驱动，日夜间自动切换）──
         ink: {
-          DEFAULT: '#3B2F2F', // 正文（暖深棕）
-          light: '#6B5B5B', // 辅助文字
-          muted: '#9B8B8B', // 提示文字
+          DEFAULT: 'rgb(var(--ink-rgb) / <alpha-value>)', // 正文 → --ink-rgb
+          light: 'rgb(var(--ink-light-rgb) / <alpha-value>)', // 辅助 → --ink-light-rgb
+          muted: 'rgb(var(--ink-muted-rgb) / <alpha-value>)', // 提示 → --ink-muted-rgb
         },
         // ── 情感点缀色（Accent — 氛围装饰，非功能色）──
         sentiment: {
