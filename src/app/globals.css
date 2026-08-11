@@ -86,9 +86,9 @@
     --color-accent-earth: #8b6f5e;
     --color-accent-rose: #d4858b;
 
-    --text-primary: #f2e4d4;
-    --text-secondary: #ccbcab;
-    --text-muted: #9a8e85;
+    --text-primary: #e8d5c4;
+    --text-secondary: #b8a898;
+    --text-muted: #7a6e65;
 
     --glass-bg: rgba(26, 26, 46, 0.78);
     --glass-bg-hover: rgba(26, 26, 46, 0.9);
@@ -341,34 +341,6 @@ body {
     backdrop-filter: none;
     -webkit-backdrop-filter: none;
     background: var(--bg-primary);
-  }
-}
-
-/* ---- 夜间模式 Tailwind 硬编码色覆盖 ---- */
-/* 根因：Tailwind 在构建时把 text-ink-* 编译为固定色值，不响应 CSS 变量 */
-/* 夜间模式需在此显式覆盖全部文字色阶 */
-@media (prefers-color-scheme: dark) {
-  :root:not([data-theme='light']) {
-    .text-ink {
-      color: var(--text-primary);
-    }
-    .text-ink-light {
-      color: var(--text-secondary);
-    }
-    .text-ink-muted {
-      color: var(--text-muted);
-    }
-  }
-}
-[data-theme='dark'] {
-  .text-ink {
-    color: var(--text-primary);
-  }
-  .text-ink-light {
-    color: var(--text-secondary);
-  }
-  .text-ink-muted {
-    color: var(--text-muted);
   }
 }
 
