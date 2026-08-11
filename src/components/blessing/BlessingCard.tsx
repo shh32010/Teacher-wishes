@@ -83,28 +83,30 @@ export default function BlessingCard({ blessing, index = 0, onLike }: BlessingCa
         layout: { duration: 0.4, ease: 'easeInOut' },
       }}
     >
-      <GlassCard className="flex flex-col gap-3">
-        {/* 头部：发送者信息 */}
+      <GlassCard className="flex flex-col gap-2 p-4 md:p-6">
+        {/* 第一层：身份 — 头像 + 姓名/班级 + 日期 */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="flex h-9 w-9 items-center justify-center rounded-full bg-primary/15 text-sm font-bold text-primary">
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/15 text-xs font-bold text-primary">
               {(blessing.nickname || '匿')[0]}
             </div>
-            <div>
-              <p className="text-sm font-medium text-ink">
+            <div className="min-w-0">
+              <p className="truncate text-[13px] font-medium text-ink">
                 {blessing.is_anonymous ? '匿名同学' : blessing.nickname || '匿名同学'}
               </p>
-              {blessing.class && <p className="text-xs text-ink-muted">{blessing.class}</p>}
+              {blessing.class && <p className="text-[11px] text-ink-muted">{blessing.class}</p>}
             </div>
           </div>
-          <span className="text-xs text-ink-muted">{formatDate(blessing.created_at)}</span>
+          <span className="shrink-0 text-[11px] text-ink-muted">
+            {formatDate(blessing.created_at)}
+          </span>
         </div>
 
-        {/* 祝福内容 */}
-        <p className="text-sm leading-relaxed text-ink">{blessing.content}</p>
+        {/* 第二层：祝福正文 */}
+        <p className="text-[13px] leading-snug text-ink">{blessing.content}</p>
 
-        {/* 底部：教师标签 + 点赞 */}
-        <div className="flex items-center justify-between pt-1">
+        {/* 第三层：老师标签 + 点赞 */}
+        <div className="flex items-center justify-between">
           {blessing.teacher ? (
             <button
               onClick={(e) => {

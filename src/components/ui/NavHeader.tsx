@@ -32,13 +32,11 @@ export default function NavHeader({
     <header
       className={`glass sticky top-0 z-30 border-b border-ink/10 backdrop-blur-xl ${className}`}
     >
-      {/* 桌面端：保持原有 justify-between 左右布局 */}
+      {/* 桌面端：保持原有 justify-between 左右布局，center 归入右侧 */}
       <div className={`mx-auto hidden items-center justify-between px-4 py-4 md:flex ${maxWidth}`}>
+        <div>{left}</div>
         <div className="flex items-center gap-3">
-          {left}
           {center}
-        </div>
-        <div className="flex items-center gap-3">
           {right}
           <ThemeToggle />
         </div>

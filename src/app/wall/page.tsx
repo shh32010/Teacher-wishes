@@ -205,7 +205,7 @@ export default function WallPage() {
   }
 
   return (
-    <main className="min-h-screen pb-20">
+    <main className="min-h-screen pb-28">
       {showConfetti && <ConfettiTrigger />}
 
       {/* 提交成功提示 — 手动关闭（8s 后自动消失作为兜底） */}
@@ -326,10 +326,10 @@ export default function WallPage() {
         isSubmitting={isSubmitting}
       />
 
-      {/* 底部浮动按钮 */}
+      {/* 底部浮动按钮 — safe-area 适配，移动端紧凑 */}
       <button
         onClick={() => setShowForm(true)}
-        className="btn-primary fixed bottom-6 right-6 z-40 animate-breathe shadow-lg shadow-primary/20 text-lg px-6 py-3"
+        className="btn-primary fixed bottom-[calc(20px+env(safe-area-inset-bottom,0px))] right-4 z-40 animate-breathe shadow-lg shadow-primary/20 text-sm px-4 py-2.5 md:text-lg md:px-6 md:py-3"
       >
         ✨ 送出祝福
       </button>
