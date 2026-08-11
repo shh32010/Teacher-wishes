@@ -7,6 +7,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { createClient } from '@/lib/supabase/client';
+import { getCsrfToken } from '@/lib/csrf-client';
 
 export default function AdminLoginPage() {
   const router = useRouter();
@@ -37,6 +38,21 @@ export default function AdminLoginPage() {
           authError.message === 'Invalid login credentials' ? '邮箱或密码错误' : authError.message
         );
         return;
+      }
+
+      // 同时设 admin_token Cookie 作为备选鉴权方案
+      try {
+        const csrf = await getCsrfToken();
+        await fetch('/api/admin/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            ...(csrf ? { 'X-CSRF-Token': csrf } : {}),
+          },
+          body: JSON.stringify({ password }),
+        });
+      } catch {
+        /* admin_token 非必需，Supabase Auth 已通过 */
       }
 
       router.push('/admin');
