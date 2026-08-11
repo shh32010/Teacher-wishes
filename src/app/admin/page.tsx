@@ -29,12 +29,14 @@ export default function AdminPage() {
   const [tab, setTab] = useState<AdminTab>('blessings');
   const [filter, setFilter] = useState<FilterStatus>('pending');
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [page, setPage] = useState(1);
 
   const statusParam = filter === 'all' ? '' : `&status=${filter}`;
   const { data, error, isLoading, mutate } = useSWR(
-    `/api/admin/blessings?pageSize=50${statusParam}`,
+    `/api/admin/blessings?page=${page}&pageSize=50${statusParam}`,
     fetcher
   );
+  const totalPages = Math.ceil((data?.count || 0) / 50);
 
   const { data: stats } = useSWR<BlessingStats>('/api/blessings/stats', fetcher);
 
@@ -169,6 +171,7 @@ export default function AdminPage() {
                     onClick={() => {
                       setFilter(value);
                       setSelectedIds(new Set());
+                      setPage(1);
                     }}
                     className={`rounded-lg px-3 py-1.5 text-sm transition-colors ${
                       filter === value
@@ -284,6 +287,29 @@ export default function AdminPage() {
                     ))}
                   </tbody>
                 </table>
+              </div>
+            )}
+
+            {/* 分页 */}
+            {totalPages > 1 && (
+              <div className="mt-4 flex items-center justify-center gap-4">
+                <button
+                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                  disabled={page <= 1}
+                  className="rounded-lg px-3 py-1.5 text-sm glass text-ink-muted hover:text-ink disabled:opacity-30"
+                >
+                  ← 上一页
+                </button>
+                <span className="text-sm text-ink-muted">
+                  {page} / {totalPages}
+                </span>
+                <button
+                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                  disabled={page >= totalPages}
+                  className="rounded-lg px-3 py-1.5 text-sm glass text-ink-muted hover:text-ink disabled:opacity-30"
+                >
+                  下一页 →
+                </button>
               </div>
             )}
           </>
