@@ -279,7 +279,7 @@ export default function WallPage() {
             {/* 写祝福 — 移动端紧凑按钮 */}
             <button
               onClick={() => setShowForm(true)}
-              className="btn-primary shrink-0 whitespace-nowrap rounded-[10px] px-2.5 py-1.5 text-[13px] font-bold md:px-4 md:py-2 md:text-sm"
+              className="btn-primary shrink-0 whitespace-nowrap rounded-lg px-2 py-1 text-xs font-bold md:px-4 md:py-2 md:text-sm"
             >
               ✏️ 写祝福
             </button>

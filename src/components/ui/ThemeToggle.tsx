@@ -24,7 +24,7 @@ export default function ThemeToggle() {
   return (
     <button
       onClick={toggle}
-      className="flex items-center gap-1.5 rounded-xl border border-[var(--glass-border)] bg-[var(--color-primary-soft)] px-3 py-2 text-sm font-medium text-[var(--color-primary)] transition-all hover:bg-[var(--color-primary)] hover:text-white active:scale-95"
+      className="flex items-center gap-1.5 rounded-lg border border-[var(--glass-border)] bg-[var(--color-primary-soft)] px-2 py-1 text-xs font-medium text-[var(--color-primary)] transition-all hover:bg-[var(--color-primary)] hover:text-white active:scale-95 sm:px-3 sm:py-2 sm:text-sm sm:rounded-xl sm:gap-1.5"
       aria-label={`当前：${LABELS[theme]}模式，点击切换`}
       title={`${LABELS[theme]}模式 — 点击切换`}
     >

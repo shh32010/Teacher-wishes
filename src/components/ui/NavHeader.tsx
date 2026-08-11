@@ -50,12 +50,10 @@ export default function NavHeader({
         {/* Tabs — flex-1 居中 */}
         {center && <div className="flex flex-1 items-center justify-center">{center}</div>}
 
-        {/* Actions + Theme */}
-        <div className="flex shrink-0 items-center gap-1.5">
+        {/* Actions + Theme — 统一 gap-2 */}
+        <div className="flex shrink-0 items-center gap-2">
           {right}
-          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl">
-            <ThemeToggle />
-          </div>
+          <ThemeToggle />
         </div>
       </div>
     </header>
