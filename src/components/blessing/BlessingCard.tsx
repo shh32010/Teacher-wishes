@@ -72,8 +72,6 @@ export default function BlessingCard({ blessing, index = 0, onLike }: BlessingCa
 
   return (
     <motion.div
-      layout
-      layoutId={`blessing-${blessing.id}`}
       initial={{ opacity: 0, y: 30 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{
