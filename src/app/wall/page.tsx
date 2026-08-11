@@ -261,7 +261,7 @@ export default function WallPage() {
               onClick={() => setSortBy('time')}
               role="radio"
               aria-checked={sortBy === 'time'}
-              className={`whitespace-nowrap rounded-md px-2 py-1 text-[13px] transition-all md:px-3 md:text-xs ${
+              className={`whitespace-nowrap rounded px-1.5 py-0.5 text-[13px] transition-all md:px-3 md:text-xs ${
                 sortBy === 'time' ? 'bg-primary/15 text-primary' : 'text-ink-muted hover:text-ink'
               }`}
             >
@@ -271,7 +271,7 @@ export default function WallPage() {
               onClick={() => setSortBy('likes')}
               role="radio"
               aria-checked={sortBy === 'likes'}
-              className={`whitespace-nowrap rounded-md px-2 py-1 text-[13px] transition-all md:px-3 md:text-xs ${
+              className={`whitespace-nowrap rounded px-1.5 py-0.5 text-[13px] transition-all md:px-3 md:text-xs ${
                 sortBy === 'likes' ? 'bg-primary/15 text-primary' : 'text-ink-muted hover:text-ink'
               }`}
             >
