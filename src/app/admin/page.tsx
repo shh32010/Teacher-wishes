@@ -313,23 +313,32 @@ export default function AdminPage() {
 
             {/* 分页 */}
             {totalPages > 1 && (
-              <div className="mt-4 flex items-center justify-center gap-4">
+              <div className="mt-4 flex items-center justify-center gap-1">
                 <button
                   onClick={() => setPage((p) => Math.max(1, p - 1))}
                   disabled={page <= 1}
-                  className="rounded-lg px-3 py-1.5 text-sm glass text-ink-muted hover:text-ink disabled:opacity-30"
+                  className="rounded-lg px-2 py-1.5 text-sm glass text-ink-muted hover:text-ink disabled:opacity-30"
                 >
-                  ← 上一页
+                  ←
                 </button>
-                <span className="text-sm text-ink-muted">
-                  {page} / {totalPages}
-                </span>
+                {Array.from({ length: Math.min(totalPages, 10) }, (_, i) => i + 1).map((n) => (
+                  <button
+                    key={n}
+                    onClick={() => setPage(n)}
+                    className={`rounded-lg px-2.5 py-1.5 text-sm transition-colors ${
+                      page === n ? 'bg-primary text-white' : 'glass text-ink-muted hover:text-ink'
+                    }`}
+                  >
+                    {n}
+                  </button>
+                ))}
+                {totalPages > 10 && <span className="px-1 text-ink-muted">…</span>}
                 <button
                   onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                   disabled={page >= totalPages}
-                  className="rounded-lg px-3 py-1.5 text-sm glass text-ink-muted hover:text-ink disabled:opacity-30"
+                  className="rounded-lg px-2 py-1.5 text-sm glass text-ink-muted hover:text-ink disabled:opacity-30"
                 >
-                  下一页 →
+                  →
                 </button>
               </div>
             )}
