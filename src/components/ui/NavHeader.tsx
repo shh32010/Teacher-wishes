@@ -42,18 +42,16 @@ export default function NavHeader({
         </div>
       </div>
 
-      {/* 移动端：三段式 flex，Logo + Tabs + Actions 单行 */}
-      <div
-        className={`flex items-center gap-1 px-2 py-2 md:hidden ${maxWidth} mx-auto overflow-hidden`}
-      >
+      {/* 移动端：Logo 左 + 操作右，间距自动填充 */}
+      <div className={`flex items-center gap-1 px-2 py-2 md:hidden ${maxWidth} mx-auto`}>
         {/* Logo — 强制单行不换行 */}
         <div className="shrink-0 whitespace-nowrap text-[15px] font-bold">{left}</div>
 
-        {/* Tabs — flex-1 居中 */}
-        {center && <div className="flex min-w-0 flex-1 items-center justify-center">{center}</div>}
+        {/* Tabs — flex-1 居中，无 center 时自动撑开左右间距 */}
+        <div className="flex min-w-0 flex-1 items-center justify-center">{center}</div>
 
-        {/* Actions + Theme — 统一 gap-1.5 */}
-        <div className="flex shrink-0 items-center gap-1.5">
+        {/* Actions + Theme */}
+        <div className="flex shrink-0 items-center gap-2">
           {right}
           <ThemeToggle />
         </div>
