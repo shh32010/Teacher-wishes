@@ -81,7 +81,16 @@ export default function BlessingCard({ blessing, index = 0, onLike }: BlessingCa
         layout: { duration: 0.4, ease: 'easeInOut' },
       }}
     >
-      <GlassCard className="flex flex-col gap-2 p-4 md:p-6">
+      <GlassCard
+        className={`relative flex flex-col gap-2 p-4 md:p-6 ${
+          blessing.is_featured ? 'ring-2 ring-amber-400/40' : ''
+        }`}
+      >
+        {blessing.is_featured && (
+          <div className="absolute -right-1 -top-1 z-10 rounded-full bg-amber-400 px-2 py-0.5 text-[10px] font-bold text-amber-900 shadow-md">
+            ⭐ 精选
+          </div>
+        )}
         {/* 第一层：身份 — 头像 + 姓名/班级 + 日期 */}
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2">

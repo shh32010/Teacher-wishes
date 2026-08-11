@@ -97,13 +97,14 @@ export default function BlessingGalaxy() {
           });
         });
 
-        // 祝福星星 — 内圈到中圈
+        // 祝福星星 — 内圈到中圈，精选更大更亮
         blessings.forEach((blessing, i) => {
+          const baseSize = 2.5 + (blessing.likes > 10 ? 2 : blessing.likes > 5 ? 1.5 : 0);
           allStars.push({
             id: `blessing-${blessing.id}`,
             x: positions[i]?.x ?? 50,
             y: positions[i]?.y ?? 50,
-            size: 2.5 + (blessing.likes > 10 ? 2 : blessing.likes > 5 ? 1.5 : 0),
+            size: blessing.is_featured ? baseSize + 3 : baseSize,
             type: 'blessing',
             blessing,
           });
