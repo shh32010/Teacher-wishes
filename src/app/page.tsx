@@ -182,8 +182,11 @@ export default function HomePage() {
         </AnimatePresence>
       </div>
 
-      {/* 主题切换 — 固定在右上角，始终可见 */}
-      <div className="fixed right-4 top-4 z-20">
+      {/* 主题切换 — 固定在右上角，始终可见，适配刘海屏安全区 */}
+      <div
+        className="fixed right-4 z-20"
+        style={{ top: 'max(1rem, env(safe-area-inset-top, 0px))' }}
+      >
         <ThemeToggle />
       </div>
 
