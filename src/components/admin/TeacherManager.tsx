@@ -68,9 +68,28 @@ export default function TeacherManager() {
     return <p className="py-8 text-center text-ink-muted">暂无教师数据</p>;
   }
 
+  const withAvatar = teachers.filter((t) => t.avatar_url).length;
+  const avatarPct = teachers.length > 0 ? Math.round((withAvatar / teachers.length) * 100) : 0;
+
   return (
     <div>
-      <h2 className="mb-4 text-lg font-bold text-ink">👩‍🏫 教师管理</h2>
+      <h2 className="mb-4 text-lg font-bold text-ink">教师管理</h2>
+
+      {/* 统计看板 */}
+      <div className="mb-6 grid grid-cols-3 gap-4">
+        <div className="glass-card text-center">
+          <p className="text-3xl font-bold text-accent">{teachers.length}</p>
+          <p className="text-sm text-ink-muted">教师总数</p>
+        </div>
+        <div className="glass-card text-center">
+          <p className="text-3xl font-bold text-primary">{withAvatar}</p>
+          <p className="text-sm text-ink-muted">已有头像</p>
+        </div>
+        <div className="glass-card text-center">
+          <p className="text-3xl font-bold text-secondary">{avatarPct}%</p>
+          <p className="text-sm text-ink-muted">头像覆盖率</p>
+        </div>
+      </div>
 
       <div className="glass overflow-hidden rounded-2xl">
         <table className="w-full text-left text-sm">
