@@ -25,6 +25,7 @@ const ConfettiTrigger = dynamic(() => import('@/components/blessing/ConfettiTrig
 });
 
 const PAGE_SIZE = 20;
+const MAX_ITEMS = 120; // 移动端上限，防止全量 DOM 撑爆浏览器
 type SortMode = 'time' | 'likes';
 
 const fetcher = async (url: string) => {
@@ -87,8 +88,10 @@ export default function WallPage() {
       });
   }, [pages]);
 
+  const loadedCount = blessings.length;
   const lastPage = pages?.filter(Boolean).at(-1);
-  const hasMore = lastPage ? (lastPage.data?.length ?? 0) === PAGE_SIZE : true;
+  const hasMore =
+    loadedCount < MAX_ITEMS && (lastPage ? (lastPage.data?.length ?? 0) === PAGE_SIZE : true);
   const totalCount = pages?.[0]?.count || 0;
 
   const loadMore = useCallback(() => {
