@@ -349,8 +349,7 @@ body {
 /* 夜间模式需在此显式覆盖全部文字色阶 */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {
-    .text-ink-DEFAULT,
-    .text-ink-default {
+    .text-ink {
       color: var(--text-primary);
     }
     .text-ink-light {
