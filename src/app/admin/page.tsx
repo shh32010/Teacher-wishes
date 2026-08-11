@@ -239,6 +239,7 @@ export default function AdminPage() {
                       </th>
                       <th className="p-4">发送者</th>
                       <th className="p-4">祝福内容</th>
+                      <th className="p-4">祝福对象</th>
                       <th className="p-4">状态</th>
                       <th className="p-4">点赞</th>
                       <th className="p-4">时间</th>
@@ -262,6 +263,9 @@ export default function AdminPage() {
                           {blessing.is_anonymous ? '匿名' : blessing.nickname || '-'}
                         </td>
                         <td className="max-w-xs p-4 text-ink truncate">{blessing.content}</td>
+                        <td className="p-4 text-ink-light whitespace-nowrap">
+                          {blessing.teacher?.name || '全体'}
+                        </td>
                         <td className="p-4">
                           <span
                             className={`rounded-full px-2 py-0.5 text-xs ${
