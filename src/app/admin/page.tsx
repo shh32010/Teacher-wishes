@@ -76,8 +76,6 @@ export default function AdminPage() {
     }
   };
 
-  if (statusParam === '') return null;
-
   return (
     <main className="min-h-screen">
       {/* 顶部导航 */}
