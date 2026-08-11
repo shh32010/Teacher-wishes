@@ -250,40 +250,38 @@ export default function WallPage() {
             🌟 教师节祝福墙
           </a>
         }
-        center={
-          /* 排序切换 — 移动端水平紧凑，桌面端保持原样 */
-          <div
-            className="flex shrink-0 rounded-lg bg-ink/5 p-0.5"
-            role="radiogroup"
-            aria-label="排序方式"
-          >
-            <button
-              onClick={() => setSortBy('time')}
-              role="radio"
-              aria-checked={sortBy === 'time'}
-              className={`whitespace-nowrap rounded-md px-2 py-1 text-[13px] transition-all md:px-3 md:text-xs ${
-                sortBy === 'time' ? 'bg-primary/15 text-primary' : 'text-ink-muted hover:text-ink'
-              }`}
-            >
-              🕐 最新
-            </button>
-            <button
-              onClick={() => setSortBy('likes')}
-              role="radio"
-              aria-checked={sortBy === 'likes'}
-              className={`whitespace-nowrap rounded-md px-2 py-1 text-[13px] transition-all md:px-3 md:text-xs ${
-                sortBy === 'likes' ? 'bg-primary/15 text-primary' : 'text-ink-muted hover:text-ink'
-              }`}
-            >
-              🔥 最热
-            </button>
-          </div>
-        }
-        right={<span className="text-xs text-ink-muted">共 {totalCount} 条</span>}
+        right={undefined}
       />
 
+      {/* 排序切换 */}
+      <div className="mx-auto mt-4 flex max-w-3xl items-center justify-between px-4">
+        <span className="text-xs text-ink-muted">共 {totalCount} 条</span>
+        <div className="flex rounded-lg bg-ink/5 p-0.5" role="radiogroup" aria-label="排序方式">
+          <button
+            onClick={() => setSortBy('time')}
+            role="radio"
+            aria-checked={sortBy === 'time'}
+            className={`whitespace-nowrap rounded-md px-3 py-1 text-xs transition-all ${
+              sortBy === 'time' ? 'bg-primary/15 text-primary' : 'text-ink-muted hover:text-ink'
+            }`}
+          >
+            🕐 最新
+          </button>
+          <button
+            onClick={() => setSortBy('likes')}
+            role="radio"
+            aria-checked={sortBy === 'likes'}
+            className={`whitespace-nowrap rounded-md px-3 py-1 text-xs transition-all ${
+              sortBy === 'likes' ? 'bg-primary/15 text-primary' : 'text-ink-muted hover:text-ink'
+            }`}
+          >
+            🔥 最热
+          </button>
+        </div>
+      </div>
+
       {/* 祝福卡片列表 */}
-      <div className="mx-auto mt-8 max-w-3xl px-4">
+      <div className="mx-auto mt-4 max-w-3xl px-4">
         {blessings.length === 0 ? (
           <div className="py-20 text-center">
             <p className="text-ink-muted">还没有祝福，快来写下第一条吧 ✨</p>
