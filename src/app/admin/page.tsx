@@ -249,7 +249,11 @@ export default function AdminPage() {
                     {blessings.map((blessing) => (
                       <tr
                         key={blessing.id}
-                        className="border-b border-ink/5 hover:bg-ink/5 transition-colors"
+                        className={`border-b border-ink/5 transition-colors ${
+                          blessing.is_featured
+                            ? 'bg-amber-400/10 hover:bg-amber-400/15'
+                            : 'hover:bg-ink/5'
+                        }`}
                       >
                         <td className="p-4">
                           <input
@@ -262,7 +266,14 @@ export default function AdminPage() {
                         <td className="p-4 text-ink">
                           {blessing.is_anonymous ? '匿名' : blessing.nickname || '-'}
                         </td>
-                        <td className="max-w-xs p-4 text-ink truncate">{blessing.content}</td>
+                        <td className="max-w-xs p-4 text-ink truncate">
+                          {blessing.is_featured && (
+                            <span className="mr-1" title="已精选">
+                              ⭐
+                            </span>
+                          )}
+                          {blessing.content}
+                        </td>
                         <td className="p-4 text-ink-light whitespace-nowrap">
                           {blessing.teacher?.name || '全体'}
                         </td>
