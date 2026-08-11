@@ -281,7 +281,7 @@ export default function WallPage() {
               onClick={() => setShowForm(true)}
               className="btn-primary shrink-0 whitespace-nowrap rounded-[10px] px-2.5 py-1.5 text-[13px] font-bold md:px-4 md:py-2 md:text-sm"
             >
-              ✏️ <span className="md:inline">写祝福</span>
+              ✏️ <span className="hidden md:inline">写祝福</span>
               <span className="md:hidden">写</span>
             </button>
           </>
