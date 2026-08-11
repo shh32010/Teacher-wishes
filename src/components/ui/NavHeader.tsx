@@ -27,7 +27,7 @@ export default function NavHeader({
 }: NavHeaderProps) {
   return (
     <header
-      className={`glass sticky top-0 z-30 border-b border-ink/10 backdrop-blur-xl ${className}`}
+      className={`glass sticky top-0 z-30 border-b border-ink/10 backdrop-blur-xl pt-[env(safe-area-inset-top,0px)] ${className}`}
     >
       <div className={`mx-auto flex ${maxWidth} items-center justify-between px-4 py-4`}>
         {left}

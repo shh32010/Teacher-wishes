@@ -40,6 +40,7 @@ const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL || '';
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
+  viewportFit: 'cover',
   themeColor: '#FFF8F0',
 };
 
