@@ -50,11 +50,11 @@ export default function HomePage() {
     // 移动端加速 40%，让 CTA 更快出现
     const scale = isMobile ? 0.5 : 0.75;
     const timeline: { stage: Stage; delay: number }[] = [
-      { stage: 'quote1', delay: 600 * scale },
-      { stage: 'quote2', delay: 1500 * scale },
-      { stage: 'title', delay: 2500 * scale },
-      { stage: 'galaxyHint', delay: 3500 * scale },
-      { stage: 'button', delay: 4500 * scale },
+      { stage: 'quote1', delay: 300 * scale },
+      { stage: 'quote2', delay: 800 * scale },
+      { stage: 'title', delay: 1400 * scale },
+      { stage: 'galaxyHint', delay: 2000 * scale },
+      { stage: 'button', delay: 2600 * scale },
     ];
 
     const timers = timeline.map(({ stage: s, delay }) => setTimeout(() => setStage(s), delay));
