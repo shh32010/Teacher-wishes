@@ -43,7 +43,6 @@ export default function WallPage() {
   const [showSuccess, setShowSuccess] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [sortBy, setSortBy] = useState<SortMode>('time');
-  const [showSortMenu, setShowSortMenu] = useState(false);
 
   const getKey = useCallback(
     (pageIndex: number, prevPage: PaginatedResponse<Blessing> | null) => {
@@ -252,80 +251,33 @@ export default function WallPage() {
           </a>
         }
         center={
-          <>
-            {/* 桌面端：内联 tabs */}
-            <div
-              className="hidden rounded-lg bg-ink/5 p-0.5 md:flex"
-              role="radiogroup"
-              aria-label="排序方式"
+          /* 排序切换 — 移动端水平紧凑，桌面端保持原样 */
+          <div
+            className="flex shrink-0 rounded-lg bg-ink/5 p-0.5"
+            role="radiogroup"
+            aria-label="排序方式"
+          >
+            <button
+              onClick={() => setSortBy('time')}
+              role="radio"
+              aria-checked={sortBy === 'time'}
+              className={`whitespace-nowrap rounded-md px-2 py-1 text-[13px] transition-all md:px-3 md:text-xs ${
+                sortBy === 'time' ? 'bg-primary/15 text-primary' : 'text-ink-muted hover:text-ink'
+              }`}
             >
-              <button
-                onClick={() => setSortBy('time')}
-                role="radio"
-                aria-checked={sortBy === 'time'}
-                className={`whitespace-nowrap rounded-md px-3 py-1 text-xs transition-all ${
-                  sortBy === 'time' ? 'bg-primary/15 text-primary' : 'text-ink-muted hover:text-ink'
-                }`}
-              >
-                🕐 最新
-              </button>
-              <button
-                onClick={() => setSortBy('likes')}
-                role="radio"
-                aria-checked={sortBy === 'likes'}
-                className={`whitespace-nowrap rounded-md px-3 py-1 text-xs transition-all ${
-                  sortBy === 'likes'
-                    ? 'bg-primary/15 text-primary'
-                    : 'text-ink-muted hover:text-ink'
-                }`}
-              >
-                🔥 最热
-              </button>
-            </div>
-
-            {/* 移动端：排序按钮 + 悬浮菜单 */}
-            <div className="relative md:hidden">
-              <button
-                onClick={() => setShowSortMenu((v) => !v)}
-                className="flex h-8 w-8 items-center justify-center rounded-lg bg-ink/5 text-sm"
-                aria-label="排序方式"
-              >
-                {sortBy === 'time' ? '🕐' : '🔥'}
-              </button>
-              {showSortMenu && (
-                <div className="absolute left-1/2 top-full z-50 mt-2 -translate-x-1/2">
-                  <div className="glass rounded-xl p-1 shadow-lg">
-                    <button
-                      onClick={() => {
-                        setSortBy('time');
-                        setShowSortMenu(false);
-                      }}
-                      className={`block whitespace-nowrap rounded-lg px-4 py-2 text-sm ${
-                        sortBy === 'time'
-                          ? 'bg-primary/15 text-primary'
-                          : 'text-ink-muted hover:text-ink'
-                      }`}
-                    >
-                      🕐 最新
-                    </button>
-                    <button
-                      onClick={() => {
-                        setSortBy('likes');
-                        setShowSortMenu(false);
-                      }}
-                      className={`block whitespace-nowrap rounded-lg px-4 py-2 text-sm ${
-                        sortBy === 'likes'
-                          ? 'bg-primary/15 text-primary'
-                          : 'text-ink-muted hover:text-ink'
-                      }`}
-                    >
-                      🔥 最热
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
-          </>
+              🕐 最新
+            </button>
+            <button
+              onClick={() => setSortBy('likes')}
+              role="radio"
+              aria-checked={sortBy === 'likes'}
+              className={`whitespace-nowrap rounded-md px-2 py-1 text-[13px] transition-all md:px-3 md:text-xs ${
+                sortBy === 'likes' ? 'bg-primary/15 text-primary' : 'text-ink-muted hover:text-ink'
+              }`}
+            >
+              🔥 最热
+            </button>
+          </div>
         }
         right={
           <>
