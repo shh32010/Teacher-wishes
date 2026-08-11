@@ -361,8 +361,7 @@ body {
   }
 }
 [data-theme='dark'] {
-  .text-ink-DEFAULT,
-  .text-ink-default {
+  .text-ink {
     color: var(--text-primary);
   }
   .text-ink-light {
