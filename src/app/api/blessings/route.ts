@@ -8,6 +8,8 @@ import { createAnonClient } from '@/lib/supabase/server';
 import type { Blessing, CreateBlessingPayload, PaginatedResponse } from '@/types';
 import { validateCsrfToken, csrfErrorResponse } from '@/lib/csrf';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
   const page = Math.max(1, parseInt(searchParams.get('page') || '1', 10));

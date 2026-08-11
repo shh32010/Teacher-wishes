@@ -6,6 +6,8 @@ import { NextResponse } from 'next/server';
 import { createAnonClient } from '@/lib/supabase/server';
 import type { BlessingStats } from '@/types';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
   try {
     const supabase = createAnonClient();

@@ -8,6 +8,8 @@ import { createAdminClient } from '@/lib/supabase/server';
 import type { AdminUpdateBlessing } from '@/types';
 import { validateCsrfToken, csrfErrorResponse } from '@/lib/csrf';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
   const status = searchParams.get('status'); // pending | approved | rejected
