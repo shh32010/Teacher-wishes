@@ -234,42 +234,55 @@ export default function WallPage() {
       {/* 顶部导航 */}
       <NavHeader
         left={
-          <a href="/" className="text-lg font-bold text-ink" aria-label="返回首页 教师节祝福墙">
+          <a
+            href="/"
+            className="whitespace-nowrap text-lg font-bold text-ink md:text-lg"
+            aria-label="返回首页 教师节祝福墙"
+          >
             🌟 教师节祝福墙
           </a>
         }
+        center={
+          /* 排序切换 — 移动端水平紧凑，桌面端保持原样 */
+          <div
+            className="flex shrink-0 rounded-lg bg-ink/5 p-0.5"
+            role="radiogroup"
+            aria-label="排序方式"
+          >
+            <button
+              onClick={() => setSortBy('time')}
+              role="radio"
+              aria-checked={sortBy === 'time'}
+              className={`whitespace-nowrap rounded-md px-2 py-1 text-[13px] transition-all md:px-3 md:text-xs ${
+                sortBy === 'time' ? 'bg-primary/15 text-primary' : 'text-ink-muted hover:text-ink'
+              }`}
+            >
+              🕐 最新
+            </button>
+            <button
+              onClick={() => setSortBy('likes')}
+              role="radio"
+              aria-checked={sortBy === 'likes'}
+              className={`whitespace-nowrap rounded-md px-2 py-1 text-[13px] transition-all md:px-3 md:text-xs ${
+                sortBy === 'likes' ? 'bg-primary/15 text-primary' : 'text-ink-muted hover:text-ink'
+              }`}
+            >
+              🔥 最热
+            </button>
+          </div>
+        }
         right={
           <>
-            <span className="text-xs text-ink-muted">共 {totalCount} 条</span>
+            {/* 桌面端显示计数，移动端隐藏 */}
+            <span className="hidden text-xs text-ink-muted md:inline">共 {totalCount} 条</span>
 
-            {/* 排序切换 */}
-            <div className="flex rounded-lg bg-ink/5 p-0.5" role="radiogroup" aria-label="排序方式">
-              <button
-                onClick={() => setSortBy('time')}
-                role="radio"
-                aria-checked={sortBy === 'time'}
-                className={`rounded-md px-3 py-1 text-xs transition-all ${
-                  sortBy === 'time' ? 'bg-primary/15 text-primary' : 'text-ink-muted hover:text-ink'
-                }`}
-              >
-                🕐 最新
-              </button>
-              <button
-                onClick={() => setSortBy('likes')}
-                role="radio"
-                aria-checked={sortBy === 'likes'}
-                className={`rounded-md px-3 py-1 text-xs transition-all ${
-                  sortBy === 'likes'
-                    ? 'bg-primary/15 text-primary'
-                    : 'text-ink-muted hover:text-ink'
-                }`}
-              >
-                🔥 最热
-              </button>
-            </div>
-
-            <button onClick={() => setShowForm(true)} className="btn-primary text-sm">
-              ✏️ 写祝福
+            {/* 写祝福 — 移动端紧凑按钮 */}
+            <button
+              onClick={() => setShowForm(true)}
+              className="btn-primary shrink-0 whitespace-nowrap rounded-[10px] px-2.5 py-1.5 text-[13px] font-bold md:px-4 md:py-2 md:text-sm"
+            >
+              ✏️ <span className="md:inline">写祝福</span>
+              <span className="md:hidden">写</span>
             </button>
           </>
         }
