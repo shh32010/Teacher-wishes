@@ -46,6 +46,8 @@ export default function WallPage() {
 
   const getKey = useCallback(
     (pageIndex: number, prevPage: PaginatedResponse<Blessing> | null) => {
+      // 超过页数上限直接终止
+      if (pageIndex * PAGE_SIZE >= MAX_ITEMS) return null;
       if (prevPage && (!prevPage.data || prevPage.data.length === 0)) return null;
       return `/api/blessings?page=${pageIndex + 1}&pageSize=${PAGE_SIZE}&sort=${sortBy}`;
     },
