@@ -208,7 +208,13 @@ export default function AdminPage() {
                     ❌ 拒绝
                   </button>
                   <button
-                    onClick={() => handleBatchUpdate({ is_featured: true })}
+                    onClick={() => {
+                      // 已全选精选 → 取消精选；否则 → 设为精选
+                      const allFeatured = blessings
+                        .filter((b) => selectedIds.has(b.id))
+                        .every((b) => b.is_featured);
+                      handleBatchUpdate({ is_featured: !allFeatured });
+                    }}
                     className="rounded-lg bg-accent px-3 py-1.5 text-sm text-ink hover:bg-accent-light"
                   >
                     ⭐ 精选
