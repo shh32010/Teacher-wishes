@@ -344,6 +344,36 @@ body {
   }
 }
 
+/* ---- 夜间模式 Tailwind 硬编码色覆盖 ---- */
+/* 根因：Tailwind 在构建时把 text-ink-* 编译为固定色值，不响应 CSS 变量 */
+/* 夜间模式需在此显式覆盖全部文字色阶 */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    .text-ink-DEFAULT,
+    .text-ink-default {
+      color: var(--text-primary);
+    }
+    .text-ink-light {
+      color: var(--text-secondary);
+    }
+    .text-ink-muted {
+      color: var(--text-muted);
+    }
+  }
+}
+[data-theme='dark'] {
+  .text-ink-DEFAULT,
+  .text-ink-default {
+    color: var(--text-primary);
+  }
+  .text-ink-light {
+    color: var(--text-secondary);
+  }
+  .text-ink-muted {
+    color: var(--text-muted);
+  }
+}
+
 /* ---- 无障碍：键盘焦点可见样式（暖色环，使用主色） ---- */
 :focus-visible {
   outline: 2px solid var(--color-primary);
