@@ -111,22 +111,25 @@ export default function WallPage() {
 
   useEffect(() => {
     const supabase = createRealtimeClient();
+    let timer: ReturnType<typeof setTimeout>;
 
     const channel = supabase
       .channel('blessings-wall')
       .on(
         'postgres_changes',
         { event: 'INSERT', schema: 'public', table: 'blessings', filter: 'status=eq.approved' },
-        () => mutate()
-      )
-      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'blessings' }, () =>
-        mutate()
+        () => {
+          // 防抖 3 秒，避免短时间内大量新祝福产生请求风暴
+          clearTimeout(timer);
+          timer = setTimeout(() => mutate(), 3000);
+        }
       )
       .subscribe((status) => {
         if (status === 'SUBSCRIBED') console.log('🔌 Realtime 已连接');
       });
 
     return () => {
+      clearTimeout(timer);
       supabase.removeChannel(channel);
     };
   }, [mutate]);
