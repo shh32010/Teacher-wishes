@@ -146,14 +146,24 @@ export default function AdminPage() {
             {/* 工具栏 */}
             <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
               <div className="flex gap-2">
-                {(
-                  [
-                    { value: 'pending', label: '待审核' },
-                    { value: 'approved', label: '已通过' },
-                    { value: 'rejected', label: '已拒绝' },
-                    { value: 'all', label: '全部' },
-                  ] as const
-                ).map(({ value, label }) => (
+                {[
+                  {
+                    value: 'pending' as FilterStatus,
+                    label: '待审核',
+                    count: stats?.pending_count,
+                  },
+                  {
+                    value: 'approved' as FilterStatus,
+                    label: '已通过',
+                    count: stats?.approved_count,
+                  },
+                  {
+                    value: 'rejected' as FilterStatus,
+                    label: '已拒绝',
+                    count: stats?.rejected_count,
+                  },
+                  { value: 'all' as FilterStatus, label: '全部', count: stats?.total_count },
+                ].map(({ value, label, count }) => (
                   <button
                     key={value}
                     onClick={() => {
@@ -167,6 +177,15 @@ export default function AdminPage() {
                     }`}
                   >
                     {label}
+                    {count !== undefined && (
+                      <span
+                        className={`ml-1.5 rounded-full px-1.5 py-0.5 text-xs ${
+                          filter === value ? 'bg-white/20' : 'bg-ink/10'
+                        }`}
+                      >
+                        {count}
+                      </span>
+                    )}
                   </button>
                 ))}
               </div>

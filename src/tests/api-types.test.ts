@@ -195,6 +195,10 @@ describe('isValidBlessingStats', () => {
       total_blessings: 100,
       total_participants: 50,
       total_likes: 200,
+      pending_count: 5,
+      approved_count: 90,
+      rejected_count: 5,
+      total_count: 100,
     };
     expect(isValidBlessingStats(stats)).toBe(true);
   });
@@ -204,6 +208,10 @@ describe('isValidBlessingStats', () => {
       total_blessings: 0,
       total_participants: 0,
       total_likes: 0,
+      pending_count: 0,
+      approved_count: 0,
+      rejected_count: 0,
+      total_count: 0,
     };
     expect(isValidBlessingStats(stats)).toBe(true);
   });

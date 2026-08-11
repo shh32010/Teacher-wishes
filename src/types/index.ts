@@ -46,6 +46,10 @@ export interface BlessingStats {
   total_blessings: number;
   total_participants: number;
   total_likes: number;
+  pending_count: number;
+  approved_count: number;
+  rejected_count: number;
+  total_count: number;
 }
 
 /** 分页响应 */

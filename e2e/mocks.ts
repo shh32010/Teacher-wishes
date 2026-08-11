@@ -112,6 +112,10 @@ export const MOCK_STATS: BlessingStats = {
   total_blessings: 128,
   total_participants: 86,
   total_likes: 256,
+  pending_count: 5,
+  approved_count: 120,
+  rejected_count: 3,
+  total_count: 128,
 };
 
 // ──── 分页响应构建器 ────

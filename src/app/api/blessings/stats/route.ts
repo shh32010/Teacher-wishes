@@ -10,23 +10,37 @@ export async function GET() {
   try {
     const supabase = createAnonClient();
 
-    // 并行查询：祝福总数 + 点赞总和
-    const [countResult, likesResult] = await Promise.all([
+    // 并行查询：各状态计数 + 点赞总和
+    const [approvedRes, pendingRes, rejectedRes, likesRes] = await Promise.all([
       supabase
         .from('blessings')
         .select('id', { count: 'exact', head: true })
         .eq('status', 'approved'),
+      supabase
+        .from('blessings')
+        .select('id', { count: 'exact', head: true })
+        .eq('status', 'pending'),
+      supabase
+        .from('blessings')
+        .select('id', { count: 'exact', head: true })
+        .eq('status', 'rejected'),
       supabase.from('blessings').select('likes').eq('status', 'approved'),
     ]);
 
-    // 应用层求和（数据量小时可行，大数据量时建议改用 DB SUM 聚合）
-    const total_likes = (likesResult.data ?? []).reduce((sum, item) => sum + (item.likes || 0), 0);
+    const approvedCount = approvedRes.count || 0;
+    const pendingCount = pendingRes.count || 0;
+    const rejectedCount = rejectedRes.count || 0;
+    const total_likes = (likesRes.data ?? []).reduce((sum, item) => sum + (item.likes || 0), 0);
 
-    const stats: BlessingStats = {
-      total_blessings: countResult.count || 0,
-      total_participants: countResult.count || 0, // 当前参与者 = 祝福总数（未做去重）
+    const stats = {
+      total_blessings: approvedCount,
+      total_participants: approvedCount,
       total_likes,
-    };
+      pending_count: pendingCount,
+      approved_count: approvedCount,
+      rejected_count: rejectedCount,
+      total_count: approvedCount + pendingCount + rejectedCount,
+    } satisfies BlessingStats;
 
     const response = NextResponse.json(stats);
     response.headers.set('Cache-Control', 'public, s-maxage=10, stale-while-revalidate=59');
