@@ -24,8 +24,8 @@ const ConfettiTrigger = dynamic(() => import('@/components/blessing/ConfettiTrig
   ssr: false,
 });
 
-const PAGE_SIZE = 20;
-const MAX_ITEMS = 60; // 移动端上限，每卡片含 motion 动画，超过60易爆内存
+const PAGE_SIZE = 30;
+const MAX_ITEMS = 10000; // 无限制，全部可加载
 type SortMode = 'time' | 'likes';
 
 const fetcher = async (url: string) => {
