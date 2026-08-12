@@ -11,7 +11,6 @@ import useSWRInfinite from 'swr/infinite';
 import useSWR from 'swr';
 import dynamic from 'next/dynamic';
 import { createRealtimeClient } from '@/lib/supabase/client';
-import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
 import type { Blessing, PaginatedResponse } from '@/types';
 import BlessingCard from '@/components/blessing/BlessingCard';
 import NavHeader from '@/components/ui/NavHeader';
@@ -97,15 +96,9 @@ export default function WallPage() {
   const totalCount = pages?.[0]?.count || 0;
 
   const loadMore = useCallback(() => {
-    if (!hasMore) return;
+    if (!hasMore || isLoading) return;
     setSize(size + 1);
-  }, [hasMore, size, setSize]);
-
-  const { sentinelRef } = useInfiniteScroll({
-    hasMore,
-    isLoading,
-    onLoadMore: loadMore,
-  });
+  }, [hasMore, isLoading, size, setSize]);
 
   useEffect(() => {
     setSize(1);
@@ -299,11 +292,17 @@ export default function WallPage() {
               ))}
             </div>
 
-            <div ref={sentinelRef} className="py-8 text-center">
+            <div className="py-8 text-center">
               {hasMore ? (
-                <span className="text-sm text-ink-muted">加载更多...</span>
+                <button
+                  onClick={loadMore}
+                  disabled={isLoading}
+                  className="rounded-xl bg-primary/10 px-6 py-2.5 text-sm text-primary transition-colors hover:bg-primary/20 disabled:opacity-50"
+                >
+                  {isLoading ? '加载中...' : `加载更多 (${loadedCount} / ${totalCount})`}
+                </button>
               ) : (
-                <span className="text-sm text-ink-muted">— 已经到底了 —</span>
+                <span className="text-sm text-ink-muted">— 已显示全部 {totalCount} 条 —</span>
               )}
             </div>
           </>
