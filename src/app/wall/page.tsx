@@ -11,6 +11,7 @@ import useSWRInfinite from 'swr/infinite';
 import useSWR from 'swr';
 import dynamic from 'next/dynamic';
 import { createRealtimeClient } from '@/lib/supabase/client';
+import { useInfiniteScroll } from '@/hooks/useInfiniteScroll';
 import type { Blessing, PaginatedResponse } from '@/types';
 import BlessingCard from '@/components/blessing/BlessingCard';
 import NavHeader from '@/components/ui/NavHeader';
@@ -24,7 +25,7 @@ const ConfettiTrigger = dynamic(() => import('@/components/blessing/ConfettiTrig
 });
 
 const PAGE_SIZE = 30;
-const MAX_ITEMS = 10000; // 无限制，全部可加载
+const MAX_ITEMS = 360; // 每次60条，最多6批，覆盖357条全部祝福
 type SortMode = 'time' | 'likes';
 
 const fetcher = async (url: string) => {
@@ -95,10 +96,17 @@ export default function WallPage() {
     loadedCount < MAX_ITEMS && (lastPage ? (lastPage.data?.length ?? 0) === PAGE_SIZE : true);
   const totalCount = pages?.[0]?.count || 0;
 
+  const LOAD_BATCH = 2; // 每次加载2页=60条
   const loadMore = useCallback(() => {
     if (!hasMore || isLoading) return;
-    setSize(size + 1);
+    setSize(size + LOAD_BATCH);
   }, [hasMore, isLoading, size, setSize]);
+
+  const { sentinelRef } = useInfiniteScroll({
+    hasMore,
+    isLoading,
+    onLoadMore: loadMore,
+  });
 
   useEffect(() => {
     setSize(1);
@@ -292,15 +300,13 @@ export default function WallPage() {
               ))}
             </div>
 
-            <div className="py-8 text-center">
-              {hasMore ? (
-                <button
-                  onClick={loadMore}
-                  disabled={isLoading}
-                  className="rounded-xl bg-primary/10 px-6 py-2.5 text-sm text-primary transition-colors hover:bg-primary/20 disabled:opacity-50"
-                >
-                  {isLoading ? '加载中...' : `加载更多 (${loadedCount} / ${totalCount})`}
-                </button>
+            <div ref={sentinelRef} className="py-8 text-center">
+              {isLoading ? (
+                <span className="text-sm text-ink-muted">加载中...</span>
+              ) : hasMore ? (
+                <span className="text-sm text-ink-muted">
+                  下滑加载更多 ({loadedCount}/{totalCount})
+                </span>
               ) : (
                 <span className="text-sm text-ink-muted">— 已显示全部 {totalCount} 条 —</span>
               )}
