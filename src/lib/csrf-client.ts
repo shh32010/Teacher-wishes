@@ -23,7 +23,12 @@ export async function getCsrfToken(): Promise<string> {
         cachedToken = token;
         return token;
       })
-      .catch(() => '');
+      .catch(() => {
+        // 失败时重置 promise，允许下次调用重试，
+        // 否则后续所有 POST 将永久 403 直到页面刷新
+        fetchPromise = null;
+        return '';
+      });
   }
 
   // eslint-disable-next-line @typescript-eslint/no-non-null-assertion

@@ -76,7 +76,8 @@ export default function BlessingCard({ blessing, index = 0, onLike }: BlessingCa
       animate={{ opacity: 1, y: 0 }}
       transition={{
         duration: 0.5,
-        delay: index * 0.08,
+        // 页内索引封顶：全局索引随分页增长，300+ 条时延迟会达 24s+
+        delay: Math.min(index % 30, 15) * 0.08,
         ease: 'easeOut',
         layout: { duration: 0.4, ease: 'easeInOut' },
       }}

@@ -112,7 +112,9 @@ export default function AdminPage() {
         right={
           <button
             onClick={async () => {
+              // 同时清除 Supabase session 和 admin_token Cookie
               await createClient().auth.signOut();
+              await fetch('/api/admin/logout', { method: 'POST' }).catch(() => {});
               router.push('/admin/login');
             }}
             className="text-sm text-ink-muted hover:text-danger transition-colors"

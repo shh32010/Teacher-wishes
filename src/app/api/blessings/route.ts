@@ -91,6 +91,16 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: '祝福内容不能超过500字' }, { status: 400 });
     }
 
+    // 昵称/班级服务端校验（前端 maxLength 可被绕过）
+    const trimmedNickname = (body.nickname || '').trim();
+    const trimmedClass = (body.class || '').trim();
+    if (trimmedNickname.length > 20) {
+      return NextResponse.json({ error: '昵称不能超过20字' }, { status: 400 });
+    }
+    if (trimmedClass.length > 30) {
+      return NextResponse.json({ error: '班级不能超过30字' }, { status: 400 });
+    }
+
     // 获取客户端 IP
     const ip =
       request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
@@ -140,8 +150,8 @@ export async function POST(request: NextRequest) {
     const { error } = await supabase.from('blessings').insert([
       {
         teacher_id: body.teacher_id || null,
-        nickname: body.nickname || null,
-        class: body.class || null,
+        nickname: trimmedNickname || null,
+        class: trimmedClass || null,
         content: trimmedContent,
         is_anonymous: body.is_anonymous || false,
       },

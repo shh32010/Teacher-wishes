@@ -77,8 +77,9 @@ export async function middleware(request: NextRequest) {
   } = await supabase.auth.getUser();
 
   // 方式1：Supabase Auth session 验证
+  // fail-closed：ADMIN_EMAIL 未配置时任何 session 都不放行
   const adminEmail = process.env.ADMIN_EMAIL;
-  if (user?.email && (!adminEmail || user.email === adminEmail)) {
+  if (adminEmail && user?.email === adminEmail) {
     return response;
   }
 
