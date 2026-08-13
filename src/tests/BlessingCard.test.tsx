@@ -29,6 +29,9 @@ vi.mock('framer-motion', () => ({
     p: ({ children, ...props }: React.PropsWithChildren<Record<string, unknown>>) => (
       <p {...props}>{children as React.ReactNode}</p>
     ),
+    span: ({ children, ...props }: React.PropsWithChildren<Record<string, unknown>>) => (
+      <span {...props}>{children as React.ReactNode}</span>
+    ),
   },
   AnimatePresence: ({ children }: React.PropsWithChildren) => <>{children}</>,
 }));
@@ -134,7 +137,8 @@ describe('BlessingCard', () => {
     });
     render(<BlessingCard blessing={blessing} />);
     const img = screen.getByRole('img');
-    expect(img).toHaveAttribute('src', 'https://example.com/avatar.jpg');
+    // next/image 会将 src 转换为 /_next/image 优化 URL，检查是否包含原始地址
+    expect(img.getAttribute('src')).toContain(encodeURIComponent('https://example.com/avatar.jpg'));
   });
 
   it('点击教师标签应跳转到教师主页', () => {
