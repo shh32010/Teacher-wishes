@@ -230,6 +230,35 @@ export default function AdminPage() {
                   >
                     ⭐ 精选
                   </button>
+                  <button
+                    onClick={async () => {
+                      if (!confirm(`确定删除选中的 ${selectedIds.size} 条祝福？此操作不可恢复。`))
+                        return;
+                      try {
+                        const csrfToken = await getCsrfToken();
+                        const res = await fetch('/api/admin/blessings', {
+                          method: 'DELETE',
+                          headers: {
+                            'Content-Type': 'application/json',
+                            ...(csrfToken ? { 'X-CSRF-Token': csrfToken } : {}),
+                          },
+                          body: JSON.stringify({ ids: Array.from(selectedIds) }),
+                        });
+                        if (!res.ok) {
+                          const err = await res.json().catch(() => ({}));
+                          alert(err.error || '删除失败');
+                          return;
+                        }
+                        setSelectedIds(new Set());
+                        mutate();
+                      } catch {
+                        alert('操作失败');
+                      }
+                    }}
+                    className="rounded-lg bg-red-500/15 px-3 py-1.5 text-sm text-danger hover:bg-red-500/25"
+                  >
+                    🗑️ 删除 ({selectedIds.size})
+                  </button>
                 </div>
               )}
             </div>

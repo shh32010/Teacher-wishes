@@ -50,6 +50,49 @@ export async function GET(request: NextRequest) {
   }
 }
 
+export async function DELETE(request: NextRequest) {
+  // 纵深防御：中间件之外的二次验签
+  if (!requireAdmin(request)) {
+    return NextResponse.json({ error: '未授权' }, { status: 401 });
+  }
+
+  // CSRF 验证（所有环境统一要求 Cookie + Header）
+  if (!validateCsrfToken(request)) {
+    return csrfErrorResponse();
+  }
+
+  try {
+    const body: { ids: string[] } = await request.json();
+
+    if (!body.ids || body.ids.length === 0 || body.ids.length > 100) {
+      return NextResponse.json({ error: '请指定 1~100 个祝福ID' }, { status: 400 });
+    }
+
+    // ID 必须是合法 UUID
+    const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (!body.ids.every((id: string) => UUID_RE.test(id))) {
+      return NextResponse.json({ error: '非法祝福ID' }, { status: 400 });
+    }
+
+    const supabase = createAdminClient();
+    const { data, error } = await supabase
+      .from('blessings')
+      .delete()
+      .in('id', body.ids)
+      .select('id');
+
+    if (error) {
+      console.error('[Admin API] 删除失败:', error);
+      return NextResponse.json({ error: '删除失败' }, { status: 500 });
+    }
+
+    return NextResponse.json({ deleted: data?.length || 0 });
+  } catch (err) {
+    console.error('[Admin API] 删除异常:', err);
+    return NextResponse.json({ error: '服务器内部错误' }, { status: 500 });
+  }
+}
+
 export async function PATCH(request: NextRequest) {
   // 纵深防御：中间件之外的二次验签
   if (!requireAdmin(request)) {
