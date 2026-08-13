@@ -219,15 +219,16 @@ SENTRY_ORG= / SENTRY_PROJECT=       # Sentry 组织/项目名（可选）
 
 ## 数据库迁移执行顺序
 
-在 Supabase SQL Editor 中依次执行（**必须全部执行**，005/006/007 包含关键安全加固，缺失会导致限流失效、点赞可刷、审核可绕过）：
-1. `database/migrations/001_schema.sql` — 基础表 + RLS + Realtime
-2. `database/migrations/002_likes_rpc.sql` — 点赞 RPC 函数
-3. `database/migrations/003_rate_limit.sql` — 限流 RPC 函数
-4. `database/migrations/004_likes_unique.sql` — 点赞唯一约束
-5. `database/migrations/004_storage_avatars.sql` — 头像存储桶策略
-6. `database/migrations/005_security_hardening.sql` — RLS 启用 + 限流原子化 + 点赞权限收紧 + 审核触发器
-7. `database/migrations/006_storage_policies.sql` — Storage 写策略收紧
-8. `database/migrations/007_review_fixes.sql` — 删除 UPDATE 策略（审核绕过）+ rate_limits INSERT 策略（锁定攻击）
+按文件名自然排序执行 `database/migrations/*.sql`（**必须全部执行**，006~009 包含关键安全加固，缺失会导致限流失效、点赞可刷、审核可绕过）：
+1. `001_schema.sql` — 基础表 + RLS + Realtime
+2. `002_likes_rpc.sql` — 点赞 RPC 函数
+3. `003_rate_limit.sql` — 限流 RPC 函数
+4. `004_likes_unique.sql` — 点赞唯一约束
+5. `005_storage_avatars.sql` — 头像存储桶策略
+6. `006_security_hardening.sql` — RLS 启用 + 限流原子化 + 点赞权限收紧 + 审核触发器
+7. `007_storage_policies.sql` — Storage 写策略收紧
+8. `008_review_fixes.sql` — 删除 UPDATE 策略（审核绕过）+ rate_limits INSERT 策略（锁定攻击）
+9. `009_rate_limit_cleanup.sql` — cleanup RPC/blessing_likes/increment_likes 权限最小化
 
 ## 文档索引
 

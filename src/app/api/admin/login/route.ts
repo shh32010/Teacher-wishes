@@ -7,6 +7,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { randomBytes, createHmac, timingSafeEqual } from 'crypto';
 import { validateCsrfToken, csrfErrorResponse } from '@/lib/csrf';
 import { createAnonClient } from '@/lib/supabase/server';
+import { getClientIp } from '@/lib/client-ip';
 
 export async function POST(request: NextRequest) {
   // CSRF 验证
@@ -23,10 +24,7 @@ export async function POST(request: NextRequest) {
 
   try {
     // 速率限制：每 IP 每分钟最多 5 次登录尝试
-    const ip =
-      request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
-      request.headers.get('x-real-ip') ||
-      '127.0.0.1';
+    const ip = getClientIp(request);
 
     const supabase = createAnonClient();
     const { data: remaining, error: rateError } = await supabase.rpc('check_rate_limit', {

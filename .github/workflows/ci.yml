@@ -93,11 +93,48 @@ jobs:
         run: npx next build
 
   # ============================================================
-  # Job 4：综合检查 — 只有前面都通过才标记为成功
+  # Job 4：E2E 测试（Playwright + API Mock，不依赖真实 Supabase）
+  # ============================================================
+  e2e:
+    name: E2E Tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL || 'https://placeholder.supabase.co' }}
+      NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'placeholder' }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY || 'placeholder' }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright Chromium
+        run: npx playwright install --with-deps chromium
+
+      - name: Run Playwright E2E
+        run: npm run test:e2e
+
+      - name: Upload Playwright report on failure
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 7
+
+  # ============================================================
+  # Job 5：综合检查 — 只有前面都通过才标记为成功
   # ============================================================
   all-checks:
     name: All Checks Passed
-    needs: [lint-and-typecheck, test, build]
+    needs: [lint-and-typecheck, test, build, e2e]
     if: always()
     runs-on: ubuntu-latest
     steps:
@@ -113,6 +150,10 @@ jobs:
           fi
           if [[ "${{ needs.build.result }}" != "success" ]]; then
             echo "❌ Build failed"
+            exit 1
+          fi
+          if [[ "${{ needs.e2e.result }}" != "success" ]]; then
+            echo "❌ E2E Tests failed"
             exit 1
           fi
           echo "✅ All checks passed!"

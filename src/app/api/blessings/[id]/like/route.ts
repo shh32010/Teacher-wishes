@@ -5,18 +5,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createAnonClient, createAdminClient } from '@/lib/supabase/server';
 import { validateCsrfToken, csrfErrorResponse } from '@/lib/csrf';
-
-/** 从请求中提取客户端真实 IP */
-function getClientIp(request: NextRequest): string {
-  const forwarded = request.headers.get('x-forwarded-for');
-  if (forwarded) {
-    return forwarded.split(',')[0].trim();
-  }
-  const realIp = request.headers.get('x-real-ip');
-  if (realIp) return realIp.trim();
-  // 本地开发回退
-  return '127.0.0.1';
-}
+import { getClientIp } from '@/lib/client-ip';
 
 export async function POST(request: NextRequest, { params }: { params: { id: string } }) {
   // CSRF 验证

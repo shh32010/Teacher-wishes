@@ -51,26 +51,21 @@ export function setCsrfCookie(response: NextResponse, token: string): void {
 /**
  * 验证 CSRF Token
  * 比较请求头 X-CSRF-Token 与 csrf_token Cookie 的值
- *
- * 如果请求未携带 csrf_token Cookie，则跳过验证（向后兼容，方便本地开发）
+ * 所有环境（开发/测试/生产）统一要求，行为一致
  *
  * @returns true 表示验证通过
  */
 export function validateCsrfToken(request: NextRequest): boolean {
   const csrfCookie = request.cookies.get(CSRF_COOKIE_NAME);
 
-  // 生产环境：Cookie 缺失 → 拒绝（防止攻击者不携带 Cookie 绕过 CSRF）
-  // 开发环境：向后兼容，跳过验证
+  // Cookie 缺失 → 拒绝（防止攻击者不携带 Cookie 绕过 CSRF）
   if (!csrfCookie) {
-    if (process.env.NODE_ENV === 'production') {
-      return false;
-    }
-    return true;
+    return false;
   }
 
   const headerToken = request.headers.get(CSRF_HEADER_NAME);
 
-  // Cookie 存在但 Header 缺失或值不匹配 → 拒绝
+  // Header 缺失或值不匹配 → 拒绝
   if (!headerToken || csrfCookie.value !== headerToken) {
     return false;
   }

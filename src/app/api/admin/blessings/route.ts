@@ -7,10 +7,16 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/server';
 import type { AdminUpdateBlessing } from '@/types';
 import { validateCsrfToken, csrfErrorResponse } from '@/lib/csrf';
+import { requireAdmin } from '@/lib/auth/admin';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET(request: NextRequest) {
+  // 纵深防御：中间件之外的二次验签
+  if (!requireAdmin(request)) {
+    return NextResponse.json({ error: '未授权' }, { status: 401 });
+  }
+
   const searchParams = request.nextUrl.searchParams;
   const status = searchParams.get('status'); // pending | approved | rejected
   const page = Math.max(1, parseInt(searchParams.get('page') || '1', 10));
@@ -45,6 +51,11 @@ export async function GET(request: NextRequest) {
 }
 
 export async function PATCH(request: NextRequest) {
+  // 纵深防御：中间件之外的二次验签
+  if (!requireAdmin(request)) {
+    return NextResponse.json({ error: '未授权' }, { status: 401 });
+  }
+
   // CSRF 验证（如果未设置 csrf_token Cookie 则跳过）
   if (!validateCsrfToken(request)) {
     return csrfErrorResponse();

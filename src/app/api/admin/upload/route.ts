@@ -4,9 +4,16 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
+import { randomUUID } from 'crypto';
 import { validateCsrfToken, csrfErrorResponse } from '@/lib/csrf';
+import { requireAdmin } from '@/lib/auth/admin';
 
 export async function POST(request: NextRequest) {
+  // 纵深防御：中间件之外的二次验签
+  if (!requireAdmin(request)) {
+    return NextResponse.json({ error: '未授权' }, { status: 401 });
+  }
+
   // CSRF 验证（如果未设置 csrf_token Cookie 则跳过）
   if (!validateCsrfToken(request)) {
     return csrfErrorResponse();
@@ -21,8 +28,20 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: '缺少 teacher_id 或 file' }, { status: 400 });
     }
 
-    if (!file.type.startsWith('image/')) {
-      return NextResponse.json({ error: '仅支持图片文件' }, { status: 400 });
+    // teacherId 必须是合法 UUID
+    const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+    if (!UUID_RE.test(teacherId)) {
+      return NextResponse.json({ error: '非法教师 ID' }, { status: 400 });
+    }
+
+    // MIME 白名单 — 不信任扩展名，只信 file.type
+    const ALLOWED_TYPES: Record<string, string> = {
+      'image/jpeg': 'jpg',
+      'image/png': 'png',
+      'image/webp': 'webp',
+    };
+    if (!ALLOWED_TYPES[file.type]) {
+      return NextResponse.json({ error: '仅支持 JPG、PNG、WebP 图片' }, { status: 400 });
     }
 
     if (file.size > 2 * 1024 * 1024) {
@@ -35,8 +54,9 @@ export async function POST(request: NextRequest) {
       process.env.SUPABASE_SERVICE_ROLE_KEY!
     );
 
-    const ext = file.name.split('.').pop() || 'jpg';
-    const filename = `teacher-${teacherId}-${Date.now()}.${ext}`;
+    // 扩展名由 MIME 类型映射，文件名用随机 UUID，不用用户输入
+    const ext = ALLOWED_TYPES[file.type];
+    const filename = `teacher-${teacherId}-${randomUUID()}.${ext}`;
 
     const { error: uploadError } = await supabase.storage.from('avatars').upload(filename, file, {
       cacheControl: '3600',

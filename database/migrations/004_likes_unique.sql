@@ -21,12 +21,9 @@ CREATE INDEX IF NOT EXISTS idx_blessing_likes_blessing
 CREATE INDEX IF NOT EXISTS idx_blessing_likes_ip
   ON blessing_likes(ip_address);
 
--- 4. 启用 RLS（仅允许 anon 插入，不允许读取他人点赞记录）
+-- 4. 启用 RLS（无公开策略：点赞唯一入口是 increment_likes RPC，
+--    由 SECURITY DEFINER 绕过 RLS 内部写入，anon 无法直接读写此表）
 ALTER TABLE blessing_likes ENABLE ROW LEVEL SECURITY;
-
-CREATE POLICY "任何人都可以插入点赞记录" ON blessing_likes
-  FOR INSERT
-  WITH CHECK (true);
 
 -- 5. 新 RPC：原子点赞（插入记录 + 递增计数，已在别处定义则替换）
 -- 删除旧版函数（无 IP 参数版本）

@@ -48,5 +48,6 @@ END;
 $$;
 
 -- 授予调用权限
+-- check_rate_limit: anon 可调用（内部 INSERT 由 SECURITY DEFINER 完成）
+-- cleanup_rate_limits: 仅 service_role（Vercel Cron），由 009 迁移显式授予
 GRANT EXECUTE ON FUNCTION check_rate_limit(TEXT, TEXT, INT, INT) TO anon, authenticated;
-GRANT EXECUTE ON FUNCTION cleanup_rate_limits() TO anon, authenticated;

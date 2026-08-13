@@ -7,6 +7,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { createAnonClient } from '@/lib/supabase/server';
 import type { Blessing, CreateBlessingPayload, PaginatedResponse } from '@/types';
 import { validateCsrfToken, csrfErrorResponse } from '@/lib/csrf';
+import { getClientIp } from '@/lib/client-ip';
 
 export const dynamic = 'force-dynamic';
 
@@ -101,11 +102,8 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: '班级不能超过30字' }, { status: 400 });
     }
 
-    // 获取客户端 IP
-    const ip =
-      request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
-      request.headers.get('x-real-ip') ||
-      '127.0.0.1';
+    // 获取客户端 IP（Vercel 可信头优先，未知时 'unknown' 防共享限流桶）
+    const ip = getClientIp(request);
 
     const supabase = createAnonClient();
 
@@ -126,8 +124,14 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: '发送太频繁，请10分钟后再试' }, { status: 429 });
     }
 
-    // Turnstile 验证（如果配置了密钥）
+    // Turnstile 验证：生产环境强制（未配置则 503 fail-closed），开发环境可选
     const turnstileSecret = process.env.TURNSTILE_SECRET_KEY;
+    if (process.env.NODE_ENV === 'production') {
+      if (!turnstileSecret || !body.turnstile_token) {
+        console.error('[API] 生产环境 Turnstile 未配置或缺少 token');
+        return NextResponse.json({ error: '人机验证未配置，请联系管理员' }, { status: 503 });
+      }
+    }
     if (turnstileSecret && body.turnstile_token) {
       const turnstileRes = await fetch(
         'https://challenges.cloudflare.com/turnstile/v0/siteverify',

@@ -1,4 +1,4 @@
-# 🌟 Teacher Wishes Platform · 教师节祝福平台 · v1.2.0
+# 🌟 Teacher Wishes Platform · 教师节祝福平台 · v1.3.2
 
 <p align="center">
   <strong>沉浸式教师节活动平台</strong> — 暖色秋天美学 · Design Token 体系 · 祝福星河 · 实时互动 · 大屏展示
@@ -33,12 +33,16 @@
 
 [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https://github.com/shh32010/Teacher-wishes&env=NEXT_PUBLIC_SUPABASE_URL,NEXT_PUBLIC_SUPABASE_ANON_KEY,SUPABASE_SERVICE_ROLE_KEY,ADMIN_EMAIL,ADMIN_PASSWORD&envDescription=Supabase%20密钥%20+%20管理员凭据（必填）)
 
-> ⚠️ 部署前需在 [Supabase](https://supabase.com) 创建项目，并在 SQL Editor 中依次执行：
-> 1. `database/migrations/001_schema.sql` — 基础表结构 + RLS + Realtime
-> 2. `database/migrations/002_likes_rpc.sql` — 点赞 RPC 函数
-> 3. `database/migrations/003_rate_limit.sql` — IP 限流 RPC 函数
-> 4. `database/migrations/004_likes_unique.sql` — 点赞唯一性约束
-> 5. `database/migrations/004_storage_avatars.sql` — 头像存储桶策略
+> ⚠️ 部署前需在 [Supabase](https://supabase.com) 创建项目，并在 SQL Editor 中按文件名自然排序执行 `database/migrations/*.sql`（**共 9 个，全部必执行**）：
+> 1. `001_schema.sql` — 基础表结构 + RLS + Realtime
+> 2. `002_likes_rpc.sql` — 点赞 RPC 函数
+> 3. `003_rate_limit.sql` — IP 限流 RPC 函数
+> 4. `004_likes_unique.sql` — 点赞唯一性约束
+> 5. `005_storage_avatars.sql` — 头像存储桶策略
+> 6. `006_security_hardening.sql` — RLS + 限流原子化 + 权限收紧 + 审核触发器
+> 7. `007_storage_policies.sql` — Storage 写策略收紧
+> 8. `008_review_fixes.sql` — 审核绕过 + 限流锁定攻击修复
+> 9. `009_rate_limit_cleanup.sql` — cleanup RPC / blessing_likes / increment_likes 权限最小化
 
 ---
 
@@ -106,12 +110,8 @@ SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
 
 ```bash
 # 4. 执行数据库迁移
-# 在 Supabase SQL Editor 中依次运行：
-#   database/migrations/001_schema.sql（基础表结构）
-#   database/migrations/002_likes_rpc.sql（点赞 RPC）
-#   database/migrations/003_rate_limit.sql（IP 限流）
-#   database/migrations/004_likes_unique.sql（点赞唯一性约束）
-#   database/migrations/004_storage_avatars.sql（头像存储桶）
+# 在 Supabase SQL Editor 中按文件名自然排序执行：
+#   database/migrations/001~009（全部 9 个必执行，见上方部署说明）
 
 # 5. 启动
 npm run dev
@@ -170,7 +170,7 @@ docs/                         # ARCHITECTURE / API / CAPACITY
 | 文档 | 说明 |
 | :--- | :--- |
 | [PROGRESS.md](./PROGRESS.md) | 开发进度追踪 |
-| [CHANGELOG.md](./CHANGELOG.md) | v1.2.0 发布日志 |
+| [CHANGELOG.md](./CHANGELOG.md) | v1.3.2 发布日志 |
 | [docs/VISUAL_REDESIGN.md](./docs/VISUAL_REDESIGN.md) | 视觉重构 v2.0 方案 |
 | [CLAUDE.md](./CLAUDE.md) | AI 协作指南 |
 | [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md) | 架构图 + ER 图 + 数据流 |
