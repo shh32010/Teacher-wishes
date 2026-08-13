@@ -124,12 +124,14 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: '发送太频繁，请10分钟后再试' }, { status: 429 });
     }
 
-    // Turnstile 验证：生产环境强制（未配置则 503 fail-closed），开发环境可选
+    // Turnstile 验证：
+    // - 配置了 TURNSTILE_SECRET_KEY → 生产环境强制验证（缺失 token 拒绝）
+    // - 未配置 → 回退到 IP 限流保护（不会阻断正常提交）
     const turnstileSecret = process.env.TURNSTILE_SECRET_KEY;
-    if (process.env.NODE_ENV === 'production') {
-      if (!turnstileSecret || !body.turnstile_token) {
-        console.error('[API] 生产环境 Turnstile 未配置或缺少 token');
-        return NextResponse.json({ error: '人机验证未配置，请联系管理员' }, { status: 503 });
+    if (turnstileSecret && process.env.NODE_ENV === 'production') {
+      if (!body.turnstile_token) {
+        console.error('[API] 生产环境已配置 Turnstile 但缺少 token');
+        return NextResponse.json({ error: '人机验证失败，请刷新重试' }, { status: 400 });
       }
     }
     if (turnstileSecret && body.turnstile_token) {
