@@ -4,7 +4,7 @@
 
 'use client';
 
-import { useEffect, useRef, useCallback } from 'react';
+import { useEffect, useRef } from 'react';
 
 interface UseInfiniteScrollOptions {
   /** 是否有更多数据 */
@@ -25,27 +25,38 @@ export function useInfiniteScroll({
 }: UseInfiniteScrollOptions) {
   const sentinelRef = useRef<HTMLDivElement>(null);
 
-  const handleObserver = useCallback(
-    (entries: IntersectionObserverEntry[]) => {
-      const [entry] = entries;
-      if (entry.isIntersecting && hasMore && !isLoading) {
-        onLoadMore();
-      }
-    },
-    [hasMore, isLoading, onLoadMore]
-  );
+  // 用 ref 保存最新状态，observer 只创建一次，
+  // 避免 callback 重建导致 observer 重新 attach 后立即重复触发
+  const stateRef = useRef({ hasMore, isLoading, onLoadMore });
+  stateRef.current = { hasMore, isLoading, onLoadMore };
+
+  // 冷却时间，防止同一次滚动连续触发
+  const cooldownRef = useRef(0);
 
   useEffect(() => {
     const node = sentinelRef.current;
     if (!node) return;
 
-    const observer = new IntersectionObserver(handleObserver, {
-      rootMargin: `0px 0px ${threshold}px 0px`,
-    });
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const [entry] = entries;
+        const { hasMore, isLoading, onLoadMore } = stateRef.current;
+
+        if (!entry.isIntersecting || !hasMore || isLoading) return;
+
+        // 500ms 冷却，等数据渲染完再允许下一次触发
+        const now = Date.now();
+        if (now - cooldownRef.current < 500) return;
+        cooldownRef.current = now;
+
+        onLoadMore();
+      },
+      { rootMargin: `0px 0px ${threshold}px 0px` }
+    );
 
     observer.observe(node);
     return () => observer.disconnect();
-  }, [handleObserver, threshold]);
+  }, [threshold]); // 仅依赖 threshold，observer 生命周期稳定
 
   return { sentinelRef };
 }

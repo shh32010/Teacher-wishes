@@ -62,7 +62,6 @@ export default function WallPage() {
     data: pages,
     error,
     isLoading,
-    size,
     setSize,
     mutate,
   } = useSWRInfinite<PaginatedResponse<Blessing>>(getKey, fetcher, {
@@ -99,8 +98,9 @@ export default function WallPage() {
   const LOAD_BATCH = 2; // 每次加载2页=60条
   const loadMore = useCallback(() => {
     if (!hasMore || isLoading) return;
-    setSize(size + LOAD_BATCH);
-  }, [hasMore, isLoading, size, setSize]);
+    // 用函数式更新避免 size 依赖导致的无限重建
+    setSize((s) => s + LOAD_BATCH);
+  }, [hasMore, isLoading, setSize]);
 
   const { sentinelRef } = useInfiniteScroll({
     hasMore,
