@@ -232,7 +232,7 @@ export default function WallPage() {
           initial={{ opacity: 0, y: -20, scale: 0.9 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: -10 }}
-          className="fixed left-1/2 top-20 z-50 -translate-x-1/2"
+          className="fixed left-1/2 top-1/2 z-50 -translate-x-1/2 -translate-y-1/2"
         >
           <div className="glass rounded-2xl px-8 py-5 text-center shadow-lg">
             <p className="text-lg font-bold text-[var(--color-primary)]">✨ 祝福已送达！</p>
