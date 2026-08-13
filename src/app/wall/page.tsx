@@ -197,7 +197,8 @@ export default function WallPage() {
     }
   }, []);
 
-  if (isLoading) {
+  // 仅首次加载（无数据）时全屏等待，后续分页加载不闪屏
+  if (isLoading && !pages) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <div className="text-ink-muted">加载祝福中...</div>
