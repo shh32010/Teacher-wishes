@@ -9,7 +9,7 @@
 //   3. 服务端比对 Cookie 与 Header 中的 token 是否一致
 //   4. 攻击者无法读取跨域 Cookie，因此无法伪造 Header
 //
-// 向后兼容：如果请求不携带 csrf_token Cookie，跳过验证（开发模式）
+// 所有环境（开发/测试/生产）统一要求 CSRF：Cookie 缺失直接拒绝
 // ============================================================
 
 import { NextRequest, NextResponse } from 'next/server';

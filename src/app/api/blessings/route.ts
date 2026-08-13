@@ -75,7 +75,7 @@ export async function GET(request: NextRequest) {
 }
 
 export async function POST(request: NextRequest) {
-  // CSRF 验证（如果未设置 csrf_token Cookie 则跳过）
+  // CSRF 验证（所有环境统一要求 Cookie + Header）
   if (!validateCsrfToken(request)) {
     return csrfErrorResponse();
   }

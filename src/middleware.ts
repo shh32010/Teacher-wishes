@@ -1,8 +1,8 @@
 // ============================================================
-// Next.js 中间件 — Supabase Auth + admin_token 双重鉴权
+// Next.js 中间件 — admin_token HMAC 唯一鉴权
+// 认证链: POST /api/admin/login → admin_token → middleware → requireAdmin → admin API
 // ============================================================
 
-import { createServerClient } from '@supabase/ssr';
 import { NextResponse, type NextRequest } from 'next/server';
 
 /** 将 hex 字符串转为 Uint8Array */
@@ -44,7 +44,7 @@ async function verifyAdminToken(tokenStr: string, secret: string): Promise<boole
     const payload = `${randomPart}.${expiryStr}`;
     return await verifyHmac(payload, signature, secret);
   } catch {
-    // 畸形 token（奇数 hex、超长等）导致 500，转为拒绝
+    // 畸形 token（奇数 hex、超长等）转为拒绝
     return false;
   }
 }
@@ -58,53 +58,23 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  // 创建 Supabase 客户端验证 Session
-  let response = NextResponse.next({ request });
-  const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-    {
-      cookies: {
-        getAll: () => request.cookies.getAll(),
-        setAll: (cookiesToSet) => {
-          cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value));
-          response = NextResponse.next({ request });
-          cookiesToSet.forEach(({ name, value, options }) =>
-            response.cookies.set(name, value, options)
-          );
-        },
-      },
-    }
-  );
-
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
-  // 方式1：Supabase Auth session 验证
-  // fail-closed：ADMIN_EMAIL 未配置时任何 session 都不放行
-  const adminEmail = process.env.ADMIN_EMAIL;
-  if (adminEmail && user?.email === adminEmail) {
-    return response;
-  }
-
-  // 方式2：admin_token HMAC 签名验证（后备方案，无需 Supabase Auth）
-  // 生产环境强制要求 ADMIN_TOKEN_SECRET，开发环境可回退到 ADMIN_PASSWORD
+  // 唯一认证路径：admin_token HMAC 验签
+  // 生产环境强制要求 ADMIN_TOKEN_SECRET（fail-closed），开发环境可回退到 ADMIN_PASSWORD
   const tokenSecret =
     process.env.ADMIN_TOKEN_SECRET ||
     (process.env.NODE_ENV !== 'production' ? process.env.ADMIN_PASSWORD : null);
 
-  if (tokenSecret) {
-    const adminToken = request.cookies.get('admin_token')?.value;
-    if (adminToken) {
-      const valid = await verifyAdminToken(adminToken, tokenSecret);
-      if (valid) {
-        return response;
-      }
-    }
+  if (!tokenSecret) {
+    console.error('[Middleware] ADMIN_TOKEN_SECRET 未配置，拒绝访问');
+    return NextResponse.redirect(new URL('/admin/login', request.url));
   }
 
-  // 两种方式都未通过 → 重定向到登录页
+  const adminToken = request.cookies.get('admin_token')?.value;
+  if (adminToken && (await verifyAdminToken(adminToken, tokenSecret))) {
+    return NextResponse.next();
+  }
+
+  // 验签失败 → 重定向到登录页
   return NextResponse.redirect(new URL('/admin/login', request.url));
 }
 

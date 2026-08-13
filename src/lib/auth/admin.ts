@@ -9,10 +9,13 @@ import type { NextRequest } from 'next/server';
 /**
  * 验证请求的 admin_token Cookie（HMAC-SHA256 无状态签名）
  * 格式: randomPart.expiryTimestamp.signature
+ * 与 middleware 使用同一密钥来源：生产强制 ADMIN_TOKEN_SECRET（fail-closed），开发可回退
  * @returns true = 通过
  */
 export function verifyAdminCookie(request: NextRequest): boolean {
-  const tokenSecret = process.env.ADMIN_TOKEN_SECRET;
+  const tokenSecret =
+    process.env.ADMIN_TOKEN_SECRET ||
+    (process.env.NODE_ENV !== 'production' ? process.env.ADMIN_PASSWORD : null);
   // fail-closed：密钥未配置一律拒绝
   if (!tokenSecret) return false;
 

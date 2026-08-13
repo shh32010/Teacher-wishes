@@ -9,7 +9,7 @@ let fetchPromise: Promise<string> | null = null;
  * 获取 CSRF Token（从 /api/csrf 端点获取并缓存）
  * - 首次调用时请求服务端获取新 token
  * - 后续调用直接返回缓存值
- * - 请求失败时返回空字符串（服务端会跳过 CSRF 验证）
+ * - 请求失败时返回空字符串（调用方可据此提示用户，服务端将拒绝无 token 请求）
  */
 export async function getCsrfToken(): Promise<string> {
   if (cachedToken !== null) return cachedToken;
