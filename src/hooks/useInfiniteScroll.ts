@@ -56,7 +56,9 @@ export function useInfiniteScroll({
 
     observer.observe(node);
     return () => observer.disconnect();
-  }, [threshold]); // 仅依赖 threshold，observer 生命周期稳定
+    // 依赖 hasMore/isLoading：初始 isLoading 时哨兵未渲染，
+    // 加载完成后需要重新 attach；loadMore 已稳定（无 size 依赖），不会死循环
+  }, [threshold, hasMore, isLoading]);
 
   return { sentinelRef };
 }
