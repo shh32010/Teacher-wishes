@@ -20,11 +20,11 @@ export async function POST(request: NextRequest, { params }: { params: { id: str
     const adminSupabase = createAdminClient(); // increment_likes 仅允许 service_role 调用
     const clientIp = getClientIp(request);
 
-    // 速率限制：每 IP 每分钟最多 20 次点赞（原子化：check+insert 在同一事务）
+    // 速率限制：每 IP 每分钟最多 60 次点赞（校园 NAT 共享 IP，放宽兜底）
     const { data: remaining, error: rateError } = await anonSupabase.rpc('check_rate_limit', {
       client_ip: clientIp,
       action_name: 'like_blessing',
-      max_requests: 20,
+      max_requests: 60,
       window_minutes: 1,
     });
 

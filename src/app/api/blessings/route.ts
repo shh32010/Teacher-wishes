@@ -107,11 +107,11 @@ export async function POST(request: NextRequest) {
 
     const supabase = createAnonClient();
 
-    // 速率限制：每10分钟最多10条（原子化：check+insert 在同一事务中，无 TOCTOU 窗口）
+    // 速率限制：每10分钟最多100条（Turnstile 已挡机器人，IP 限流仅作兜底）
     const { data: remaining, error: rateError } = await supabase.rpc('check_rate_limit', {
       client_ip: ip,
       action_name: 'submit_blessing',
-      max_requests: 10,
+      max_requests: 100,
       window_minutes: 10,
     });
 
