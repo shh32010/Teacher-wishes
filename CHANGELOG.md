@@ -4,6 +4,53 @@ All notable changes to Teacher Wishes Platform will be documented in this file.
 
 ---
 
+## [1.3.1] — 2026-08-11
+
+### 🐛 祝福墙性能修复（请求风暴根治）
+
+- 🔴 **无限滚动死循环**：`loadMore` 依赖 `size` 导致 observer 反复重建 → 6468 次请求撑爆浏览器。修复：stateRef 模式 + observer 只创建一次 + 500ms 冷却 + 函数式 `setSize`
+- 🔴 **Realtime 请求风暴**：移除 UPDATE 监听（每次点赞触发全量重取），INSERT 加 3 秒防抖
+- 🔴 **Next.js fetch 缓存**：所有读 API 加 `export const dynamic = 'force-dynamic'`，数据库更新后不再返回旧数据
+- 🟠 **分页闪屏**：`isLoading` 在后续分页时也为 true 导致整页替换为「加载中」，改为 `isLoading && !pages` 才全屏等待
+- 🟠 **无限滚动不触发**：初始加载时哨兵未渲染导致 observer 未 attach，effect 依赖补上 `hasMore/isLoading`
+- ⚙️ 滑动到底自动加载，每次 60 条，上限 360（覆盖全部祝福）
+
+### ✨ 管理后台增强
+
+- 过滤按钮显示实时统计数量（待审核/已通过/已拒绝/全部）
+- 分页支持页码直接跳转（最多 10 页按钮）
+- 表格新增「祝福对象」列（教师名/全体）
+- 精选行 ⭐ 标记 + 金色背景，精选支持切换（再点取消）
+- 修复「全部」筛选白屏（`statusParam === ''` 误判）
+- 教师管理添加统计看板（总数/头像/覆盖率）
+- stats API 改用 service_role 绕过 RLS，pending/rejected 计数正确
+
+### 📱 移动端优化
+
+- Header 信息层级重排：Logo 单行 + 排序移到卡片上方 + 移除写祝福按钮（底部浮动按钮覆盖）
+- 祝福卡片密度压缩（p-4、13px 字号、三层结构）
+- 浮动按钮 safe-area 适配 + 页面底部留白防遮挡
+- 防横向溢出：break-words + overflow-x-hidden
+- 首页动画加速 4x（CTA 桌面 2s / 移动 1.3s）
+
+### 🎨 功能完善
+
+- ⭐ 精选祝福全站展示：祝福墙金色边框+徽章、星河星星更大更亮
+- 夜间模式 Tailwind ink 色板改用 CSS 变量驱动（`rgb(var(--ink-rgb) / <alpha-value>)`）
+- 登录页改为纯密码认证（不依赖 Supabase Auth，解决生产登录失败）
+- SEO：favicon + robots.txt + OG 图片 + Twitter 卡片
+
+### 🧪 测试
+
+- 修复 BlessingCard 测试 mock（motion.span + next/image URL 断言），83/83 全过
+
+### 🗄️ 数据
+
+- 教师扩充至 18 位（全科覆盖），祝福数据 353 条
+- 清理测试数据（6/66/7/test 等）
+
+---
+
 ## [1.3.0] — 2026-08-10
 
 ### 🔒 数据库层安全加固（P1 × 5）
