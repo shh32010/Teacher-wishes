@@ -30,6 +30,12 @@ function saveLikedId(id: string) {
   localStorage.setItem('liked_blessings', JSON.stringify(Array.from(ids)));
 }
 
+function removeLikedId(id: string) {
+  const ids = getLikedIds();
+  ids.delete(id);
+  localStorage.setItem('liked_blessings', JSON.stringify(Array.from(ids)));
+}
+
 interface BlessingCardProps {
   blessing: Blessing;
   index?: number;
@@ -63,10 +69,12 @@ export default function BlessingCard({ blessing, index = 0, onLike }: BlessingCa
     const confirmed = onLike ? await onLike(blessing.id) : true;
 
     if (!confirmed) {
-      // 服务端拒绝 → 回滚乐观更新
+      // 服务端拒绝 → 回滚乐观更新 + 清除 localStorage 记录
+      // 否则该条祝福重新挂载后 liked=true 永久无法再点赞
       setLiked(false);
       setLikesCount((prev) => prev - 1);
       setShowBurst(false);
+      removeLikedId(blessing.id);
     }
   };
 

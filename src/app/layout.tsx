@@ -51,7 +51,7 @@ export const metadata: Metadata = {
   description: '教师节活动网站，学生们可以在这里发布对老师的祝福，查看实时祝福墙，感受节日温暖。',
   keywords: ['教师节', '祝福墙', '教师节祝福', '教师节活动'],
   authors: [{ name: 'Teacher Wishes Team' }],
-  metadataBase: new URL('https://teacher.shh32010.dpdns.org'),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'https://teacher.shh32010.dpdns.org'),
   icons: {
     icon: '/favicon.svg',
   },

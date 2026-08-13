@@ -19,7 +19,11 @@ const TeacherManager = dynamic(() => import('@/components/admin/TeacherManager')
   ssr: false,
 });
 
-const fetcher = (url: string) => fetch(url).then((res) => res.json());
+const fetcher = async (url: string) => {
+  const res = await fetch(url);
+  if (!res.ok) throw new Error(`请求失败 (${res.status})`);
+  return res.json();
+};
 
 type FilterStatus = 'pending' | 'approved' | 'rejected' | 'all';
 type AdminTab = 'blessings' | 'teachers';
@@ -63,7 +67,7 @@ export default function AdminPage() {
     if (selectedIds.size === 0) return;
     try {
       const csrfToken = await getCsrfToken();
-      await fetch('/api/admin/blessings', {
+      const res = await fetch('/api/admin/blessings', {
         method: 'PATCH',
         headers: {
           'Content-Type': 'application/json',
@@ -71,6 +75,11 @@ export default function AdminPage() {
         },
         body: JSON.stringify({ ids: Array.from(selectedIds), updates }),
       });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        alert(err.error || '操作失败，请刷新后重试');
+        return;
+      }
       setSelectedIds(new Set());
       mutate();
     } catch {
@@ -313,30 +322,61 @@ export default function AdminPage() {
               </div>
             )}
 
-            {/* 分页 */}
+            {/* 分页 — 当前页附近窗口 + 首尾页 */}
             {totalPages > 1 && (
               <div className="mt-4 flex items-center justify-center gap-1">
                 <button
-                  onClick={() => setPage((p) => Math.max(1, p - 1))}
+                  onClick={() => {
+                    setPage((p) => Math.max(1, p - 1));
+                    setSelectedIds(new Set());
+                  }}
                   disabled={page <= 1}
                   className="rounded-lg px-2 py-1.5 text-sm glass text-ink-muted hover:text-ink disabled:opacity-30"
                 >
                   ←
                 </button>
-                {Array.from({ length: Math.min(totalPages, 10) }, (_, i) => i + 1).map((n) => (
-                  <button
-                    key={n}
-                    onClick={() => setPage(n)}
-                    className={`rounded-lg px-2.5 py-1.5 text-sm transition-colors ${
-                      page === n ? 'bg-primary text-white' : 'glass text-ink-muted hover:text-ink'
-                    }`}
-                  >
-                    {n}
-                  </button>
-                ))}
-                {totalPages > 10 && <span className="px-1 text-ink-muted">…</span>}
+                {(() => {
+                  // 窗口化：1 ... p-2 p-1 p p+1 p+2 ... N
+                  const nums: (number | '…')[] = [];
+                  const winStart = Math.max(1, page - 2);
+                  const winEnd = Math.min(totalPages, page + 2);
+                  if (winStart > 1) {
+                    nums.push(1);
+                    if (winStart > 2) nums.push('…');
+                  }
+                  for (let n = winStart; n <= winEnd; n++) nums.push(n);
+                  if (winEnd < totalPages) {
+                    if (winEnd < totalPages - 1) nums.push('…');
+                    nums.push(totalPages);
+                  }
+                  return nums.map((n, i) =>
+                    n === '…' ? (
+                      <span key={`e${i}`} className="px-1 text-ink-muted">
+                        …
+                      </span>
+                    ) : (
+                      <button
+                        key={n}
+                        onClick={() => {
+                          setPage(n);
+                          setSelectedIds(new Set());
+                        }}
+                        className={`rounded-lg px-2.5 py-1.5 text-sm transition-colors ${
+                          page === n
+                            ? 'bg-primary text-white'
+                            : 'glass text-ink-muted hover:text-ink'
+                        }`}
+                      >
+                        {n}
+                      </button>
+                    )
+                  );
+                })()}
                 <button
-                  onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                  onClick={() => {
+                    setPage((p) => Math.min(totalPages, p + 1));
+                    setSelectedIds(new Set());
+                  }}
                   disabled={page >= totalPages}
                   className="rounded-lg px-2 py-1.5 text-sm glass text-ink-muted hover:text-ink disabled:opacity-30"
                 >

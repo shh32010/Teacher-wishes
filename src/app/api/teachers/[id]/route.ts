@@ -7,6 +7,13 @@ import { createClient } from '@/lib/supabase/server';
 
 export async function GET(request: NextRequest, { params }: { params: { id: string } }) {
   const { id } = params;
+
+  // 非法 UUID 直接 404，避免 PostgREST 22P02 落到 500
+  const uuidRe = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+  if (!uuidRe.test(id)) {
+    return NextResponse.json({ error: '教师不存在' }, { status: 404 });
+  }
+
   const searchParams = request.nextUrl.searchParams;
   const page = Math.max(1, parseInt(searchParams.get('page') || '1', 10));
   const pageSize = Math.min(50, Math.max(1, parseInt(searchParams.get('pageSize') || '20', 10)));

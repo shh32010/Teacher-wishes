@@ -10,6 +10,8 @@ import { generateCsrfToken, setCsrfCookie } from '@/lib/csrf';
 export async function GET() {
   const token = generateCsrfToken();
   const response = NextResponse.json({ token });
+  // 每次生成的 token 都不同，禁止任何缓存
+  response.headers.set('Cache-Control', 'no-store');
   setCsrfCookie(response, token);
   return response;
 }

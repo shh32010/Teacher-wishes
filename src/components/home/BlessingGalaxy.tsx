@@ -69,14 +69,18 @@ export default function BlessingGalaxy() {
 
   useEffect(() => {
     // 视觉上限：防止大量祝福导致 DOM/Motion 元素过多
-    // 按热度排序取前 100，超出部分不渲染为星体（不影响祝福墙展示）
+    // 按热度排序取前 100；API 单页上限 50，需分两次取
     const MAX_VISUAL_STARS = 100;
     Promise.all([
-      fetch('/api/blessings?pageSize=100&sort=likes').then((r) => r.json()),
+      fetch('/api/blessings?page=1&pageSize=50&sort=likes').then((r) => r.json()),
+      fetch('/api/blessings?page=2&pageSize=50&sort=likes').then((r) => r.json()),
       fetch('/api/teachers').then((r) => r.json()),
     ])
-      .then(([blessingsRes, teachersRes]) => {
-        const blessings: Blessing[] = (blessingsRes.data || []).slice(0, MAX_VISUAL_STARS);
+      .then(([page1, page2, teachersRes]) => {
+        const blessings: Blessing[] = [...(page1.data || []), ...(page2.data || [])].slice(
+          0,
+          MAX_VISUAL_STARS
+        );
         const teachers: Teacher[] = teachersRes.teachers || [];
 
         const total = teachers.length + blessings.length;
@@ -191,7 +195,7 @@ export default function BlessingGalaxy() {
   return (
     <>
       {/* ==================== 星河层 ==================== */}
-      <div className="pointer-events-none absolute inset-0 z-5 overflow-hidden">
+      <div className="pointer-events-none absolute inset-0 z-10 overflow-hidden">
         {stars.map((star) => {
           if (star.type === 'teacher') {
             return (

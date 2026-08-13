@@ -136,6 +136,9 @@ export default function BlessingForm({
     };
   }, [isOpen]);
 
+  // 记录 widget id — 重复 render 会抛 "already rendered" 被吞导致二次提交无 token
+  const turnstileWidgetRef = useRef<string | null>(null);
+
   const getTurnstileToken = useCallback((): Promise<string> => {
     return new Promise((resolve) => {
       if (!TURNSTILE_SITE_KEY || typeof window === 'undefined' || !window.turnstile) {
@@ -143,12 +146,18 @@ export default function BlessingForm({
         return;
       }
       try {
-        window.turnstile.render(turnstileRef.current, {
-          sitekey: TURNSTILE_SITE_KEY,
-          callback: (token: string) => resolve(token),
-          'error-callback': () => resolve(''),
-          'expired-callback': () => resolve(''),
-        });
+        if (!turnstileWidgetRef.current) {
+          // 首次：渲染 widget，保存返回的 widget id
+          turnstileWidgetRef.current = window.turnstile.render(turnstileRef.current, {
+            sitekey: TURNSTILE_SITE_KEY,
+            callback: (token: string) => resolve(token),
+            'error-callback': () => resolve(''),
+            'expired-callback': () => resolve(''),
+          });
+        } else {
+          // 后续：reset 获取新 token（callback 会再次触发 resolve）
+          window.turnstile.reset(turnstileWidgetRef.current);
+        }
       } catch {
         resolve('');
       }

@@ -3,18 +3,15 @@
 // ============================================================
 
 import { NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
+import { createAdminClient } from '@/lib/supabase/server';
 import type { BlessingStats } from '@/types';
 
 export const dynamic = 'force-dynamic';
 
 export async function GET() {
   try {
-    // 用 service_role 绕过 RLS，才能查到 pending/rejected 数量
-    const supabase = createClient(
-      process.env.NEXT_PUBLIC_SUPABASE_URL!,
-      process.env.SUPABASE_SERVICE_ROLE_KEY!
-    );
+    // service_role 绕过 RLS，才能查到 pending/rejected 数量
+    const supabase = createAdminClient();
 
     // 并行查询：各状态计数 + 点赞总和
     const [approvedRes, pendingRes, rejectedRes, likesRes] = await Promise.all([

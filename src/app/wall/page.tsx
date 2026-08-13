@@ -90,10 +90,9 @@ export default function WallPage() {
   }, [pages]);
 
   const loadedCount = blessings.length;
-  const lastPage = pages?.filter(Boolean).at(-1);
-  const hasMore =
-    loadedCount < MAX_ITEMS && (lastPage ? (lastPage.data?.length ?? 0) === PAGE_SIZE : true);
   const totalCount = pages?.[0]?.count || 0;
+  // 优先用服务端总数判定，避免恰好整页时多发一次空请求
+  const hasMore = loadedCount < MAX_ITEMS && (totalCount === 0 || loadedCount < totalCount);
 
   const LOAD_BATCH = 2; // 每次加载2页=60条
   const loadMore = useCallback(() => {
@@ -123,6 +122,15 @@ export default function WallPage() {
         { event: 'INSERT', schema: 'public', table: 'blessings', filter: 'status=eq.approved' },
         () => {
           // 防抖 3 秒，避免短时间内大量新祝福产生请求风暴
+          clearTimeout(timer);
+          timer = setTimeout(() => mutate(), 3000);
+        }
+      )
+      .on(
+        'postgres_changes',
+        // 管理员审核通过（pending→approved）时即时上墙，不必等 5 分钟轮询
+        { event: 'UPDATE', schema: 'public', table: 'blessings', filter: 'status=eq.approved' },
+        () => {
           clearTimeout(timer);
           timer = setTimeout(() => mutate(), 3000);
         }

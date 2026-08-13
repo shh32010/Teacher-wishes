@@ -44,7 +44,7 @@ export default async function TeacherPage({ params, searchParams }: TeacherPageP
   const sort = searchParams.sort === 'likes' ? 'likes' : 'time';
   const sortField = sort === 'likes' ? 'likes' : 'created_at';
 
-  const [teacherResult, blessingsResult] = await Promise.all([
+  const [teacherResult, blessingsResult, countResult] = await Promise.all([
     supabase.from('teachers').select('*').eq('id', params.id).single(),
     supabase
       .from('blessings')
@@ -54,6 +54,11 @@ export default async function TeacherPage({ params, searchParams }: TeacherPageP
       .order('is_featured', { ascending: false })
       .order(sortField, { ascending: false })
       .limit(50),
+    supabase
+      .from('blessings')
+      .select('id', { count: 'exact', head: true })
+      .eq('teacher_id', params.id)
+      .eq('status', 'approved'),
   ]);
 
   if (teacherResult.error || !teacherResult.data) {
@@ -62,6 +67,8 @@ export default async function TeacherPage({ params, searchParams }: TeacherPageP
 
   const teacher = teacherResult.data as Teacher;
   const blessings = (blessingsResult.data || []) as Blessing[];
+  const totalCount = countResult.count || blessings.length;
+  const truncated = totalCount > blessings.length;
 
   return (
     <main className="min-h-screen">
@@ -101,14 +108,18 @@ export default async function TeacherPage({ params, searchParams }: TeacherPageP
             <p className="mt-4 text-sm leading-relaxed text-ink">{teacher.description}</p>
           )}
           <div className="mt-6 flex items-center justify-center gap-4">
-            <p className="text-lg font-semibold text-accent">收到 {blessings.length} 条祝福</p>
+            <p className="text-lg font-semibold text-accent">收到 {totalCount} 条祝福</p>
             <ShareButton />
           </div>
         </div>
 
         {/* 排序切换 + 祝福列表 */}
         <div className="mb-4 flex items-center justify-between">
-          <h2 className="text-sm font-medium text-ink-light">{blessings.length} 条祝福</h2>
+          <h2 className="text-sm font-medium text-ink-light">
+            {truncated
+              ? `展示前 ${blessings.length} 条（共 ${totalCount} 条）`
+              : `${blessings.length} 条祝福`}
+          </h2>
           <Suspense fallback={<div className="h-8 w-24 rounded-lg bg-ink/5" />}>
             <SortToggle />
           </Suspense>

@@ -29,7 +29,7 @@ const StatsPanel = dynamic(() => import('@/components/home/StatsPanel'), {
 
 const BlessingGalaxy = dynamic(() => import('@/components/home/BlessingGalaxy'), {
   ssr: false,
-  loading: () => <div className="absolute inset-0 -z-5" aria-hidden="true" />,
+  loading: () => <div className="absolute inset-0 -z-10" aria-hidden="true" />,
 });
 
 /** 首页语录 — 教师节主题 */

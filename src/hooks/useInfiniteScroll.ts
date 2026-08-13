@@ -46,7 +46,24 @@ export function useInfiniteScroll({
 
         // 500ms 冷却，等数据渲染完再允许下一次触发
         const now = Date.now();
-        if (now - cooldownRef.current < 500) return;
+        if (now - cooldownRef.current < 500) {
+          // 冷却拦截后补偿：元素持续相交时 observer 不再触发，
+          // 若冷却结束后哨兵仍在视口（大屏/卡片矮），延迟重查一次
+          const wait = 500 - (now - cooldownRef.current);
+          setTimeout(() => {
+            const s = stateRef.current;
+            if (!s.hasMore || s.isLoading) return;
+            const node = sentinelRef.current;
+            if (node) {
+              const rect = node.getBoundingClientRect();
+              if (rect.top < window.innerHeight + threshold) {
+                cooldownRef.current = Date.now();
+                s.onLoadMore();
+              }
+            }
+          }, wait);
+          return;
+        }
         cooldownRef.current = now;
 
         onLoadMore();

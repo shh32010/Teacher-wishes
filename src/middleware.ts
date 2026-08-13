@@ -33,15 +33,20 @@ async function verifyHmac(payload: string, signatureHex: string, secret: string)
  * payload = randomPart.expiryTimestamp，HMAC 签名覆盖整个 payload
  */
 async function verifyAdminToken(tokenStr: string, secret: string): Promise<boolean> {
-  const parts = tokenStr.split('.');
-  if (parts.length !== 3) return false; // 必须为三部分
+  try {
+    const parts = tokenStr.split('.');
+    if (parts.length !== 3) return false; // 必须为三部分
 
-  const [randomPart, expiryStr, signature] = parts;
-  const expiry = parseInt(expiryStr, 10);
-  if (isNaN(expiry) || Date.now() > expiry) return false;
+    const [randomPart, expiryStr, signature] = parts;
+    const expiry = parseInt(expiryStr, 10);
+    if (isNaN(expiry) || Date.now() > expiry) return false;
 
-  const payload = `${randomPart}.${expiryStr}`;
-  return verifyHmac(payload, signature, secret);
+    const payload = `${randomPart}.${expiryStr}`;
+    return await verifyHmac(payload, signature, secret);
+  } catch {
+    // 畸形 token（奇数 hex、超长等）导致 500，转为拒绝
+    return false;
+  }
 }
 
 export async function middleware(request: NextRequest) {

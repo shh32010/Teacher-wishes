@@ -64,6 +64,8 @@ export default function DisplayPage() {
         if (document.fullscreenElement) document.exitFullscreen();
         setIsFullscreen(false);
       }
+      // 无数据时避免 % 0 产生 NaN 索引
+      if (blessings.length === 0) return;
       if (e.key === 'ArrowRight') setCurrentIndex((p) => (p + 1) % blessings.length);
       if (e.key === 'ArrowLeft')
         setCurrentIndex((p) => (p - 1 + blessings.length) % blessings.length);

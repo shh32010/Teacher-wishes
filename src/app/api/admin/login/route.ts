@@ -4,7 +4,7 @@
 // ============================================================
 
 import { NextRequest, NextResponse } from 'next/server';
-import { randomBytes, createHmac } from 'crypto';
+import { randomBytes, createHmac, timingSafeEqual } from 'crypto';
 import { validateCsrfToken, csrfErrorResponse } from '@/lib/csrf';
 import { createAnonClient } from '@/lib/supabase/server';
 
@@ -46,7 +46,12 @@ export async function POST(request: NextRequest) {
 
     const { password } = await request.json();
 
-    if (!password || password !== ADMIN_PASSWORD) {
+    // 常量时间比较，防时序侧信道（长度不同先统一）
+    const pwdOk =
+      typeof password === 'string' &&
+      password.length === ADMIN_PASSWORD.length &&
+      timingSafeEqual(Buffer.from(password), Buffer.from(ADMIN_PASSWORD));
+    if (!pwdOk) {
       return NextResponse.json({ error: '密码错误' }, { status: 401 });
     }
 
