@@ -139,6 +139,20 @@ export default function BlessingForm({
   // 记录 widget id — 重复 render 会抛 "already rendered" 被吞导致二次提交无 token
   const turnstileWidgetRef = useRef<string | null>(null);
 
+  // 表单关闭时销毁 widget：AnimatePresence 卸载了容器 DOM，
+  // 旧 widget id 变为悬空引用，reset 旧 id 拿不到 token → 二次提交直接失败
+  useEffect(() => {
+    if (isOpen) return;
+    if (turnstileWidgetRef.current && typeof window !== 'undefined' && window.turnstile) {
+      try {
+        window.turnstile.remove(turnstileWidgetRef.current);
+      } catch {
+        /* 已销毁则忽略 */
+      }
+      turnstileWidgetRef.current = null;
+    }
+  }, [isOpen]);
+
   const getTurnstileToken = useCallback((): Promise<string> => {
     return new Promise((resolve) => {
       if (!TURNSTILE_SITE_KEY || typeof window === 'undefined' || !window.turnstile) {

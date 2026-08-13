@@ -10,6 +10,7 @@ interface TurnstileObject {
     }
   ) => string;
   reset: (widgetId: string) => void;
+  remove: (widgetId: string) => void;
 }
 
 declare global {
