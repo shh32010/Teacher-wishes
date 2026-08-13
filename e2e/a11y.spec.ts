@@ -73,12 +73,8 @@ test.describe('无障碍基础检查', () => {
   test('管理后台登录页表单可 accessibility 访问', async ({ page }) => {
     await page.goto('/admin/login');
 
-    // 邮箱输入框有 autocomplete 属性
-    const emailInput = page.getByPlaceholder('管理员邮箱');
-    await expect(emailInput).toHaveAttribute('autocomplete', 'email');
-
     // 密码输入框有 autocomplete 属性
-    const pwdInput = page.getByPlaceholder('密码');
+    const pwdInput = page.getByPlaceholder('管理员密码');
     await expect(pwdInput).toHaveAttribute('autocomplete', 'current-password');
   });
 });

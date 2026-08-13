@@ -13,24 +13,24 @@ test.describe('首页 (Homepage)', () => {
   });
 
   test('首页能正常加载，标题最终可见', async ({ page }) => {
-    // 等待标题动画完成（约 6 秒后标题出现）
-    const title = page.getByRole('heading', { name: '教师节快乐' });
+    // 标题文案含 emoji，用正则匹配
+    const title = page.getByRole('heading', { name: /教师节快乐/ });
     await expect(title).toBeVisible({ timeout: 10_000 });
-    await expect(title).toHaveText('教师节快乐');
+    await expect(title).toHaveText(/教师节快乐/);
   });
 
   test('副标题正常显示', async ({ page }) => {
-    const subtitle = page.getByText('致敬每一位引路人');
+    const subtitle = page.getByText('谢谢您，照亮了我们的未来');
     await expect(subtitle).toBeVisible({ timeout: 10_000 });
   });
 
   test('语录会逐渐出现', async ({ page }) => {
-    // 第一句语录 — 约 2~4 秒后可见
-    const quote1 = page.getByText('教育不是灌满一桶水，而是点燃一把火。');
+    // 第一句语录
+    const quote1 = page.getByText('一支粉笔，两袖清风。');
     await expect(quote1).toBeVisible({ timeout: 8_000 });
 
     // 第二句语录
-    const quote2 = page.getByText('一支粉笔，两袖清风，三尺讲台，四季晴雨。');
+    const quote2 = page.getByText('三尺讲台，四季耕耘。');
     await expect(quote2).toBeVisible({ timeout: 8_000 });
   });
 

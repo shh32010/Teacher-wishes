@@ -22,11 +22,10 @@ test.describe('管理后台 — 登录页', () => {
     await page.goto('/admin/login');
 
     // 登录表单标题
-    await expect(page.getByRole('heading', { name: '🔐 管理员登录' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: '管理员登录' })).toBeVisible();
 
-    // 邮箱和密码输入框存在
-    await expect(page.getByPlaceholder('管理员邮箱')).toBeVisible();
-    await expect(page.getByPlaceholder('密码')).toBeVisible();
+    // 密码输入框存在
+    await expect(page.getByPlaceholder('管理员密码')).toBeVisible();
 
     // 登录按钮存在
     await expect(page.getByRole('button', { name: '登录' })).toBeVisible();
@@ -38,40 +37,27 @@ test.describe('管理后台 — 登录页', () => {
     // 不填写直接提交
     await page.getByRole('button', { name: '登录' }).click();
 
-    // 应显示"请输入邮箱和密码"
-    await expect(page.getByText('请输入邮箱和密码')).toBeVisible({ timeout: 3_000 });
+    // 应显示"请输入密码"
+    await expect(page.getByText('请输入密码')).toBeVisible({ timeout: 3_000 });
   });
 
-  test('登录页表单校验 — 仅填邮箱不填密码', async ({ page }) => {
+  test('登录页 — 输入错误密码后的错误处理', async ({ page }) => {
     await page.goto('/admin/login');
 
-    await page.fill('input[type="email"]', 'admin@teacher.com');
-    await page.getByRole('button', { name: '登录' }).click();
-
-    await expect(page.getByText('请输入邮箱和密码')).toBeVisible({ timeout: 3_000 });
-  });
-
-  test('登录页 — 输入错误凭据后的错误处理', async ({ page }) => {
-    await page.goto('/admin/login');
-
-    // Mock Supabase Auth 调用的失败响应
-    await page.route('**/auth/v1/token?grant_type=password', async (route) => {
+    // Mock /api/admin/login 失败响应
+    await page.route('**/api/admin/login', async (route) => {
       await route.fulfill({
-        status: 400,
+        status: 401,
         contentType: 'application/json',
-        body: JSON.stringify({
-          error: 'invalid_grant',
-          error_description: 'Invalid login credentials',
-        }),
+        body: JSON.stringify({ error: '密码错误' }),
       });
     });
 
-    await page.fill('input[type="email"]', 'wrong@email.com');
     await page.fill('input[type="password"]', 'wrong-password');
     await page.getByRole('button', { name: '登录' }).click();
 
-    // 应显示 "邮箱或密码错误"
-    await expect(page.getByText('邮箱或密码错误')).toBeVisible({ timeout: 5_000 });
+    // 应显示 "密码错误"
+    await expect(page.getByText('密码错误')).toBeVisible({ timeout: 5_000 });
   });
 });
 
@@ -127,31 +113,25 @@ test.describe('管理后台 — 审核管理（Mock 登录状态）', () => {
   test('管理员登录页 → 提交有效凭据后跳转', async ({ page }) => {
     await page.goto('/admin/login');
 
-    // Mock Supabase Auth 成功响应
-    await page.route('**/auth/v1/token?grant_type=password', async (route) => {
+    // Mock /api/admin/login 成功响应（设置 admin_token cookie）
+    await page.route('**/api/admin/login', async (route) => {
       await route.fulfill({
         status: 200,
         contentType: 'application/json',
-        body: JSON.stringify({
-          access_token: 'mock-access-token',
-          refresh_token: 'mock-refresh-token',
-          user: {
-            id: 'mock-admin-id',
-            email: 'admin@teacher.com',
-          },
-        }),
+        headers: {
+          'set-cookie': 'admin_token=test.9999999999.dummysig; Path=/; HttpOnly; SameSite=Lax',
+        },
+        body: JSON.stringify({ success: true }),
       });
     });
 
-    await page.fill('input[type="email"]', 'admin@teacher.com');
-    await page.fill('input[type="password"]', 'Teacher2026!');
+    await page.fill('input[type="password"]', 'admin123');
     await page.getByRole('button', { name: '登录' }).click();
 
     // 登录成功后应该跳转到 /admin
-    // 由于中间件需要真实 session，可能会再次重定向
+    // 由于中间件验签需要真实密钥，mock cookie 会被拒并重定向回登录页
     // 这里验证不会卡在登录页报错状态
     await page.waitForTimeout(3000);
-    // 页面不应显示网络错误
     const networkError = page.getByText('网络错误');
     await expect(networkError).not.toBeVisible();
   });

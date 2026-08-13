@@ -81,10 +81,10 @@ test.describe('祝福墙 & 祝福提交', () => {
   test('表单弹窗可关闭', async ({ page }) => {
     await page.goto('/wall');
 
-    // 使用 header 中的 "写祝福" 按钮
-    const writeBtn = page.getByRole('button', { name: '✏️ 写祝福' });
+    // 使用底部浮动 "送出祝福" 按钮（animate-breathe 导致不稳定，用 force 跳过）
+    const writeBtn = page.getByRole('button', { name: '✨ 送出祝福' });
     await writeBtn.waitFor({ state: 'visible', timeout: 5_000 });
-    await writeBtn.click();
+    await writeBtn.click({ force: true });
 
     const dialog = page.getByRole('dialog', { name: '写下祝福' });
     await expect(dialog).toBeVisible();
