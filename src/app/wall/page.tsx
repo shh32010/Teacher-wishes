@@ -226,27 +226,29 @@ export default function WallPage() {
     <main className="min-h-screen pb-28 overflow-x-hidden">
       {showConfetti && <ConfettiTrigger />}
 
-      {/* 提交成功提示 — 手动关闭（8s 后自动消失作为兜底） */}
+      {/* 提交成功提示 — 屏幕居中（外层 flex 定位，内层动画不与 transform 冲突） */}
       {showSuccess && (
-        <motion.div
-          initial={{ opacity: 0, y: -20, scale: 0.9 }}
-          animate={{ opacity: 1, y: 0, scale: 1 }}
-          exit={{ opacity: 0, y: -10 }}
-          className="fixed left-1/2 top-1/2 z-50 -translate-x-1/2 -translate-y-1/2"
-        >
-          <div className="glass rounded-2xl px-8 py-5 text-center shadow-lg">
-            <p className="text-lg font-bold text-[var(--color-primary)]">✨ 祝福已送达！</p>
-            <p className="mt-1 text-sm text-[var(--text-secondary)]">
-              已进入审核队列，审核通过后会出现在祝福墙
-            </p>
-            <button
-              onClick={() => setShowSuccess(false)}
-              className="mt-3 rounded-xl bg-[var(--color-primary)] px-6 py-1.5 text-sm text-white transition-colors hover:bg-[var(--color-primary-hover)]"
-            >
-              知道了
-            </button>
-          </div>
-        </motion.div>
+        <div className="pointer-events-none fixed inset-0 z-50 flex items-center justify-center">
+          <motion.div
+            initial={{ opacity: 0, y: -20, scale: 0.9 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -10 }}
+            className="pointer-events-auto"
+          >
+            <div className="glass rounded-2xl px-8 py-5 text-center shadow-lg">
+              <p className="text-lg font-bold text-[var(--color-primary)]">✨ 祝福已送达！</p>
+              <p className="mt-1 text-sm text-[var(--text-secondary)]">
+                已进入审核队列，审核通过后会出现在祝福墙
+              </p>
+              <button
+                onClick={() => setShowSuccess(false)}
+                className="mt-3 rounded-xl bg-[var(--color-primary)] px-6 py-1.5 text-sm text-white transition-colors hover:bg-[var(--color-primary-hover)]"
+              >
+                知道了
+              </button>
+            </div>
+          </motion.div>
+        </div>
       )}
 
       {/* 顶部导航 */}
