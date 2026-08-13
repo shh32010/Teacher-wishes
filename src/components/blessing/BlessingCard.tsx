@@ -78,17 +78,23 @@ export default function BlessingCard({ blessing, index = 0, onLike }: BlessingCa
     }
   };
 
+  // 仅首批卡片做入场动画（千条级数据下避免 Motion 动画开销过大）
+  const animateEntrance = index < 30;
+
   return (
     <motion.div
-      initial={{ opacity: 0, y: 30 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{
-        duration: 0.5,
-        // 页内索引封顶：全局索引随分页增长，300+ 条时延迟会达 24s+
-        delay: Math.min(index % 30, 15) * 0.08,
-        ease: 'easeOut',
-        layout: { duration: 0.4, ease: 'easeInOut' },
-      }}
+      initial={animateEntrance ? { opacity: 0, y: 30 } : false}
+      animate={animateEntrance ? { opacity: 1, y: 0 } : undefined}
+      transition={
+        animateEntrance
+          ? {
+              duration: 0.5,
+              // 页内索引封顶：全局索引随分页增长，300+ 条时延迟会达 24s+
+              delay: Math.min(index % 30, 15) * 0.08,
+              ease: 'easeOut',
+            }
+          : undefined
+      }
     >
       <GlassCard
         className={`relative flex flex-col gap-2 p-4 md:p-6 ${

@@ -25,7 +25,7 @@ const ConfettiTrigger = dynamic(() => import('@/components/blessing/ConfettiTrig
 });
 
 const PAGE_SIZE = 30;
-const MAX_ITEMS = 360; // 每次60条，最多6批，覆盖357条全部祝福
+const MAX_ITEMS = Number.MAX_SAFE_INTEGER; // 不设上限，全部祝福可浏览
 type SortMode = 'time' | 'likes';
 
 const fetcher = async (url: string) => {
