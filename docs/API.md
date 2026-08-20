@@ -239,6 +239,25 @@
 
 ---
 
+### `GET /api/csrf`
+
+获取 CSRF 令牌（Double Submit Cookie 模式）。
+
+**响应:**
+
+```json
+{
+  "csrf_token": "随机token字符串"
+}
+```
+
+**说明:**
+- 服务端生成随机 token → 设置为 `httpOnly=false` Cookie → 前端从响应体取 token
+- 后续 POST/PATCH 请求需在 Header 中携带 `X-CSRF-Token`，服务端比对 Cookie 与 Header 一致
+- 令牌缓存：`getCsrfToken()` 会缓存 token，避免重复请求
+
+---
+
 ## 🔒 管理后台 API（需登录）
 
 所有 `/api/admin/*` 路由通过双重鉴权保护：**Supabase Auth session**（主方案）或 **admin_token HMAC 签名 cookie**（后备方案），中间件 (`middleware.ts`) 同时验证两种方式，任一通过即可访问。未认证重定向至 `/admin/login`。

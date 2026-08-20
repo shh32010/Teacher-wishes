@@ -1,6 +1,6 @@
 # 🎨 视觉重构方案 v2.0 — 从深色科技风到暖色教师节
 
-**版本**：v1.1 | **日期**：2026-08-08 | **状态**：Phase 0-6 ✅ → Phase 7 收尾中 → Phase 8 待开始
+**版本**：v1.2 | **日期**：2026-08-11 | **状态**：Phase 0-7 ✅ → Phase 8 待开始
 
 ---
 
@@ -193,8 +193,8 @@ Roboto, "Noto Sans SC", sans-serif
 
 | 约束项 | 限制 |
 | :--- | :--- |
-| FallingPetals Desktop | 12-20 个 DOM 元素 |
-| FallingPetals Mobile | 6-10 个 DOM 元素 |
+| FallingPetals Desktop | 20 个 DOM 元素 |
+| FallingPetals Mobile | 10 个 DOM 元素 |
 | tsParticles 粒子数 | 与花瓣总数协调，两者叠加 ≤ 80 个粒子 |
 | 动画属性 | 仅使用 `transform` + `opacity`，禁 `top/left` |
 | `pointer-events` | 所有装饰性元素设为 `none` |

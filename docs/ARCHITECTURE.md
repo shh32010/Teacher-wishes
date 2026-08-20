@@ -15,7 +15,7 @@
 | **存储** | Supabase Storage（教师头像） |
 | **认证** | Supabase Auth（邮箱密码） |
 | **部署** | Vercel + Cloudflare DNS 代理 |
-| **测试** | Vitest + @testing-library/react |
+| **测试** | Vitest + Playwright E2E + k6 负载测试 |
 
 ---
 
@@ -62,7 +62,9 @@
 │   ├── lib/
 │   │   ├── supabase/              # Supabase 客户端封装
 │   │   │   ├── client.ts          # 浏览器端（含 Realtime）
-│   │   │   └── server.ts          # 服务端（含 Admin）
+│   │   │   └── server.ts          # 服务端（含 Admin + Anon）
+│   │   ├── csrf.ts                # CSRF 令牌生成（Double Submit Cookie）
+│   │   ├── csrf-client.ts         # 客户端 CSRF 工具（缓存 + 获取）
 │   │   └── utils.ts               # 工具函数
 │   ├── hooks/
 │   │   ├── useInfiniteScroll.ts   # 无限滚动 Hook
@@ -77,6 +79,16 @@
 │   │   ├── api-types.test.ts      # API 类型守卫测试
 │   │   ├── GlassCard.test.tsx     # GlassCard 组件测试
 │   │   └── BlessingCard.test.tsx  # BlessingCard 组件测试
+├── e2e/                           # Playwright E2E 测试
+│   ├── homepage.spec.ts           # 首页测试
+│   ├── blessing.spec.ts           # 祝福墙测试
+│   ├── admin.spec.ts              # 管理后台测试
+│   ├── teacher.spec.ts            # 教师页测试
+│   └── a11y.spec.ts               # 无障碍测试
+├── load-tests/                    # k6 负载测试
+│   ├── smoke.js                   # 冒烟测试
+│   ├── load.js                    # 负载测试
+│   └── stress.js                  # 压力测试
 │   └── middleware.ts              # Admin 路由鉴权中间件
 ├── database/
 │   └── migrations/                # SQL 迁移脚本
@@ -127,7 +139,7 @@ erDiagram
     }
 
     events {
-        uuid id PK "活动唯一标识"
+        uuid id PK "活动唯一标识（预留）"
         text name "活动名称"
         jsonb theme_config "主题配置"
         timestamptz start_time "开始时间"
@@ -154,7 +166,7 @@ flowchart TB
     end
 
     subgraph Next["⚡ Next.js 14"]
-        Middleware["Middleware Auth"]
+        Middleware["Middleware Auth\n⚠️ 使用 @supabase/ssr\n非 src/lib/supabase/server.ts"]
         API["Route Handlers"]
         SSR["Server Components"]
     end
@@ -251,6 +263,7 @@ sequenceDiagram
 | 层 | 机制 |
 | :--- | :--- |
 | **传输** | HTTPS (Vercel + Cloudflare) |
+| **CSRF** | Double Submit Cookie 模式 — GET `/api/csrf` 生成随机 token → Cookie + 响应体 → 前端 POST/PATCH 携带 `X-CSRF-Token` → 服务端比对 |
 | **数据库** | RLS — 公开 SELECT 仅看 `approved`，INSERT 默认 `pending` |
 | **点赞** | `SECURITY DEFINER` RPC 绕过 RLS |
 | **管理 API** | Supabase Auth session（主）+ admin_token HMAC 签名 cookie（后备），Middleware 双重鉴权 |

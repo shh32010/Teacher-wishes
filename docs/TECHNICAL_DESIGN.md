@@ -206,7 +206,7 @@ $$ LANGUAGE plpgsql SECURITY DEFINER;
 | GET | `/api/blessings` | 无 | s-maxage=5s | 分页祝福列表，支持 sort/time/likes |
 | POST | `/api/blessings` | CSRF | 无 | 提交祝福，IP 限流 3/10min |
 | POST | `/api/blessings/[id]/like` | CSRF | 无 | 点赞（RPC 原子递增） |
-| GET | `/api/blessings/stats` | 无 | s-maxage=30s | 统计数据看板 |
+| GET | `/api/blessings/stats` | 无 | s-maxage=10s, stale-while-revalidate=59 | 统计数据看板 |
 | GET | `/api/teachers` | 无 | s-maxage=60s | 教师列表 |
 | GET | `/api/teachers/[id]` | 无 | s-maxage=60s | 教师详情 + 祝福 |
 | GET | `/api/admin/blessings` | Auth | 无 | 管理后台祝福列表 |
@@ -595,7 +595,7 @@ NEXT_PUBLIC_SENTRY_DSN ← 可选
          │ ~10  │  验证逻辑 + 状态机
          ├──────┤
          │ 单元  │  Vitest · 83 用例
-         │ 83   │  utils + 组件 + hooks
+         │ 83   │  utils + 组件 + hooks + 验证逻辑
          └──────┘
               ↑
          ┌──────┐
