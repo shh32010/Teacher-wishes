@@ -274,7 +274,7 @@ export default function BlessingForm({
                     value={nickname}
                     onChange={(e) => setNickname(e.target.value)}
                     maxLength={20}
-                    placeholder="小明"
+                    placeholder="浩浩"
                     className="input-glass"
                   />
                 </div>
