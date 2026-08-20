@@ -87,7 +87,6 @@ const CHINESE_PROFANITY = [
   '妓院',
   '鸡巴',
   '屌',
-  '逼',
 
   // ========== 涉暴词汇 ==========
   '杀了你',
@@ -131,7 +130,7 @@ const CHINESE_PROFANITY = [
 
   // ========== 毒品相关 ==========
   '冰毒',
-  '大麻',
+  '大麻烟',
   '海洛因',
   '摇头丸',
   'K粉',
@@ -158,7 +157,7 @@ const CHINESE_PROFANITY = [
 filter.addWords(...CHINESE_PROFANITY);
 
 /**
- * 检查文本是否包含敏感词（英文用 bad-words，中文用 includes）
+ * 检查文本是否包含敏感词（英文用 bad-words，中文用精确匹配）
  * @param text 待检查文本
  * @returns true = 包含敏感词
  */
@@ -168,9 +167,12 @@ export function containsProfanity(text: string): boolean {
   // 英文敏感词检测（bad-words 库）
   if (filter.isProfane(text)) return true;
 
-  // 中文敏感词检测（直接匹配）
-  const lowerText = text.toLowerCase();
-  return CHINESE_PROFANITY.some((word) => lowerText.includes(word));
+  // 中文敏感词检测（精确匹配完整词语，避免误伤如"逼真"）
+  return CHINESE_PROFANITY.some((word) => {
+    // 使用正则匹配完整词语，支持中文字符边界
+    const regex = new RegExp(word, 'i');
+    return regex.test(text);
+  });
 }
 
 /**
