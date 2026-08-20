@@ -4,6 +4,41 @@ All notable changes to Teacher Wishes Platform will be documented in this file.
 
 ---
 
+## [1.3.2] — 2026-08-20
+
+### 🔒 安全收口
+
+- 🔴 **Migration 重编号**：004→005~008，新增 009 权限收口
+- 🔴 **cleanup_rate_limits 权限最小化**：仅 service_role 可调用
+- 🔴 **blessing_likes 禁止匿名 INSERT**：防止直接写入绕过 API
+- 🔴 **increment_likes 仅 service_role**：API 路由作为唯一入口
+- 🔴 **client IP 统一**：`getClientIp()` 函数，优先 `x-vercel-forwarded-for`
+- 🔴 **Turnstile 生产 fail-closed**：未配置时返回 503
+- 🔴 **Admin requireAdmin 二次鉴权**：每个管理 API 路由内验签
+- 🔴 **CSRF 全环境强制**：开发/测试/生产统一要求，Cookie 缺失返回 403
+
+### 🧪 测试
+
+- ✅ **Playwright CI**：GitHub Actions 自动运行 E2E 测试
+- ✅ **安全回归测试**：`database/security-check.mjs` 验证权限配置
+
+### 📚 文档重构
+
+- ✅ **CLAUDE.md 重写**：反映当前架构（admin_token + requireAdmin + CSRF 全环境）
+- ✅ **docs/SECURITY.md 新增**：安全模型唯一真相
+- ✅ **docs/OPERATIONS.md 新增**：运维部署指南
+- ✅ **docs/ARCHITECTURE.md 更新**：删除旧 Auth 架构，更新权限矩阵
+- ✅ **docs/API.md 更新**：管理认证、Turnstile、IP 获取说明修正
+- ✅ **历史文档归档**：TECHNICAL_DESIGN、ARCHITECTURE_REVIEW、VISUAL_REDESIGN 移至 `docs/archive/`
+- ✅ **版本统一**：README、PROGRESS、CHANGELOG 统一到 v1.3.2
+
+### 🔧 其他
+
+- ✅ **load-tests/README.md 修正**：CSRF 说明更新为全环境强制
+- ✅ **安全模型文档化**：RLS 权限矩阵、认证流程、CSRF 机制完整记录
+
+---
+
 ## [1.3.1] — 2026-08-11
 
 ### 🐛 祝福墙性能修复（请求风暴根治）

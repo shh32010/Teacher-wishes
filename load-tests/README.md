@@ -118,7 +118,7 @@ k6 run load-tests/stress.js
 
 1. **速率限制**：POST `/api/blessings` 有 IP 频率限制（每10分钟3条）。负载测试中，同一台机器的所有 VU 共享 IP，POST 请求会很快触发限流（返回 429）。脚本已将 429 视为预期行为。
 
-2. **CSRF**：项目的 CSRF 保护采用向后兼容策略 -- 如果请求未携带 `csrf_token` Cookie，则跳过验证。k6 测试默认不携带该 Cookie，因此 POST 请求不会被 CSRF 拦截。
+2. **CSRF**：项目在所有环境（开发/测试/生产）统一强制 CSRF 验证。k6 测试默认不携带 `csrf_token` Cookie，POST 请求会被 CSRF 拦截（返回 403）。因此当前负载测试仅测试 GET 端点，POST 端点需要单独处理 CSRF token。
 
 3. **本地 vs 生产**：本地运行 `next dev` 是开发服务器（单线程），性能指标不代表生产环境。建议在 `next start`（生产构建）或 Vercel 部署上运行负载测试。
 

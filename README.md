@@ -7,7 +7,7 @@
 <p align="center">
   <a href="https://github.com/shh32010/Teacher-wishes/actions"><img src="https://github.com/shh32010/Teacher-wishes/actions/workflows/ci.yml/badge.svg" alt="Build"></a>
   <a href="./LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="License"></a>
-  <a href="./PROGRESS.md"><img src="https://img.shields.io/badge/progress-93%25-success" alt="Progress"></a>
+  <a href="./PROGRESS.md"><img src="https://img.shields.io/badge/progress-94%25-success" alt="Progress"></a>
   <a href="https://nextjs.org"><img src="https://img.shields.io/badge/Next.js-14-black" alt="Next.js 14"></a>
   <a href="https://supabase.com"><img src="https://img.shields.io/badge/Supabase-backend-3ecf8e" alt="Supabase"></a>
   <img src="https://img.shields.io/badge/tests-83%20unit%20%7C%2025%20E2E%20%7C%20k6%20load-8b5cf6" alt="Tests">
@@ -57,7 +57,7 @@
 - 📺 **大屏模式** — `/display` 全屏自动轮播 + QR 码，适用于活动现场投影
 - 🔐 **管理后台** — 审核 / 置顶 / 精选 / 拒绝 + 教师头像上传 + 数据统计看板
 - 🔒 **点赞唯一性** — `blessing_likes` 表 + IP UNIQUE 约束 + RPC 原子递增 + 乐观回滚
-- 🛡️ **安全防护** — Supabase Auth 鉴权 + Middleware + CSRF Token + IP 限流 + RLS + Turnstile
+- 🛡️ **安全防护** — admin_token HMAC 鉴权 + CSRF 全环境强制 + IP 限流 + RLS + Turnstile
 - ♿ **无障碍** — focus-visible 焦点环 + aria-label/role + 弹窗焦点陷阱 + WCAG AA 对比度
 - 📊 **监控** — Vercel Analytics 页面统计 + Sentry 错误追踪（DSN 可选激活）
 
@@ -169,30 +169,34 @@ docs/                         # ARCHITECTURE / API / CAPACITY
 
 | 文档 | 说明 |
 | :--- | :--- |
-| [PROGRESS.md](./PROGRESS.md) | 开发进度追踪 |
-| [CHANGELOG.md](./CHANGELOG.md) | v1.3.2 发布日志 |
-| [docs/VISUAL_REDESIGN.md](./docs/VISUAL_REDESIGN.md) | 视觉重构 v2.0 方案 |
-| [CLAUDE.md](./CLAUDE.md) | AI 协作指南 |
-| [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md) | 架构图 + ER 图 + 数据流 |
-| [docs/API.md](./docs/API.md) | API 端点文档 |
-| [docs/CAPACITY.md](./docs/CAPACITY.md) | 容量评估 + 扩容指南 |
-| [docs/ARCHITECTURE_REVIEW.md](./docs/ARCHITECTURE_REVIEW.md) | 全栈深度架构审查 |
-| [docs/TECHNICAL_DESIGN.md](./docs/TECHNICAL_DESIGN.md) | 技术设计文档 |
+| [CLAUDE.md](./CLAUDE.md) | AI 代码修改指南（当前架构真相） |
+| [PROGRESS.md](./PROGRESS.md) | 当前项目状态和任务进度 |
+| [CHANGELOG.md](./CHANGELOG.md) | 版本发布历史 |
+| [docs/ARCHITECTURE.md](./docs/ARCHITECTURE.md) | 当前系统架构（唯一真相） |
+| [docs/API.md](./docs/API.md) | API 端点文档（唯一真相） |
+| [docs/SECURITY.md](./docs/SECURITY.md) | 安全模型文档（唯一真相） |
+| [docs/OPERATIONS.md](./docs/OPERATIONS.md) | 运维部署指南 |
+| [docs/CAPACITY.md](./docs/CAPACITY.md) | 容量评估和压测结果 |
+
+**历史文档**（归档）：
+- [docs/archive/TECHNICAL_DESIGN_v1.1.0.md](./docs/archive/TECHNICAL_DESIGN_v1.1.0.md) — v1.1.0 技术设计
+- [docs/archive/ARCHITECTURE_REVIEW_2026-08-07.md](./docs/archive/ARCHITECTURE_REVIEW_2026-08-07.md) — 2026-08-07 架构审查
+- [docs/archive/VISUAL_REDESIGN_v2.0.md](./docs/archive/VISUAL_REDESIGN_v2.0.md) — 视觉重构方案
 
 ---
 
 ## 🔮 已发布 / 后续计划
 
-### ✅ v1.2.0 已发布
+### ✅ v1.3.2 已发布
 
-- [x] Design Token 体系 — CSS 自定义属性驱动的视觉设计系统
-- [x] 温暖夜间模式 + 三态切换 — `prefers-color-scheme: dark` 深蓝紫 + 暗金 + ThemeToggle (☀️/🌙/🖥)
-- [x] 字体本地化 — 霞鹜文楷零 CDN 依赖，`preload: false` 渐进加载
+- [x] 安全收口 — migration 重编号 + 权限最小化 + CSRF 全环境 + requireAdmin 二次鉴权
+- [x] 文档重构 — 6 份核心文档 + 3 份归档，单一真相源
+- [x] CI/CD — Playwright E2E + 安全回归测试
 
 ### 📋 待完成
 - [ ] 敏感词过滤（`bad-words` 已安装，服务端逻辑待接入）🔴
 - [ ] 后台添加教师 UI — 目前需通过 Supabase SQL / 表编辑器手动插入 🔴
-- [ ] 移动端真机走查 + 截图更新 + Lighthouse 审计 🔴
+- [ ] 移动端真机走查 + Lighthouse 审计 🔴
 - [ ] 移动端 PWA — 独立应用体验
 - [ ] 多活动模板 — 毕业季 / 校庆快速复用
 

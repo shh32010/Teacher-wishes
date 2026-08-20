@@ -1,5 +1,8 @@
 # 📐 TECHNICAL_DESIGN.md — 教师节祝福平台 技术设计文档
 
+> ⚠️ **历史文档** — 本文档描述 v1.1.0 版本的技术设计，不代表当前 master 状态。
+> 当前架构请参考 [`docs/ARCHITECTURE.md`](../ARCHITECTURE.md) 和 [`docs/SECURITY.md`](../SECURITY.md)。
+>
 > 版本：v1.1.0 | 日期：2026-08-07 | 作者：Teacher Wishes Team
 
 ---

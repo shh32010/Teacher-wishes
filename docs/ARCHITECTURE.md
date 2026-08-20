@@ -13,7 +13,7 @@
 | **后端 API** | Next.js Route Handlers |
 | **数据库** | Supabase PostgreSQL + RLS + Realtime |
 | **存储** | Supabase Storage（教师头像） |
-| **认证** | Supabase Auth（邮箱密码） |
+| **认证** | Admin: admin_token HMAC (Supabase Auth 不参与) |
 | **部署** | Vercel + Cloudflare DNS 代理 |
 | **测试** | Vitest + Playwright E2E + k6 负载测试 |
 
@@ -42,8 +42,7 @@
 │   │   │   ├── BlessingGalaxy.tsx # 祝福星河（斐波那契螺旋）
 │   │   │   ├── StatsPanel.tsx     # 数据看板
 │   │   │   ├── CountUp.tsx        # 数字滚动动画
-│   │   │   ├── FallingPetals.tsx  # 花瓣飘落动画
-│   │   │   └── TeacherTeam.tsx    # 教师天体展示
+│   │   │   └── FallingPetals.tsx  # 花瓣飘落动画
 │   │   ├── blessing/              # 祝福相关组件
 │   │   │   ├── BlessingCard.tsx   # 祝福卡片（点赞）
 │   │   │   ├── BlessingForm.tsx   # 提交表单（弹窗）
@@ -166,8 +165,8 @@ flowchart TB
     end
 
     subgraph Next["⚡ Next.js 14"]
-        Middleware["Middleware Auth\n⚠️ 使用 @supabase/ssr\n非 src/lib/supabase/server.ts"]
-        API["Route Handlers"]
+        Middleware["Middleware\nadmin_token 验签"]
+        API["Route Handlers\nrequireAdmin() 二次验签"]
         SSR["Server Components"]
     end
 
@@ -177,7 +176,6 @@ flowchart TB
         RPC["RPC 函数"]
         RT["Realtime WebSocket"]
         Storage["Storage 头像"]
-        Auth["Auth 登录"]
     end
 
     subgraph CDN["🌐 部署层"]
@@ -189,8 +187,7 @@ flowchart TB
     CF --> Vercel
     Vercel --> Next
     Next --> Middleware
-    Middleware -->|Admin 路由| Auth
-    Middleware -->|Admin 路由| Token["admin_token HMAC"]
+    Middleware -->|Admin 路由| Token["admin_token HMAC 验签"]
     Middleware -->|通过| API
     API --> PG
     API --> Storage
@@ -266,7 +263,7 @@ sequenceDiagram
 | **CSRF** | Double Submit Cookie 模式 — GET `/api/csrf` 生成随机 token → Cookie + 响应体 → 前端 POST/PATCH 携带 `X-CSRF-Token` → 服务端比对 |
 | **数据库** | RLS — 公开 SELECT 仅看 `approved`，INSERT 默认 `pending` |
 | **点赞** | `SECURITY DEFINER` RPC 绕过 RLS |
-| **管理 API** | Supabase Auth session（主）+ admin_token HMAC 签名 cookie（后备），Middleware 双重鉴权 |
+| **管理 API** | admin_token HMAC 签名 cookie + Middleware 验签 + requireAdmin() 二次验签（Supabase Auth 不参与） |
 | **上传** | service_role key，仅服务端使用 |
 | **限流** | `check_rate_limit` RPC：提交 3次/10分钟/IP、点赞 20次/分钟/IP、管理员登录 5次/分钟/IP |
 | **人机验证** | Cloudflare Turnstile（可选，配置密钥后激活） |

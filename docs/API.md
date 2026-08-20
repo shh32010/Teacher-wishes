@@ -105,7 +105,7 @@
   "class": "高一(3)班 (可选, 最长30字)",
   "content": "祝福内容 (必填, 最长500字)",
   "is_anonymous": false,
-  "turnstile_token": "cf-turnstile-token (可选, 配置后必填)"
+  "turnstile_token": "cf-turnstile-token (生产环境必填)"
 }
 ```
 
@@ -124,7 +124,7 @@
 | :--- | :--- |
 | content 为空/纯空格 | `祝福内容不能为空` |
 | content > 500 字 | `祝福内容不能超过500字` |
-| Turnstile 验证失败 | `人机验证失败，请刷新重试` |
+| Turnstile 验证失败 | `人机验证失败，请刷新重试`（生产环境返回 503） |
 | 速率超限 | `发送太频繁，请10分钟后再试` |
 
 ---
@@ -152,7 +152,7 @@
 }
 ```
 
-> 🔒 服务端通过 `blessing_likes` 表 + `UNIQUE(blessing_id, ip_address)` 约束保证点赞唯一性。客户端 IP 从 `x-forwarded-for` / `x-real-ip` 头提取，Vercel 部署环境由可信代理设置。前端 `localStorage` 仅作乐观 UI 辅助，真正防重复的是服务端 IP 约束。
+> 🔒 服务端通过 `blessing_likes` 表 + `UNIQUE(blessing_id, ip_address)` 约束保证点赞唯一性。客户端 IP 通过 `getClientIp()` 函数获取，优先级：`x-vercel-forwarded-for`（Vercel 可信代理）→ `x-forwarded-for` → `x-real-ip` → `unknown`。前端 `localStorage` 仅作乐观 UI 辅助，真正防重复的是服务端 IP 约束。
 
 **速率限制:** 每 IP 每分钟 20 次点赞，超限返回 429。
 
@@ -260,7 +260,15 @@
 
 ## 🔒 管理后台 API（需登录）
 
-所有 `/api/admin/*` 路由通过双重鉴权保护：**Supabase Auth session**（主方案）或 **admin_token HMAC 签名 cookie**（后备方案），中间件 (`middleware.ts`) 同时验证两种方式，任一通过即可访问。未认证重定向至 `/admin/login`。
+所有 `/api/admin/*` 路由通过以下机制保护：
+
+1. **中间件验签**：`middleware.ts` 验证 `admin_token` Cookie（HMAC-SHA256 签名）
+2. **路由内二次验签**：每个管理 API 路由调用 `requireAdmin()` 函数二次验证
+3. **CSRF 防护**：POST/PATCH/DELETE 请求必须携带有效 CSRF token
+
+未认证请求返回 401，CSRF 验证失败返回 403。
+
+**注意**：Supabase Auth **不参与**管理后台授权，管理员认证完全基于 `admin_token` HMAC 签名机制。
 
 ### `GET /api/admin/blessings`
 
