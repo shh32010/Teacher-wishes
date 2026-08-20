@@ -21,10 +21,10 @@
 | 管理后台批量删除 | ✅ | DELETE /api/admin/blessings + 确认弹窗 |
 
 **当前剩余**：
-- [ ] 移动端真机验证（iPhone Safari / Android Chrome）
+- [x] 移动端真机验证 ✅
 - [ ] 敏感词过滤（bad-words 已安装待接入）
-- [ ] 大屏长时间稳定性测试
-- [ ] Lighthouse 最终审计
+- [ ] 大屏长时间稳定性测试（脚本已创建：`load-tests/display-stability.js`）
+- [ ] Lighthouse 最终审计（需在浏览器中手动运行）
 
 ---
 
