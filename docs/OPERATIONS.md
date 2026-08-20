@@ -44,7 +44,7 @@ Cloudflare (DNS 代理)
 | `NEXT_PUBLIC_TURNSTILE_SITE_KEY` | Turnstile 站点 key | Vercel + 本地 |
 | `TURNSTILE_SECRET_KEY` | Turnstile 密钥 | Vercel + 本地 |
 
-> ⚠️ **生产环境必须配置 Turnstile**，否则 `POST /api/blessings` 将降级到仅 IP 限流保护。开发环境可不配置。
+> ⚠️ **生产环境必须配置 Turnstile**，否则 `POST /api/blessings` 将返回 503（fail-closed）。开发环境可不配置。
 
 ### 可选变量
 
