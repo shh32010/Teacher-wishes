@@ -278,9 +278,11 @@ SUPABASE_SERVICE_ROLE_KEY=          # service_role key，仅服务端
 ADMIN_PASSWORD=                     # 管理员登录密码
 ADMIN_TOKEN_SECRET=                 # admin_token 签名密钥（生产强制）
 
+# 生产必填：Turnstile
+NEXT_PUBLIC_TURNSTILE_SITE_KEY=     # Cloudflare Turnstile 站点 key
+TURNSTILE_SECRET_KEY=               # Turnstile 密钥（未配置返回 503）
+
 # 可选
-NEXT_PUBLIC_TURNSTILE_SITE_KEY=     # Cloudflare Turnstile 站点 key（生产必填）
-TURNSTILE_SECRET_KEY=               # Turnstile 密钥（生产必填，未配置返回 503）
 CRON_SECRET=                        # Cron 任务鉴权密钥
 NEXT_PUBLIC_SENTRY_DSN=             # Sentry DSN
 SENTRY_DSN=                         # Sentry 服务端 DSN
