@@ -194,7 +194,7 @@ docs/                         # ARCHITECTURE / API / CAPACITY
 - [x] 验收通过 — 移动端真机 + 大屏稳定性 + Lighthouse + Vercel 部署
 
 ### 📋 后续可选
-- [ ] 敏感词过滤（`bad-words` 已安装，服务端逻辑待接入）
+- [x] 敏感词过滤 ✅（中英文，bad-words + 自定义词库）
 - [ ] 后台添加教师 UI — 目前需通过 Supabase SQL / 表编辑器手动插入
 - [ ] 移动端 PWA — 独立应用体验
 - [ ] 多活动模板 — 毕业季 / 校庆快速复用

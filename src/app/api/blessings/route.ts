@@ -102,6 +102,12 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: '班级不能超过30字' }, { status: 400 });
     }
 
+    // 敏感词过滤（中英文）
+    const { containsProfanity } = await import('@/lib/profanity');
+    if (containsProfanity(trimmedContent) || containsProfanity(trimmedNickname)) {
+      return NextResponse.json({ error: '内容包含敏感词，请修改后重试' }, { status: 400 });
+    }
+
     // 获取客户端 IP（Vercel 可信头优先，未知时 'unknown' 防共享限流桶）
     const ip = getClientIp(request);
 
