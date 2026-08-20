@@ -18,6 +18,7 @@
 | 安全回归测试 | ✅ | database/security-check.mjs |
 | 生产部署 | ✅ | Vercel + Cloudflare |
 | 文档重构 | ✅ | 6 份核心文档 + 3 份归档 |
+| 管理后台批量删除 | ✅ | DELETE /api/admin/blessings + 确认弹窗 |
 
 **当前剩余**：
 - [ ] 移动端真机验证（iPhone Safari / Android Chrome）

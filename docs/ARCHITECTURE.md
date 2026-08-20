@@ -35,7 +35,7 @@
 │   │   └── api/                   # API Route Handlers
 │   │       ├── blessings/         # 祝福 CRUD + 点赞 + 统计
 │   │       ├── teachers/          # 教师列表 + 详情
-│   │       └── admin/             # 管理审核 + 头像上传
+│   │       └── admin/             # 管理审核 + 批量删除 + 头像上传
 │   ├── components/
 │   │   ├── home/                  # 首页组件
 │   │   │   ├── StarBackground.tsx # tsParticles 星空

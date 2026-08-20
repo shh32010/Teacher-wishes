@@ -37,12 +37,19 @@ Cloudflare (DNS 代理)
 | `ADMIN_PASSWORD` | 管理员登录密码 | Vercel + 本地 |
 | `ADMIN_TOKEN_SECRET` | admin_token 签名密钥（生产强制） | Vercel |
 
-### 可选变量
+### 生产必填（人机验证）
 
 | 变量 | 说明 | 配置位置 |
 | :--- | :--- | :--- |
 | `NEXT_PUBLIC_TURNSTILE_SITE_KEY` | Turnstile 站点 key | Vercel + 本地 |
 | `TURNSTILE_SECRET_KEY` | Turnstile 密钥 | Vercel + 本地 |
+
+> ⚠️ **生产环境必须配置 Turnstile**，否则 `POST /api/blessings` 将降级到仅 IP 限流保护。开发环境可不配置。
+
+### 可选变量
+
+| 变量 | 说明 | 配置位置 |
+| :--- | :--- | :--- |
 | `CRON_SECRET` | Cron 任务鉴权密钥 | Vercel |
 | `NEXT_PUBLIC_SENTRY_DSN` | Sentry DSN（前端） | Vercel |
 | `SENTRY_DSN` | Sentry DSN（服务端） | Vercel |
@@ -196,8 +203,11 @@ vercel logs teacher.shh32010.dpdns.org
 
 ### 自动备份
 
-- **Supabase Free**：每日自动备份，保留 7 天
-- **Supabase Pro**：每日自动备份，保留 30 天 + PITR
+备份策略以当前 Supabase Dashboard 中实际套餐能力为准。上线前必须确认：
+- 自动备份已开启
+- 最近一次备份时间
+- 恢复方式
+- PITR（Point-in-Time Recovery）是否可用
 
 ### 手动备份
 
