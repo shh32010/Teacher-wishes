@@ -1,4 +1,4 @@
-# 🌟 Teacher Wishes Platform · 教师节祝福平台 · v1.3.3
+# 🌟 Teacher Wishes Platform · 教师节祝福平台 · v1.3.4
 
 <p align="center">
   <strong>沉浸式教师节活动平台</strong> — 暖色秋天美学 · Design Token 体系 · 祝福星河 · 实时互动 · 大屏展示

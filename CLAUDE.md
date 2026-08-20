@@ -8,7 +8,7 @@
 
 教师节祝福墙 (Teacher Wishes) — 基于 Next.js 14 App Router 的沉浸式节日活动平台。暖色秋天美学 + 毛玻璃设计，支持祝福星河动画、实时祝福墙、教师主页、大屏轮播、管理后台。
 
-**当前版本**：v1.3.3 | **状态**：正式发布
+**当前版本**：v1.3.4 | **状态**：正式发布
 
 ---
 
@@ -216,9 +216,10 @@ getClientIp(request)
 所有 API Route Handler 遵循统一模式：
 1. CSRF 验证（POST/PATCH 请求）
 2. 输入校验（trim + 长度/必填）
-3. 业务逻辑（Supabase 查询/RPC）
-4. 错误处理（区分 Supabase error code、网络异常）
-5. 缓存头（GET 接口：`s-maxage=5, stale-while-revalidate=30`）
+3. 敏感词过滤（中英文精确匹配，130+ 中文 + 400+ 英文）
+4. 业务逻辑（Supabase 查询/RPC）
+5. 错误处理（区分 Supabase error code、网络异常）
+6. 缓存头（GET 接口：`s-maxage=5, stale-while-revalidate=30`）
 
 | 路由 | 方法 | 客户端 | 认证 | 说明 |
 | :--- | :--- | :--- | :--- | :--- |
