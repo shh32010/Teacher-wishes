@@ -4,13 +4,11 @@
 
 import { Filter } from 'bad-words';
 
-// 创建过滤器实例
+// 创建过滤器实例（处理英文）
 const filter = new Filter();
 
-// 中文敏感词列表（常见脏话+政治敏感词）
-// 注意：生产环境应使用更完整的词库，或接入第三方 API
+// 中文敏感词列表（常见脏话）
 const CHINESE_PROFANITY = [
-  // 脏话
   '操你',
   '你妈',
   '他妈',
@@ -24,21 +22,37 @@ const CHINESE_PROFANITY = [
   '去死',
   '混蛋',
   '王八蛋',
-  // 政治敏感（示例，实际应根据需求补充）
-  // 'xxx', 'yyy',
+  '煞笔',
+  '沙比',
+  '傻比',
+  '操蛋',
+  '你妈的',
+  '草泥马',
+  '尼玛',
+  '麻痹',
+  '妈逼',
+  '狗逼',
+  '贱人',
+  '贱货',
 ];
 
 // 将中文敏感词添加到过滤器
 filter.addWords(...CHINESE_PROFANITY);
 
 /**
- * 检查文本是否包含敏感词
+ * 检查文本是否包含敏感词（英文用 bad-words，中文用 includes）
  * @param text 待检查文本
  * @returns true = 包含敏感词
  */
 export function containsProfanity(text: string): boolean {
   if (!text || typeof text !== 'string') return false;
-  return filter.isProfane(text);
+
+  // 英文敏感词检测（bad-words 库）
+  if (filter.isProfane(text)) return true;
+
+  // 中文敏感词检测（直接匹配）
+  const lowerText = text.toLowerCase();
+  return CHINESE_PROFANITY.some((word) => lowerText.includes(word));
 }
 
 /**
@@ -48,7 +62,17 @@ export function containsProfanity(text: string): boolean {
  */
 export function filterProfanity(text: string): string {
   if (!text || typeof text !== 'string') return text;
-  return filter.clean(text);
+
+  // 先用 bad-words 处理英文
+  let filtered = filter.clean(text);
+
+  // 再处理中文
+  CHINESE_PROFANITY.forEach((word) => {
+    const regex = new RegExp(word, 'gi');
+    filtered = filtered.replace(regex, '*'.repeat(word.length));
+  });
+
+  return filtered;
 }
 
 /**
