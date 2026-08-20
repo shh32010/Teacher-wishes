@@ -290,7 +290,7 @@ export default function BlessingForm({
                     value={class_}
                     onChange={(e) => setClass(e.target.value)}
                     maxLength={30}
-                    placeholder="例如：高一(3)班"
+                    placeholder="例如：网络2401"
                     className="input-glass"
                   />
                 </div>
