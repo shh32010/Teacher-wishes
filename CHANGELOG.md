@@ -4,6 +4,31 @@ All notable changes to Teacher Wishes Platform will be documented in this file.
 
 ---
 
+## [1.3.3] — 2026-08-20
+
+### 🎉 正式发布
+
+- ✅ **安全收口完成** — Turnstile production fail-closed + CSRF 全环境强制 + Admin 二次鉴权
+- ✅ **文档架构重构** — 6 份核心文档 + 3 份归档，单一真相源
+- ✅ **验收通过** — 移动端真机 + 大屏稳定性 + Lighthouse + Vercel 部署
+
+### 🔒 安全
+
+- Turnstile production fail-closed — 未配置返回 503
+- 环境变量分组 — Turnstile 生产必填
+
+### 📚 文档
+
+- 环境变量分组 + 开发环境 Turnstile 描述修正
+- 大屏稳定性测试脚本
+
+### 🧪 测试
+
+- 大屏长时间稳定性测试脚本（`load-tests/display-stability.js`）
+- Lighthouse 审计通过
+
+---
+
 ## [1.3.2] — 2026-08-20
 
 ### 🔒 安全收口

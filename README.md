@@ -1,4 +1,4 @@
-# 🌟 Teacher Wishes Platform · 教师节祝福平台 · v1.3.2
+# 🌟 Teacher Wishes Platform · 教师节祝福平台 · v1.3.3
 
 <p align="center">
   <strong>沉浸式教师节活动平台</strong> — 暖色秋天美学 · Design Token 体系 · 祝福星河 · 实时互动 · 大屏展示
@@ -187,11 +187,11 @@ docs/                         # ARCHITECTURE / API / CAPACITY
 
 ## 🔮 已发布 / 后续计划
 
-### ✅ v1.3.2 已发布
+### ✅ v1.3.3 正式发布
 
-- [x] 安全收口 — migration 重编号 + 权限最小化 + CSRF 全环境 + requireAdmin 二次鉴权
+- [x] 安全收口 — Turnstile fail-closed + CSRF 全环境 + Admin 二次鉴权
 - [x] 文档重构 — 6 份核心文档 + 3 份归档，单一真相源
-- [x] CI/CD — Playwright E2E + 安全回归测试
+- [x] 验收通过 — 移动端真机 + 大屏稳定性 + Lighthouse + Vercel 部署
 
 ### 📋 待完成
 - [ ] 敏感词过滤（`bad-words` 已安装，服务端逻辑待接入）🔴
