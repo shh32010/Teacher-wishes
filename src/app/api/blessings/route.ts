@@ -15,7 +15,6 @@ export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
   const page = Math.max(1, parseInt(searchParams.get('page') || '1', 10));
   const pageSize = Math.min(50, Math.max(1, parseInt(searchParams.get('pageSize') || '20', 10)));
-  const teacherId = searchParams.get('teacher_id');
   const sort = searchParams.get('sort') || 'time'; // 'time' | 'likes'
   const offset = (page - 1) * pageSize;
 
@@ -26,19 +25,14 @@ export async function GET(request: NextRequest) {
     // GET 接口为公开读，使用 anon client（不依赖 Cookie/Session）
     const supabase = createAnonClient();
 
-    let query = supabase
+    // v2.0 取消指定老师：不再提供 teacher_id 筛选（教师维度查询仅教师页内部直连使用）。
+    // teacher 关联仅为历史祝福（v1 数据）展示兼容保留；v2 新数据 teacher_id 恒为 null
+    const { data, error, count } = await supabase
       .from('blessings')
       .select('*, teacher:teachers(*), gift:gifts(*)', { count: 'exact' })
       .eq('status', 'approved')
       .order(sortField, { ascending: false })
       .range(offset, offset + pageSize - 1);
-
-    // 按教师筛选
-    if (teacherId) {
-      query = query.eq('teacher_id', teacherId);
-    }
-
-    const { data, error, count } = await query;
 
     if (error) {
       // PGRST103: 请求范围超出数据总量（如请求第3页但只有40条数据）
@@ -106,11 +100,12 @@ export async function POST(request: NextRequest) {
 
     const supabase = createAnonClient();
 
-    // 速率限制：每10分钟最多100条（Turnstile 已挡机器人，IP 限流仅作兜底）
+    // 速率限制：每10分钟最多200条（校园 NAT 场景下同一出口 IP 可能服务数十名学生，
+    // 100 条在活动现场集中提交时会误伤；Turnstile + 3 秒冷却仍为前置防线）
     const { data: remaining, error: rateError } = await supabase.rpc('check_rate_limit', {
       client_ip: ip,
       action_name: 'submit_blessing',
-      max_requests: 100,
+      max_requests: 200,
       window_minutes: 10,
     });
 

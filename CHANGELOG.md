@@ -37,7 +37,7 @@ All notable changes to Teacher Wishes Platform will be documented in this file.
 
 ### 🧪 测试
 
-- 单元测试 107/107（新增 CSV 解析 / AI 规则降级 / 仪式文案矩阵 24 个）
+- 单元测试 117/117（CSV 解析 / AI 规则降级 / 仪式文案矩阵 / GiftFlow 状态机 / 同句聚合）
 - E2E 25/25（新增 `gift.spec.ts` 全流程 3 用例；motion 按钮 force click 策略）
 - 安全回归 `security-check.mjs` 扩展 6 项 v2 断言（共 21 项）
 - k6 脚本适配 v2 契约（template_id + gift_id + CSRF）

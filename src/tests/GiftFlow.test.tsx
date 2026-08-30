@@ -182,7 +182,7 @@ describe('GiftFlow 状态机', () => {
     await waitFor(() =>
       expect(screen.getByRole('button', { name: /❤️ 感恩/ })).toBeInTheDocument()
     );
-    expect(screen.getByText('今天想送出怎样的心意？')).toBeInTheDocument();
+    expect(screen.getByText('告诉 AI，今天想送出怎样的心意？')).toBeInTheDocument();
   });
 
   it('AI 推荐失败 → 降级提示可见，分类浏览仍可用', async () => {

@@ -35,8 +35,11 @@ yarn-error.log*
 参考-*.md
 教师节祝福墙-主设计文档-*.md
 
-# migration & test scripts (含敏感凭证，不入库)
-scripts/
+# 本地一次性脚本（仅忽略含敏感凭证/本地配置的脚本，正式工程脚本可正常入库）
+scripts/*.local.*
+scripts/*secret*
+scripts/*.env.*
+scripts/*.key*
 
 # vercel
 .vercel

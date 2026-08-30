@@ -25,8 +25,10 @@ const EMOTIONS: { id: EmotionCategory; icon: string; desc: string }[] = [
 export default function EmotionPicker({ onSelect, onSkip }: EmotionPickerProps) {
   return (
     <div className="glass-card p-6 text-center">
-      <h2 className="mb-1 text-xl font-bold text-ink">今天想送出怎样的心意？</h2>
-      <p className="mb-6 text-sm text-ink-muted">AI 会从祝福语库中为你挑选最合适的 3 句</p>
+      <h2 className="mb-1 text-xl font-bold text-ink">告诉 AI，今天想送出怎样的心意？</h2>
+      <p className="mb-6 text-sm text-ink-muted">
+        AI 会从老师们准备的祝福语库中，为你挑选最合适的 3 句
+      </p>
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
         {EMOTIONS.map((e, i) => (

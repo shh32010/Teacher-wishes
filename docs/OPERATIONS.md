@@ -85,6 +85,34 @@ Cloudflare (DNS 代理)
 013_enable_v2_strict.sql — v2.0 严格触发器（⚠️ 须与 v2 前端同步上线后执行）
 ```
 
+### ⚠️ 上线顺序（硬性步骤，严禁打乱）
+
+013 启用后数据库层会拒绝一切「无 template_id / content 非官方模板」的 INSERT——**旧版前端会当场无法提交**。因此：
+
+```
+① 执行 001~012（基础迁移，可提前完成）
+② 部署 v2.0 前端/API 到 Vercel
+③ 确认生产站点运行的是 v2 代码（访问 /gift 应返回 200 且可走通送礼）
+④ 执行 013（严格触发器 + usage_count 计数 + ai_generations 最小公开策略）
+⑤ 直连安全回归（见下方「013 执行后回归」）
+⑥ 再开放活动入口
+```
+
+**严禁**：先执行 013 再部署前端；或把 013 混入 001~012 让甲方机械顺序执行。
+
+### 013 执行后回归（数据库层契约验证）
+
+013 生效后，用 anon key 直连 PostgREST 验证以下操作**全部被拒绝**：
+
+| 攻击尝试 | 预期结果 |
+| :--- | :--- |
+| INSERT 无 template_id | 触发器拒绝 |
+| INSERT 合法 template_id + 篡改 content | 触发器拒绝（content ≠ 官方原文） |
+| INSERT 停用模板的 template_id | 触发器拒绝（查不到启用模板） |
+| INSERT 非法 gift_id | 外键拒绝 |
+| INSERT teacher_id 非 null | 触发器拒绝（content 校验不通过） |
+| INSERT status=approved / likes=99999 | 被安全默认值触发器强制为 pending/0 |
+
 ### 执行方式
 
 **方式 A（推荐，脚本化）**：`database/run-migration.mjs`
