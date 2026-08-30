@@ -15,7 +15,7 @@ export async function GET() {
 
     const { data, error } = await supabase
       .from('gifts')
-      .select('*')
+      .select('id, name, icon, description, animation, sort_order')
       .order('sort_order', { ascending: true });
 
     if (error) {

@@ -20,6 +20,7 @@ interface InsightsData {
   total_participants: number;
   emotions: { emotion: string; count: number }[];
   gifts: { name: string; icon: string; count: number }[];
+  top_keywords: { word: string; count: number }[];
   summary: string | null;
 }
 
@@ -273,6 +274,23 @@ function InsightsPanel() {
                     className="rounded-full bg-accent/10 px-2 py-0.5 text-xs text-accent"
                   >
                     {g.icon} {g.name} ×{g.count}
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {data.top_keywords.length > 0 && (
+            <div>
+              <p className="mb-1 text-xs text-ink-muted">高频关键词</p>
+              <div className="flex flex-wrap gap-2">
+                {data.top_keywords.map((k) => (
+                  <span
+                    key={k.word}
+                    className="rounded-full bg-primary/10 px-2 py-0.5 text-xs text-primary"
+                    title={`出现 ${k.count} 次`}
+                  >
+                    {k.word} ×{k.count}
                   </span>
                 ))}
               </div>

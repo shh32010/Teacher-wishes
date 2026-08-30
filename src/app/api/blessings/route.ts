@@ -25,11 +25,17 @@ export async function GET(request: NextRequest) {
     // GET 接口为公开读，使用 anon client（不依赖 Cookie/Session）
     const supabase = createAnonClient();
 
-    // v2.0 取消指定老师：不再提供 teacher_id 筛选（教师维度查询仅教师页内部直连使用）。
-    // teacher 关联仅为历史祝福（v1 数据）展示兼容保留；v2 新数据 teacher_id 恒为 null
+    // v2.0 产品契约：公开响应 = blessing + gift，不返回 teacher 关联
+    // （取消指定老师；教师维度查询仅教师页内部直连使用）。
+    // 明确字段而非 select('*')，未来新增敏感列不会自动暴露
     const { data, error, count } = await supabase
       .from('blessings')
-      .select('*, teacher:teachers(*), gift:gifts(*)', { count: 'exact' })
+      .select(
+        `id, content, nickname, class, is_anonymous, likes, is_featured,
+         status, created_at, emotion, ai_message, template_id, gift_id,
+         gift:gifts(id, name, icon)`,
+        { count: 'exact' }
+      )
       .eq('status', 'approved')
       .order(sortField, { ascending: false })
       .range(offset, offset + pageSize - 1);
@@ -51,7 +57,8 @@ export async function GET(request: NextRequest) {
     }
 
     const response: PaginatedResponse<Blessing> = {
-      data: (data as Blessing[]) || [],
+      // 字段化 select 不含 user_id/teacher_id 等 DB 内部列；运行时结构即公开契约
+      data: (data as unknown as Blessing[]) || [],
       count: count || 0,
       page,
       pageSize,

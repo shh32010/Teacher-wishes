@@ -477,7 +477,7 @@ export default function GiftGalaxy() {
                       onClick={() => router.push(`/teacher/${selectedStar.teacher!.id}`)}
                       className="btn-primary mt-5 inline-block"
                     >
-                      📖 查看老师主页
+                      📖 查看老师纪念主页
                     </button>
                   </div>
                 )}
@@ -503,38 +503,16 @@ export default function GiftGalaxy() {
                       {selectedStar.blessing.content}
                     </p>
 
-                    {/* 礼物标签（v2.0）或关联教师（历史数据） */}
+                    {/* 礼物标签（v2.0）或历史祝福标记（teacher 数据已不在公开契约中返回） */}
                     {selectedStar.blessing.gift ? (
                       <span className="mt-4 inline-block rounded-full bg-accent/10 px-4 py-1.5 text-xs text-accent">
                         {selectedStar.blessing.gift.icon} {selectedStar.blessing.gift.name} ·
                         献给全体老师
                       </span>
                     ) : (
-                      selectedStar.blessing.teacher && (
-                        <button
-                          onClick={() =>
-                            router.push(`/teacher/${selectedStar.blessing!.teacher!.id}`)
-                          }
-                          className="mt-4 flex items-center gap-1.5 mx-auto rounded-full bg-accent/10 px-4 py-1.5 text-xs text-accent hover:bg-accent/20 transition-colors"
-                        >
-                          {selectedStar.blessing.teacher.avatar_url ? (
-                            <span className="relative inline-block h-5 w-5 overflow-hidden rounded-full">
-                              <Image
-                                src={selectedStar.blessing.teacher.avatar_url}
-                                alt={selectedStar.blessing.teacher.name}
-                                fill
-                                sizes="20px"
-                                className="object-cover"
-                              />
-                            </span>
-                          ) : (
-                            <span className="flex h-5 w-5 items-center justify-center rounded-full bg-accent/20 text-xs">
-                              {selectedStar.blessing.teacher.name[0]}
-                            </span>
-                          )}
-                          {selectedStar.blessing.teacher.name}老师 →
-                        </button>
-                      )
+                      <span className="mt-4 inline-block rounded-full bg-accent/10 px-4 py-1.5 text-xs text-accent">
+                        献给全体老师（往年）
+                      </span>
                     )}
 
                     {/* 元信息 */}

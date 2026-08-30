@@ -14,11 +14,12 @@ export async function GET() {
   try {
     const supabase = createAnonClient();
 
-    // approved 祝福（anon RLS 自动过滤）+ 启用礼物
+    // approved 祝福（anon RLS 自动过滤）+ 启用礼物 + 模板 tags（高频词数据源）
     const [
       { data: blessings, error: bError },
       { data: gifts, error: gError },
       { data: summaryRows },
+      { data: tagRows },
     ] = await Promise.all([
       supabase
         .from('blessings')
@@ -32,6 +33,12 @@ export async function GET() {
         .eq('status', 'done')
         .order('created_at', { ascending: false })
         .limit(1),
+      // v2 祝福引用的模板 tags（anon 受 RLS 限制仅能读启用模板）
+      supabase
+        .from('blessings')
+        .select('template: blessing_templates(tags)')
+        .eq('status', 'approved')
+        .not('template_id', 'is', null),
     ]);
 
     if (bError || gError) {
@@ -57,6 +64,19 @@ export async function GET() {
 
     const total = (blessings as Blessing[])?.length || 0;
 
+    // 高频词：v2 祝福引用模板的 tags 词频统计（top 8）
+    // template 为 many-to-one 关联（运行时对象，supabase 类型推断保守为数组）
+    const wordCounts = new Map<string, number>();
+    for (const row of (tagRows as unknown as { template: { tags: string[] } | null }[]) || []) {
+      for (const tag of row.template?.tags || []) {
+        wordCounts.set(tag, (wordCounts.get(tag) || 0) + 1);
+      }
+    }
+    const top_keywords = Array.from(wordCounts.entries())
+      .map(([word, count]) => ({ word, count }))
+      .sort((a, b) => b.count - a.count)
+      .slice(0, 8);
+
     const res = NextResponse.json({
       total_blessings: total,
       total_participants: new Set(
@@ -66,6 +86,7 @@ export async function GET() {
         .map(([emotion, count]) => ({ emotion, count }))
         .sort((a, b) => b.count - a.count),
       gifts: Array.from(giftCounts.values()).sort((a, b) => b.count - a.count),
+      top_keywords,
       summary: (summaryRows?.[0]?.output as { summary?: string } | null)?.summary || null,
     });
     res.headers.set('Cache-Control', 'public, s-maxage=60, stale-while-revalidate=300');

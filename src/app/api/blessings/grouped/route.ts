@@ -18,9 +18,14 @@ export async function GET(request: NextRequest) {
     const supabase = createAnonClient();
 
     // anon RLS 自动只返回 approved；按时间倒序取全量（聚合的「最新」语义依赖此顺序）
+    // 明确字段：teacher 仅取名字（历史祝福「往年」标签用），gift 取展示三件套
     const { data, error } = await supabase
       .from('blessings')
-      .select('*, teacher:teachers(*), gift:gifts(*)')
+      .select(
+        `id, content, nickname, class, is_anonymous, likes, is_featured,
+         created_at, emotion, template_id, gift_id,
+         gift:gifts(id, name, icon), teacher:teachers(id, name)`
+      )
       .eq('status', 'approved')
       .order('created_at', { ascending: false })
       .limit(3000);
@@ -30,7 +35,9 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: '查询失败' }, { status: 500 });
     }
 
-    const blessings = (data as Blessing[]) || [];
+    // 字段化 select 不含 user_id/teacher_id 等 DB 内部列；teacher 关联为 many-to-one
+    // 运行时返回对象（supabase-js 类型推断保守为数组），聚合逻辑按对象读取
+    const blessings = (data as unknown as Blessing[]) || [];
     const groups = groupBlessings(blessings, sort);
 
     const res = NextResponse.json({

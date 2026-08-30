@@ -28,29 +28,36 @@ export async function GET(request: NextRequest) {
   try {
     const supabase = createAnonClient();
 
-    // 1. tags 语义匹配：按关键词重叠度选出一批候选
+    // 1. tags 语义匹配 + 命中分数排序（score = 命中关键词数，同分随机）
+    //    真正的「智能推荐排序」而非纯随机：命中 3 个关键词的排在命中 1 个的前面
     let recommendations: BlessingTemplate[] = [];
     if (VALID_CATEGORIES.includes(mood as EmotionCategory)) {
       const keywords = MOOD_KEYWORDS[mood] || [];
 
       const { data: matched, error: matchError } = await supabase
         .from('blessing_templates')
-        .select('*')
+        .select('id, content, category, tags, sort_order')
         .overlaps('tags', keywords)
         .limit(20);
 
       if (matchError) {
         console.error('[API] 推荐匹配失败:', matchError);
       } else if (matched && matched.length > 0) {
-        // 打乱候选顺序，避免每次推荐完全相同
-        recommendations = matched.sort(() => Math.random() - 0.5);
+        const scored = (matched as BlessingTemplate[]).map((t) => ({
+          t,
+          score: (t.tags || []).filter((tag) => keywords.includes(tag)).length,
+        }));
+        scored.sort((a, b) => b.score - a.score || Math.random() - 0.5);
+        recommendations = scored.map((s) => s.t);
       }
     }
 
     // 2. 匹配不足 3 条时，从对应分类（或全库）随机补齐
     if (recommendations.length < 3) {
       const missing = 3 - recommendations.length;
-      let fillerQuery = supabase.from('blessing_templates').select('*');
+      let fillerQuery = supabase
+        .from('blessing_templates')
+        .select('id, content, category, tags, sort_order');
 
       if (VALID_CATEGORIES.includes(mood as EmotionCategory)) {
         fillerQuery = fillerQuery.eq('category', mood);

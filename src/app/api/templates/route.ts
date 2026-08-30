@@ -23,7 +23,7 @@ export async function GET(request: NextRequest) {
 
     let query = supabase
       .from('blessing_templates')
-      .select('*', { count: 'exact' })
+      .select('id, content, category, tags, sort_order', { count: 'exact' })
       .order('sort_order', { ascending: true })
       .order('created_at', { ascending: false })
       .range(offset, offset + pageSize - 1);
