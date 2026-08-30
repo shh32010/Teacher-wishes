@@ -1,0 +1,67 @@
+// ============================================================
+// E2E 测试 — 首页沉浸式体验
+// ============================================================
+
+import { test, expect } from '@playwright/test';
+import { registerAllApiMocks, disableAnimations } from './mocks';
+
+test.describe('首页 (Homepage)', () => {
+  test.beforeEach(async ({ page }) => {
+    await registerAllApiMocks(page);
+    await disableAnimations(page);
+    await page.goto('/');
+  });
+
+  test('首页能正常加载，标题最终可见', async ({ page }) => {
+    // 标题文案含 emoji，用正则匹配
+    const title = page.getByRole('heading', { name: /教师节快乐/ });
+    await expect(title).toBeVisible({ timeout: 10_000 });
+    await expect(title).toHaveText(/教师节快乐/);
+  });
+
+  test('副标题正常显示', async ({ page }) => {
+    const subtitle = page.getByText('谢谢您，照亮了我们的未来');
+    await expect(subtitle).toBeVisible({ timeout: 10_000 });
+  });
+
+  test('语录会逐渐出现', async ({ page }) => {
+    // 第一句语录
+    const quote1 = page.getByText('一支粉笔，两袖清风。');
+    await expect(quote1).toBeVisible({ timeout: 8_000 });
+
+    // 第二句语录
+    const quote2 = page.getByText('三尺讲台，四季耕耘。');
+    await expect(quote2).toBeVisible({ timeout: 8_000 });
+  });
+
+  test('"送出我的礼物"按钮最终可见并可点击', async ({ page }) => {
+    const enterBtn = page.getByRole('button', { name: '🎁 送出我的礼物' });
+    await expect(enterBtn).toBeVisible({ timeout: 12_000 });
+    await expect(enterBtn).toBeEnabled();
+
+    // animate-breathe 动画导致按钮不稳定，使用 force 跳过稳定性检查
+    await enterBtn.click({ force: true });
+    await expect(page).toHaveURL(/\/gift/);
+  });
+
+  test('首页底部入口按钮在动画结束后可见', async ({ page }) => {
+    // "管理后台"入口在动画最终阶段出现
+    const adminLink = page.getByRole('button', { name: '进入管理后台' });
+    await expect(adminLink).toBeVisible({ timeout: 12_000 });
+
+    // 祝福星河次入口（v2.0）
+    const wallLink = page.getByRole('button', { name: /先看看祝福星河/ });
+    await expect(wallLink).toBeVisible({ timeout: 12_000 });
+
+    // 点击管理后台 → 跳转到 /admin
+    await adminLink.click();
+    await expect(page).toHaveURL(/\/admin/);
+  });
+
+  test('星空背景区域存在（tsParticles 容器渲染）', async ({ page }) => {
+    // tsParticles 懒加载组件，检查渲染容器是否存在
+    // 容器至少有 fixed inset-0 定位
+    const starContainer = page.locator('.fixed.inset-0').first();
+    await expect(starContainer).toBeAttached({ timeout: 8_000 });
+  });
+});

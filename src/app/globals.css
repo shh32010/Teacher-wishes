@@ -1,0 +1,402 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ============================================================
+   教师节祝福平台 — 暖色·书卷气（Warm + Academic + Minimal）
+   Design Token 体系 v2.0 — 全局视觉变量，禁止组件内硬编码颜色
+   ============================================================ */
+
+/* ============================================================
+   ☀️ 温暖日间 Design Token
+   ============================================================ */
+:root {
+  /* ── 背景层（Background Layer）── */
+  --bg-primary: #fff8f0; /* 主背景（暖白）     */
+  --bg-secondary: #fdf3e7; /* 次级背景（蛋壳）   */
+  --bg-tertiary: #fdf6ec; /* 三级背景（奶油）   */
+  --bg-page-bottom: #f8f3ff; /* 页面底部（淡紫渐变收尾） */
+
+  /* ── 主色（Primary — 仅 CTA / 强调）── */
+  --color-primary: #d97706; /* 琥珀金（按钮、链接）   */
+  --color-primary-hover: #b45309; /* 深琥珀（悬停态）       */
+  --color-primary-soft: rgba(217, 119, 6, 0.12); /* 浅底（选中背景） */
+
+  /* ── 情感点缀（Accent — 氛围色，非功能色）── */
+  --color-accent-gold: #e8a317; /* 金穗色（粒子、光晕）  */
+  --color-accent-warm: #c9825b; /* 暖陶色（装饰）        */
+  --color-accent-earth: #b98b73; /* 大地色（分隔线）      */
+  --color-accent-rose: #f4a0b0; /* 花瓣粉（花瓣元素）    */
+
+  /* ── 文字层（Foreground Layer）── */
+  --text-primary: #3b2f2f; /* 正文（暖深棕，WCAG AAA） */
+  --text-secondary: #6b5b52; /* 辅助文                    */
+  --text-muted: #9b8b8b; /* 提示文                    */
+
+  /* Tailwind 文字色 — RGB 分量，供 tailwind.config.ts 动态引用 */
+  --ink-rgb: 59, 47, 47; /* text-ink → #3B2F2F */
+  --ink-light-rgb: 107, 91, 82; /* text-ink-light → #6B5B52 */
+  --ink-muted-rgb: 155, 139, 139; /* text-ink-muted → #9B8B8B */
+
+  /* ── 卡片 / 玻璃态 ── */
+  --glass-bg: rgba(255, 255, 255, 0.72);
+  --glass-bg-hover: rgba(255, 255, 255, 0.88);
+  --glass-border: rgba(217, 119, 6, 0.12);
+  --glass-shadow: 0 4px 24px rgba(0, 0, 0, 0.06);
+  --glass-shadow-hover: 0 8px 32px rgba(0, 0, 0, 0.1);
+
+  /* ── 圆角 ── */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 24px;
+  --radius-full: 9999px;
+
+  /* ── 阴影 ── */
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.04);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.06);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.08);
+
+  /* ── 过渡 ── */
+  --transition-fast: 150ms ease;
+  --transition-normal: 300ms ease;
+  --transition-slow: 500ms ease;
+
+  /* ── 旧变量兼容（逐步迁移后移除）── */
+  --background: var(--bg-primary);
+  --foreground: var(--text-primary);
+}
+
+/* ============================================================
+   🌙 温暖夜间 Design Token
+   并非简单的亮/暗反转 — 保持"教师节"氛围
+
+   触发条件（任一满足即生效）：
+   1. [data-theme="dark"] — 用户手动切换
+   2. prefers-color-scheme: dark — 自动模式跟随系统
+   ============================================================ */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --bg-primary: #1a1a2e;
+    --bg-secondary: #16213e;
+    --bg-tertiary: #0f3460;
+    --bg-page-bottom: #1a1a2e;
+
+    --color-primary: #e8a317;
+    --color-primary-hover: #c9825b;
+    --color-primary-soft: rgba(232, 163, 23, 0.15);
+
+    --color-accent-gold: #c9825b;
+    --color-accent-warm: #b98b73;
+    --color-accent-earth: #8b6f5e;
+    --color-accent-rose: #d4858b;
+
+    --text-primary: #e8d5c4;
+    --text-secondary: #b8a898;
+    --text-muted: #7a6e65;
+
+    --ink-rgb: 232, 213, 196; /* text-ink 夜间 → ~#E8D5C4 */
+    --ink-light-rgb: 184, 168, 152; /* text-ink-light 夜间 */
+    --ink-muted-rgb: 122, 110, 101; /* text-ink-muted 夜间 */
+
+    --glass-bg: rgba(26, 26, 46, 0.78);
+    --glass-bg-hover: rgba(26, 26, 46, 0.9);
+    --glass-border: rgba(232, 163, 23, 0.14);
+    --glass-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
+    --glass-shadow-hover: 0 8px 32px rgba(0, 0, 0, 0.3);
+
+    --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.15);
+    --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.2);
+    --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.25);
+  }
+}
+
+/* 手动强制夜间模式（覆盖 auto 模式的 light 兜底） */
+:root[data-theme='dark'] {
+  --bg-primary: #1a1a2e;
+  --bg-secondary: #16213e;
+  --bg-tertiary: #0f3460;
+  --bg-page-bottom: #1a1a2e;
+
+  --color-primary: #e8a317;
+  --color-primary-hover: #c9825b;
+  --color-primary-soft: rgba(232, 163, 23, 0.15);
+
+  --color-accent-gold: #c9825b;
+  --color-accent-warm: #b98b73;
+  --color-accent-earth: #8b6f5e;
+  --color-accent-rose: #d4858b;
+
+  --text-primary: #e8d5c4;
+  --text-secondary: #b8a898;
+  --text-muted: #7a6e65;
+
+  --ink-rgb: 232, 213, 196;
+  --ink-light-rgb: 184, 168, 152;
+  --ink-muted-rgb: 122, 110, 101;
+
+  --glass-bg: rgba(26, 26, 46, 0.78);
+  --glass-bg-hover: rgba(26, 26, 46, 0.9);
+  --glass-border: rgba(232, 163, 23, 0.14);
+  --glass-shadow: 0 4px 24px rgba(0, 0, 0, 0.2);
+  --glass-shadow-hover: 0 8px 32px rgba(0, 0, 0, 0.3);
+
+  --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.15);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.2);
+  --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.25);
+}
+
+/* ---- 全局基础 ---- */
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  color: var(--text-primary);
+  background: linear-gradient(
+    180deg,
+    var(--bg-primary) 0%,
+    var(--bg-tertiary) 35%,
+    var(--bg-page-bottom) 100%
+  );
+  background-attachment: fixed;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans SC', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
+  min-height: 100vh;
+}
+
+/* ---- 滚动条美化（暖色） ---- */
+::-webkit-scrollbar {
+  width: 6px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: rgba(180, 150, 130, 0.35);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(180, 150, 130, 0.55);
+}
+
+/* ---- Tailwind 工具层 ---- */
+@layer utilities {
+  /* 毛玻璃容器 — 暖色玻璃态（使用 Design Token） */
+  .glass {
+    background: var(--glass-bg);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid var(--glass-border);
+    box-shadow: var(--glass-shadow);
+  }
+
+  .glass-light {
+    background: var(--glass-bg);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid var(--glass-border);
+  }
+
+  /* 文字渐变 — 暖金 */
+  .text-gradient {
+    background: linear-gradient(
+      135deg,
+      var(--color-primary) 0%,
+      var(--color-accent-gold) 50%,
+      var(--color-accent-warm) 100%
+    );
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  /* 文字阴影 — 暖光 */
+  .text-glow {
+    text-shadow:
+      0 0 20px rgba(217, 119, 6, 0.25),
+      0 0 60px rgba(245, 158, 11, 0.12);
+  }
+
+  /* 装饰性元素 — 统一不可交互、不可选中 */
+  .decorative {
+    pointer-events: none;
+    user-select: none;
+  }
+}
+
+/* ---- 组件基础层 ---- */
+@layer components {
+  /* 玻璃态卡片 */
+  .glass-card {
+    @apply glass rounded-2xl p-6 transition-all duration-300;
+  }
+  .glass-card:hover {
+    background: var(--glass-bg-hover);
+    transform: translateY(-2px);
+    box-shadow: var(--glass-shadow-hover);
+  }
+
+  /* 按钮基础样式 — 暖金渐变（仅 CTA 使用 #D97706） */
+  .btn-primary {
+    @apply px-6 py-3 rounded-xl font-semibold text-white
+           transition-all duration-300
+           active:scale-95;
+    background: linear-gradient(135deg, var(--color-primary), var(--color-accent-gold));
+    box-shadow: 0 4px 16px rgba(217, 119, 6, 0.2);
+  }
+  .btn-primary:hover {
+    background: linear-gradient(135deg, var(--color-primary-hover), var(--color-primary));
+    box-shadow: 0 6px 24px rgba(217, 119, 6, 0.3);
+  }
+
+  .btn-glass {
+    @apply px-6 py-3 rounded-xl font-semibold
+           glass
+           transition-all duration-300
+           active:scale-95;
+    color: var(--text-primary);
+    border-color: var(--glass-border);
+  }
+  .btn-glass:hover {
+    background: var(--glass-bg-hover);
+  }
+
+  /* 幽灵按钮 — 无背景，仅边框 + 文字 */
+  .btn-ghost {
+    @apply px-6 py-3 rounded-xl font-semibold
+           border transition-all duration-300
+           active:scale-95;
+    color: var(--text-primary);
+    border-color: var(--glass-border);
+    background: transparent;
+  }
+  .btn-ghost:hover {
+    background: var(--color-primary-soft);
+    border-color: var(--color-primary);
+    color: var(--color-primary);
+  }
+
+  /* 输入框 — 玻璃态统一风格 */
+  .input-glass {
+    @apply w-full rounded-xl border px-4 py-3
+           outline-none transition-all;
+    color: var(--text-primary);
+    background: var(--glass-bg);
+    border-color: var(--glass-border);
+    font-family: inherit;
+  }
+  .input-glass::placeholder {
+    color: var(--text-muted);
+  }
+  .input-glass:focus {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 3px var(--color-primary-soft);
+  }
+
+  .input-glass-sm {
+    @apply w-full rounded-lg border px-3 py-2 text-sm
+           outline-none transition-all;
+    color: var(--text-primary);
+    background: var(--glass-bg);
+    border-color: var(--glass-border);
+    font-family: inherit;
+  }
+  .input-glass-sm::placeholder {
+    color: var(--text-muted);
+  }
+  .input-glass-sm:focus {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 2px var(--color-primary-soft);
+  }
+}
+
+/* ---- 低端设备性能降级 — 减少/禁用 backdrop-blur ---- */
+@media (max-width: 768px) {
+  .glass {
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+  }
+
+  .glass-light {
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+  }
+
+  .glass-card {
+    @apply rounded-xl p-4;
+  }
+
+  .btn-primary,
+  .btn-glass {
+    @apply px-4 py-2.5 text-sm rounded-lg;
+  }
+
+  h1.text-7xl {
+    font-size: 2.5rem !important;
+  }
+
+  .columns-2 {
+    column-count: 1 !important;
+  }
+}
+
+/* 低电量/透明偏好 — 完全禁用 backdrop-blur */
+@media (prefers-reduced-transparency: reduce) {
+  .glass,
+  .glass-light {
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+    background: var(--bg-primary);
+  }
+}
+
+/* ---- 无障碍：键盘焦点可见样式（暖色环，使用主色） ---- */
+:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.glass :focus-visible {
+  outline-color: var(--color-primary-hover);
+}
+
+.btn-primary:focus-visible,
+.btn-glass:focus-visible,
+.glass-card:focus-visible,
+button.glass:focus-visible {
+  border-radius: var(--radius-md);
+}
+
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: none;
+}
+
+/* ===== 无障碍：文字色使用 Token ===== */
+.text-secondary {
+  color: var(--text-secondary);
+}
+
+.text-muted {
+  color: var(--text-muted);
+}
+
+/* ---- 减弱动画偏好 ---- */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

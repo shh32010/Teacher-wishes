@@ -1,0 +1,41 @@
+# ============================================================
+# GitHub Project Board 配置参考
+# ============================================================
+# 在 GitHub 仓库页面 → Projects → New Project → Board 中手动创建
+# 然后将以下列和卡片添加进去
+# ============================================================
+
+name: "教师节祝福平台 · 开发看板"
+
+columns:
+  - name: "📋 Backlog"
+    cards:
+      - "敏感词过滤 — bad-words 服务端接入"
+      - "移动端 PWA 独立应用体验"
+      - "多活动模板 — 毕业季/校庆快速复用"
+      - "粒子数量/帧率自适应"
+      - "大屏性能测试（长时间运行不卡顿）"
+      - "应急预案文档"
+
+  - name: "🔧 In Progress"
+    cards:
+      - "Demo 视频录制 — 30秒展示核心流程"
+
+  - name: "✅ Done (v1.0.0)"
+    cards:
+      - "首页动画 + 祝福星河 + 弹窗预览"
+      - "祝福墙瀑布流 + 排序 + Realtime"
+      - "教师主页 SSR + 精选标记"
+      - "大屏模式全屏轮播 + QR"
+      - "管理后台审核/置顶/头像上传"
+      - "CSRF + IP限流 + RLS + Turnstile"
+      - "WCAG AA 无障碍"
+      - "Vercel Analytics + Sentry 监控"
+      - "81单元测试 + 25 E2E + k6负载"
+      - "GitHub Actions CI"
+      - "五件套文档（README/ARCH/API/CAPACITY/PROGRESS）"
+      - "P0 安全漏洞修复（4项）"
+      - "页面转场动画 layoutId"
+      - "ARCHITECTURE_REVIEW.md"
+      - "TECHNICAL_DESIGN.md"
+      - "v1.0.0 Release"

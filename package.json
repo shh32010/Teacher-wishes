@@ -1,0 +1,73 @@
+{
+  "name": "teacher-wishes",
+  "version": "1.3.4",
+  "private": true,
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest",
+    "test:run": "vitest run",
+    "prepare": "husky",
+    "analyze": "ANALYZE=true next build",
+    "test:smoke": "k6 run load-tests/smoke.js",
+    "test:load": "k6 run load-tests/load.js",
+    "test:stress": "k6 run load-tests/stress.js",
+    "test:security": "node database/security-check.mjs",
+    "test:e2e": "playwright test",
+    "test:e2e:ui": "playwright test --ui"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx}": [
+      "eslint --fix",
+      "prettier --write"
+    ],
+    "*.{json,md,css}": [
+      "prettier --write"
+    ]
+  },
+  "dependencies": {
+    "@fontsource/lxgw-wenkai": "^5.3.0",
+    "@sentry/nextjs": "^10.69.0",
+    "@supabase/ssr": "^0.12.4",
+    "@supabase/supabase-js": "^2.112.1",
+    "@tsparticles/engine": "^4.3.2",
+    "@tsparticles/react": "^4.3.2",
+    "@tsparticles/slim": "^4.3.2",
+    "@vercel/analytics": "^2.0.1",
+    "bad-words": "^4.1.5",
+    "canvas-confetti": "^1.9.4",
+    "framer-motion": "^12.43.0",
+    "next": "14.2.35",
+    "pg": "^8.22.0",
+    "react": "^18",
+    "react-dom": "^18",
+    "swr": "^2.5.0"
+  },
+  "devDependencies": {
+    "@next/bundle-analyzer": "^16.3.0",
+    "@playwright/test": "^1.62.1",
+    "@testing-library/jest-dom": "^7.0.0",
+    "@testing-library/react": "^16.3.2",
+    "@testing-library/user-event": "^14.6.6",
+    "@types/canvas-confetti": "^1.9.0",
+    "@types/node": "^20",
+    "@types/react": "^18",
+    "@types/react-dom": "^18",
+    "@vitejs/plugin-react": "^6.0.5",
+    "eslint": "^8",
+    "eslint-config-next": "14.2.35",
+    "husky": "^9.1.7",
+    "jsdom": "^30.0.1",
+    "lint-staged": "^17.3.0",
+    "postcss": "^8",
+    "prettier": "^3.9.6",
+    "tailwindcss": "^3.4.1",
+    "typescript": "^5",
+    "vitest": "^4.1.10"
+  }
+}

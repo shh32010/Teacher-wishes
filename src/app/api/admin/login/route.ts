@@ -1,0 +1,87 @@
+// ============================================================
+// POST /api/admin/login — 管理后台登录
+// 验证密码后设置加密 Cookie（24小时有效）
+// ============================================================
+
+import { NextRequest, NextResponse } from 'next/server';
+import { randomBytes, createHmac, timingSafeEqual } from 'crypto';
+import { validateCsrfToken, csrfErrorResponse } from '@/lib/csrf';
+import { createAnonClient } from '@/lib/supabase/server';
+import { getClientIp } from '@/lib/client-ip';
+
+export async function POST(request: NextRequest) {
+  // CSRF 验证
+  if (!validateCsrfToken(request)) {
+    return csrfErrorResponse();
+  }
+
+  // 管理密码必须通过环境变量配置（无默认值，防止弱密码）
+  const ADMIN_PASSWORD = process.env.ADMIN_PASSWORD;
+  if (!ADMIN_PASSWORD) {
+    console.error('[Admin] ADMIN_PASSWORD 环境变量未设置，拒绝登录');
+    return NextResponse.json({ error: '服务未配置，请联系管理员' }, { status: 500 });
+  }
+
+  try {
+    // 速率限制：每 IP 每分钟最多 5 次登录尝试
+    const ip = getClientIp(request);
+
+    const supabase = createAnonClient();
+    const { data: remaining, error: rateError } = await supabase.rpc('check_rate_limit', {
+      client_ip: ip,
+      action_name: 'admin_login',
+      max_requests: 5,
+      window_minutes: 1,
+    });
+
+    if (rateError || remaining === null) {
+      console.error('[Admin] 登录速率限制检查异常:', rateError);
+      return NextResponse.json({ error: '系统繁忙，请稍后重试' }, { status: 503 });
+    }
+    if (remaining <= 0) {
+      return NextResponse.json({ error: '登录尝试过多，请1分钟后再试' }, { status: 429 });
+    }
+
+    const { password } = await request.json();
+
+    // 常量时间比较，防时序侧信道（长度不同先统一）
+    const pwdOk =
+      typeof password === 'string' &&
+      password.length === ADMIN_PASSWORD.length &&
+      timingSafeEqual(Buffer.from(password), Buffer.from(ADMIN_PASSWORD));
+    if (!pwdOk) {
+      return NextResponse.json({ error: '密码错误' }, { status: 401 });
+    }
+
+    // 生成 HMAC 签名 token（可被中间件验证，无需服务端存储）
+    // ADMIN_TOKEN_SECRET 独立于 ADMIN_PASSWORD，更换密码不影响已有 token
+    // 生产环境强制要求 ADMIN_TOKEN_SECRET，开发环境可回退到 ADMIN_PASSWORD
+    const tokenSecret =
+      process.env.ADMIN_TOKEN_SECRET ||
+      (process.env.NODE_ENV !== 'production' ? ADMIN_PASSWORD : null);
+    if (!tokenSecret) {
+      console.error('[Admin] 生产环境 ADMIN_TOKEN_SECRET 未配置，拒绝登录');
+      return NextResponse.json({ error: '服务未配置，请联系管理员' }, { status: 500 });
+    }
+    const randomPart = randomBytes(16).toString('hex');
+    const expiry = Date.now() + 24 * 60 * 60 * 1000; // 24 小时后过期
+    const payload = `${randomPart}.${expiry}`;
+    const signature = createHmac('sha256', tokenSecret).update(payload).digest('hex');
+    const token = `${payload}.${signature}`;
+
+    // 设置管理会话 Cookie（24小时有效）
+    const response = NextResponse.json({ success: true });
+    response.cookies.set('admin_token', token, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 60 * 60 * 24, // 24小时
+      path: '/',
+    });
+
+    return response;
+  } catch (err) {
+    console.error('[Admin] 登录异常:', err);
+    return NextResponse.json({ error: '服务器内部错误' }, { status: 500 });
+  }
+}

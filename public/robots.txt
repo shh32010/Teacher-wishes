@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://teacher.shh32010.dpdns.org/sitemap.xml
