@@ -24,8 +24,9 @@
 | API `Cache-Control: s-maxage=5, stale-while-revalidate=30` | 读请求 80%+ 命中 CDN，不触发 Serverless 函数 |
 | `next/image` WebP/AVIF + `remotePatterns` | 图片经 CDN 压缩分发，首屏 ~200KB |
 | `next/dynamic` 懒加载 + `splitChunks` | 首屏 JS ~87KB，非首屏组件按需加载 |
-| IP 限流（3条/10分钟） + CSRF + Turnstile | 防恶意刷量，保护写入路径 |
+| IP 限流（送礼 100条/10分钟、点赞 20次/分钟） + CSRF + Turnstile | 防恶意刷量，保护写入路径 |
 | Supabase RLS + RPC（`increment_likes`） | 原子化操作，减少数据库往返 |
+| v2.0 同句聚合（`/api/blessings/grouped`） | 全量 approved 一次取回 JS 聚合（≤3000 条、内容短，约 1MB 响应），分页请求从「每页一次」降为「每组一次」 |
 
 ---
 
@@ -45,12 +46,13 @@
 - 离开页面后连接自动释放
 - **~200 人同时在祝福墙页面**
 
-### 写操作（提交祝福）
+### 写操作（送礼提交）
 
 - 瓶颈：Vercel 函数并发 + IP 限流
 - 无验证码时 ~20 条/秒
 - 有 Turnstile 验证时 ~10 条/秒
 - **保守估计 50-100 条/分钟**
+- v2.0 学生端 AI 推荐 = 数据库 tags 索引查询，无 LLM 调用，写入路径零 AI 依赖
 
 ### 管理后台
 

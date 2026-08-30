@@ -79,13 +79,26 @@ Cloudflare (DNS 代理)
 007_storage_policies.sql — Storage 策略收紧
 008_review_fixes.sql     — 审核绕过修复
 009_rate_limit_cleanup.sql — 权限最小化
+010_fix_events_rls.sql   — events 表 RLS 修复
+011_v2_gift_and_templates.sql — v2.0 词库/礼物/ai_generations + blessings ALTER + RLS
+012_seed_templates.sql   — v2.0 测试词库 60 条（甲方素材到位后 CSV 覆盖导入）
+013_enable_v2_strict.sql — v2.0 严格触发器（⚠️ 须与 v2 前端同步上线后执行）
 ```
 
 ### 执行方式
 
-1. **Supabase Dashboard** → SQL Editor
-2. 按顺序粘贴执行每个文件
-3. 验证：运行 `node database/security-check.mjs`
+**方式 A（推荐，脚本化）**：`database/run-migration.mjs`
+
+```bash
+# 需要 .env.local 中配置 SUPABASE_DB_PASSWORD；网络受限时指定 pooler 真实 IP
+SUPABASE_DB_PASSWORD=xxx node database/run-migration.mjs database/migrations/013_enable_v2_strict.sql
+# 本机 DNS 污染时（pooler 域名解析异常），经 DoH 取区域真实 IP 后：
+SUPABASE_DB_PASSWORD=xxx SUPABASE_POOLER_IP=54.64.190.72 node database/run-migration.mjs <文件>
+```
+
+**方式 B**：Supabase Dashboard → SQL Editor 按顺序粘贴执行。
+
+3. 验证：运行 `node database/security-check.mjs`（21 项断言）
 
 ### 注意事项
 
@@ -377,10 +390,10 @@ vercel rollback
    ```
 
 4. **功能验证**
-   - 测试提交祝福流程
-   - 测试点赞功能
-   - 测试管理后台
-   - 测试大屏模式
+   - 测试送礼流程（/gift：选情绪 → 选祝福 → 选礼物 → 送出）
+   - 测试点赞功能（祝福墙同句聚合卡片）
+   - 测试管理后台（词库 / 礼物 / AI 中心）
+   - 验证今日金句与情绪洞察展示
 
 5. **监控配置**
    - 确认 Sentry 告警正常

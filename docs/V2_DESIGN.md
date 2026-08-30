@@ -70,15 +70,15 @@ Step 6 完成         「您的心意已经送达」+ 分享卡 + 「再送一�
 | :--- | :--- | :--- | :--- |
 | AI-3 | **送礼仪式文案** | 根据「祝福 + 礼物」生成 2~3 句仪式感文案，随动画呈现 | 后台预生成模板矩阵（7 情绪 × 8 礼物 = 56 组）入库缓存；LLM 生成后人工可改 |
 | AI-4 | **今日金句** | 从当日真实祝福中挑选「最温暖的一句话」展示在首页 | AI 打分排序候选 → 管理员后台一键确认 → 展示。AI 不修改原文，只筛选 |
-| AI-5 | **全校情绪洞察** | 大屏/首页展示情绪分布（感恩 42%、温柔 23%…），不展示老师个体数据 | 聚合统计（DB） + AI 生成一句总结文案（每日 1 次，可缓存） |
+| AI-5 | **全校情绪洞察** | 首页/管理后台展示情绪分布（感恩 42%、温柔 23%…），不展示老师个体数据 | 聚合统计（DB） + AI 生成一句总结文案（每日 1 次，可缓存） |
 | AI-6 | **活动收官总结** | 活动结束生成「2026 教师节纪念」：参与人数、礼物构成、高频关键词、AI 收官诗 | 活动结束后管理员手动触发一次，结果入库 |
 
 ### P2（锦上添花）
 
 | # | 创意点 | 说明 |
 | :--- | :--- | :--- |
-| AI-7 | **关键词云** | 从真实祝福提取高频词（谢谢/陪伴/成长…）大屏展示，纯 DB 统计 |
-| AI-8 | **里程碑 AI 文案** | 礼物数达 100/500/1000/2000 时大屏显示 AI 一句话（如「1000 份礼物，汇成一句话——谢谢您」），文案预生成 + 缓存 |
+| AI-7 | **关键词云** | 从真实祝福提取高频词（谢谢/陪伴/成长…）在祝福星河页展示，纯 DB 统计 |
+| AI-8 | **里程碑 AI 文案** | 礼物数达 100/500/1000/2000 时星河页显示 AI 一句话（如「1000 份礼物，汇成一句话——谢谢您」），文案预生成 + 缓存 |
 
 ## 6. 数据模型设计
 
@@ -393,10 +393,10 @@ AI_BASE_URL=                         # 可选，openai 兼容地址
 | `src/app/api/blessings/route.ts` | POST 新契约：服务端查模板取 content |
 | `src/app/api/blessings/stats/route.ts` | 新增 total_gifts |
 | `src/app/page.tsx` | CTA 文案 + 今日金句 + 星河入口调整 |
-| `src/app/wall/page.tsx` + `BlessingCard.tsx` | 礼物 icon + 情绪标签，移除老师显示 |
-| `src/app/display/page.tsx` | 4 场景循环 + 里程碑动画 |
+| `src/app/wall/page.tsx` + `BlessingCard.tsx` | 礼物 icon + 情绪标签，移除老师显示（后续演进为同句聚合 GroupedBlessingCard） |
+| `src/app/display/page.tsx` | ~~4 场景循环~~ **已删除**（用户拍板，决策 11） |
 | `src/app/admin/page.tsx` | 新增 3 个 tab |
-| `src/components/blessing/BlessingForm.tsx` | 移除教师选择；昵称/班级/匿名开关并入 /gift Step 4 |
+| `src/components/blessing/BlessingForm.tsx` | ~~移除教师选择~~ **已删除**（Turnstile 提取为 useTurnstile，昵称/班级并入 /gift Step 4） |
 | `src/middleware.ts` | 无改动（admin 路由已覆盖） |
 | `database/security-check.mjs` | 扩展新表检查 |
 | `CLAUDE.md` / `docs/API.md` / `docs/SECURITY.md` / `docs/ARCHITECTURE.md` | 文档同步 |
