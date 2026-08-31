@@ -51,6 +51,7 @@ export function buildSummaryPrompt(stats: {
     '你是教师节活动的文案策划。请根据以下数据写一段 120 字左右的教师节活动总结，',
     '温暖、诗意、不浮夸，以「这一年校园里的感谢」为视角，避免对任何老师做个体比较。',
     `数据：${stats.total_participants} 位同学送出 ${stats.total_blessings} 份祝福；礼物构成：${giftText || '暂无'}；情绪构成：${emotionText || '暂无'}。`,
+    '必须自然提及礼物构成（如「最多的礼物是鲜花」），这是活动的核心要素。',
     '只输出总结正文，不要标题和解释。',
   ].join('\n');
 }
