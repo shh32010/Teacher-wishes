@@ -34,8 +34,8 @@ test.describe('首页 (Homepage)', () => {
     await expect(quote2).toBeVisible({ timeout: 8_000 });
   });
 
-  test('"送出我的礼物"按钮最终可见并可点击', async ({ page }) => {
-    const enterBtn = page.getByRole('button', { name: '🎁 送出我的礼物' });
+  test('"送出我的祝福"按钮最终可见并可点击', async ({ page }) => {
+    const enterBtn = page.getByRole('button', { name: '🎁 送出我的祝福' });
     await expect(enterBtn).toBeVisible({ timeout: 12_000 });
     await expect(enterBtn).toBeEnabled();
 

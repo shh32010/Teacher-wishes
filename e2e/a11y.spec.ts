@@ -19,8 +19,8 @@ test.describe('无障碍基础检查', () => {
     await expect(adminBtn).toBeVisible({ timeout: 12_000 });
     await expect(adminBtn).toHaveAttribute('aria-label', '进入管理后台');
 
-    // "送出我的礼物"主 CTA 按钮可见
-    const giftBtn = page.getByRole('button', { name: '🎁 送出我的礼物' });
+    // "送出我的祝福"主 CTA 按钮可见
+    const giftBtn = page.getByRole('button', { name: '🎁 送出我的祝福' });
     await expect(giftBtn).toBeVisible({ timeout: 12_000 });
   });
 

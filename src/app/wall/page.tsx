@@ -125,7 +125,7 @@ export default function WallPage() {
         }
         right={
           <a href="/gift" className="btn-primary hidden px-4 py-1.5 text-sm sm:block">
-            🎁 送出礼物
+            🎁 送出祝福
           </a>
         }
       />
@@ -184,7 +184,7 @@ export default function WallPage() {
         href="/gift"
         className="btn-primary fixed bottom-[calc(20px+env(safe-area-inset-bottom,0px))] right-4 z-40 animate-breathe shadow-lg shadow-primary/20 text-sm px-4 py-2.5 md:text-lg md:px-6 md:py-3"
       >
-        🎁 送出礼物
+        🎁 送出祝福
       </a>
     </main>
   );

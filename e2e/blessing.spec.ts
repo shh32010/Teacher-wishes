@@ -30,7 +30,7 @@ test.describe('祝福墙 & 祝福提交', () => {
     await page.goto('/wall');
 
     // 页面有两个同名链接（NavHeader 桌面入口 + 底部浮动按钮），取 DOM 最后的浮动按钮
-    const giftBtn = page.getByRole('link', { name: '🎁 送出礼物' }).last();
+    const giftBtn = page.getByRole('link', { name: '🎁 送出祝福' }).last();
     await giftBtn.waitFor({ state: 'visible', timeout: 5_000 });
     await giftBtn.click({ force: true });
     await expect(page).toHaveURL(/\/gift/);

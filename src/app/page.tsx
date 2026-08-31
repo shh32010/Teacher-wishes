@@ -187,7 +187,7 @@ export default function HomePage() {
                 onClick={() => router.push('/gift')}
                 className="btn-primary animate-breathe text-lg"
               >
-                🎁 送出我的礼物
+                🎁 送出我的祝福
               </motion.button>
               <button
                 onClick={() => router.push('/wall')}
