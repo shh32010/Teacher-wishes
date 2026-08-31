@@ -502,9 +502,13 @@ export default function GiftGalaxy() {
                           {selectedStar.blessing.emotion}
                         </span>
                       )}
-                      {selectedStar.blessing.gift && (
+                      {selectedStar.blessing.gift ? (
                         <span className="rounded-full bg-accent/10 px-3 py-1 text-xs text-accent">
                           {selectedStar.blessing.gift.icon} {selectedStar.blessing.gift.name} ·
+                          献给全体老师
+                        </span>
+                      ) : (
+                        <span className="rounded-full bg-accent/10 px-3 py-1 text-xs text-accent">
                           献给全体老师
                         </span>
                       )}
@@ -517,9 +521,11 @@ export default function GiftGalaxy() {
                       </p>
                     )}
 
-                    {/* 元信息 */}
+                    {/* 元信息（0 赞不显示点赞数） */}
                     <div className="mt-4 flex items-center justify-center gap-4 text-xs text-ink-muted">
-                      <span>❤️ {selectedStar.blessing.likes} 赞</span>
+                      {selectedStar.blessing.likes > 0 && (
+                        <span>❤️ {selectedStar.blessing.likes} 赞</span>
+                      )}
                       <span>{formatDate(selectedStar.blessing.created_at)}</span>
                     </div>
                   </div>
