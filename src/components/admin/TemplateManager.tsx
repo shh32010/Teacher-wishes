@@ -47,7 +47,6 @@ export default function TemplateManager() {
   const [category, setCategory] = useState('');
   const [search, setSearch] = useState('');
   const [searchInput, setSearchInput] = useState('');
-  const [page, setPage] = useState(1);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [importResult, setImportResult] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
@@ -58,20 +57,24 @@ export default function TemplateManager() {
   const [newTags, setNewTags] = useState('');
   const [saving, setSaving] = useState(false);
 
+  // ─── 备注内联编辑状态 ───
+  const [editingRemarkId, setEditingRemarkId] = useState<string | null>(null);
+  const [remarkDraft, setRemarkDraft] = useState('');
+
   const categoryParam = category ? `&category=${encodeURIComponent(category)}` : '';
   const searchParam = search ? `&search=${encodeURIComponent(search)}` : '';
+  // 显示全部词库（pageSize 500 覆盖当前规模，不分页）
   const { data, error, isLoading, mutate } = useSWR(
-    `/api/admin/templates?page=${page}&pageSize=50${categoryParam}${searchParam}`,
+    `/api/admin/templates?page=1&pageSize=500${categoryParam}${searchParam}`,
     fetcher
   );
 
   const templates: BlessingTemplate[] = data?.data || [];
-  const totalPages = Math.ceil((data?.count || 0) / 50);
 
-  // 翻页/筛选/搜索时清空跨页选择（避免表头全选态与实际选中集不一致的混乱）
+  // 筛选/搜索变化时清空选择（避免表头全选态与实际选中集不一致的混乱）
   useEffect(() => {
     setSelectedIds(new Set());
-  }, [page, category, search]);
+  }, [category, search]);
 
   const toggleSelect = (id: string) => {
     setSelectedIds((prev) => {
@@ -164,7 +167,6 @@ export default function TemplateManager() {
     setImportResult(
       `✅ 导入 ${d.imported} 条，跳过重复 ${d.skippedDuplicate} 条，无效 ${d.skippedInvalid} 条`
     );
-    setPage(1);
     mutate();
   };
 
@@ -221,10 +223,7 @@ export default function TemplateManager() {
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-wrap items-center gap-2">
           <button
-            onClick={() => {
-              setCategory('');
-              setPage(1);
-            }}
+            onClick={() => setCategory('')}
             className={`rounded-lg px-3 py-1.5 text-sm ${
               category === '' ? 'bg-primary text-white' : 'glass text-ink-muted hover:text-ink'
             }`}
@@ -234,10 +233,7 @@ export default function TemplateManager() {
           {CATEGORIES.map((c) => (
             <button
               key={c}
-              onClick={() => {
-                setCategory(c === category ? '' : c);
-                setPage(1);
-              }}
+              onClick={() => setCategory(c === category ? '' : c)}
               className={`rounded-lg px-3 py-1.5 text-sm ${
                 category === c ? 'bg-primary text-white' : 'glass text-ink-muted hover:text-ink'
               }`}
@@ -253,7 +249,6 @@ export default function TemplateManager() {
             onKeyDown={(e) => {
               if (e.key === 'Enter') {
                 setSearch(searchInput.trim());
-                setPage(1);
               }
             }}
             placeholder="搜索祝福语..."
@@ -312,9 +307,9 @@ export default function TemplateManager() {
                 </th>
                 <th className="p-4">祝福语</th>
                 <th className="p-4">分类</th>
+                <th className="p-4">备注</th>
                 <th className="p-4">使用次数</th>
-                <th className="p-4">状态</th>
-                <th className="p-4">操作</th>
+                <th className="p-4">状态（点击切换）</th>
               </tr>
             </thead>
             <tbody>
@@ -330,18 +325,44 @@ export default function TemplateManager() {
                   </td>
                   <td className="max-w-sm p-4 text-ink truncate">{t.content}</td>
                   <td className="p-4 text-ink-light whitespace-nowrap">{t.category}</td>
-                  <td className="p-4 text-ink-muted">{t.usage_count}</td>
-                  <td className="p-4">
-                    <span
-                      className={`rounded-full px-2 py-0.5 text-xs ${
-                        t.is_active
-                          ? 'bg-green-500/15 text-green-600'
-                          : 'bg-gray-500/15 text-gray-500'
-                      }`}
-                    >
-                      {t.is_active ? '启用' : '停用'}
-                    </span>
+                  {/* 备注内联编辑：点击 → 输入 → 失焦/回车保存 */}
+                  <td
+                    className="p-4"
+                    onClick={() => {
+                      setEditingRemarkId(t.id);
+                      setRemarkDraft(t.remark || '');
+                    }}
+                  >
+                    {editingRemarkId === t.id ? (
+                      <input
+                        autoFocus
+                        value={remarkDraft}
+                        onChange={(e) => setRemarkDraft(e.target.value)}
+                        maxLength={100}
+                        onBlur={async () => {
+                          const result = await adminWrite('/api/admin/templates', 'PATCH', {
+                            ids: [t.id],
+                            updates: { remark: remarkDraft },
+                          });
+                          setEditingRemarkId(null);
+                          if (!result.ok) alert(result.error);
+                          else mutate();
+                        }}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') (e.target as HTMLInputElement).blur();
+                        }}
+                        placeholder="输入备注..."
+                        className="input-glass-sm w-full min-w-32"
+                        onClick={(e) => e.stopPropagation()}
+                      />
+                    ) : (
+                      <span className="cursor-text text-xs text-ink-light">
+                        {t.remark || '— 点击添加 —'}
+                      </span>
+                    )}
                   </td>
+                  <td className="p-4 text-ink-muted">{t.usage_count}</td>
+                  {/* 状态徽章直接点击切换 */}
                   <td className="p-4">
                     <button
                       onClick={async () => {
@@ -352,38 +373,20 @@ export default function TemplateManager() {
                         if (!result.ok) alert(result.error);
                         else mutate();
                       }}
-                      className="rounded-lg bg-ink/5 px-3 py-1 text-xs text-ink-muted hover:bg-ink/10"
+                      className={`rounded-full px-2.5 py-0.5 text-xs transition-colors ${
+                        t.is_active
+                          ? 'bg-green-500/15 text-green-600 hover:bg-green-500/25'
+                          : 'bg-gray-500/15 text-gray-500 hover:bg-gray-500/25'
+                      }`}
+                      title={t.is_active ? '点击停用' : '点击启用'}
                     >
-                      {t.is_active ? '停用' : '启用'}
+                      {t.is_active ? '启用' : '停用'}
                     </button>
                   </td>
                 </tr>
               ))}
             </tbody>
           </table>
-        </div>
-      )}
-
-      {/* 分页 */}
-      {totalPages > 1 && (
-        <div className="mt-4 flex items-center justify-center gap-2">
-          <button
-            onClick={() => setPage((p) => Math.max(1, p - 1))}
-            disabled={page <= 1}
-            className="rounded-lg px-3 py-1.5 text-sm glass text-ink-muted disabled:opacity-30"
-          >
-            ← 上一页
-          </button>
-          <span className="text-sm text-ink-muted">
-            {page} / {totalPages}
-          </span>
-          <button
-            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-            disabled={page >= totalPages}
-            className="rounded-lg px-3 py-1.5 text-sm glass text-ink-muted disabled:opacity-30"
-          >
-            下一页 →
-          </button>
         </div>
       )}
 

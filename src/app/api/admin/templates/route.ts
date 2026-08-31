@@ -97,13 +97,18 @@ export async function POST(request: NextRequest) {
   }
 
   try {
-    const body: { content?: string; category?: string; tags?: string[] } = await request.json();
+    const body: { content?: string; category?: string; tags?: string[]; remark?: string } =
+      await request.json();
 
     const content = typeof body.content === 'string' ? body.content.trim() : '';
     const category = typeof body.category === 'string' ? body.category : '感恩';
     const tags = Array.isArray(body.tags)
       ? body.tags.filter((t): t is string => typeof t === 'string' && t.trim().length > 0)
       : [];
+    const remark =
+      typeof body.remark === 'string' && body.remark.trim().length <= 100
+        ? body.remark.trim() || null
+        : null;
 
     // 输入校验
     const contentError = await validateTemplateContent(content);
@@ -132,7 +137,7 @@ export async function POST(request: NextRequest) {
 
     const { data, error } = await supabase
       .from('blessing_templates')
-      .insert({ content, category, tags })
+      .insert({ content, category, tags, remark })
       .select()
       .single();
 
@@ -187,6 +192,9 @@ export async function PATCH(request: NextRequest) {
     }
     if (typeof body.updates.sort_order === 'number' && Number.isInteger(body.updates.sort_order)) {
       allowedUpdates.sort_order = body.updates.sort_order;
+    }
+    if (typeof body.updates.remark === 'string' && body.updates.remark.length <= 100) {
+      allowedUpdates.remark = body.updates.remark || null;
     }
 
     if (Object.keys(allowedUpdates).length === 0) {

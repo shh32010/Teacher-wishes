@@ -31,6 +31,8 @@ export interface BlessingTemplate {
   sort_order: number;
   is_active: boolean;
   usage_count: number;
+  /** 运营备注（如「甲方提供」「待替换」） */
+  remark: string | null;
   created_at: string;
   updated_at: string;
 }
