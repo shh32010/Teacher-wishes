@@ -87,6 +87,8 @@ export interface Blessing {
   teacher?: Teacher | null;
   /** 关联查询时可带出礼物信息 */
   gift?: Gift | null;
+  /** 管理端附加：该句祝福共有多少位同学送出（同句计数） */
+  sentence_count?: number;
 }
 
 /** 提交祝福的请求体（v2.0：只传模板/礼物 ID，服务端查官方词库取内容） */

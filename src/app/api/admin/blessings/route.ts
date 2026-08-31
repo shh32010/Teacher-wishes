@@ -5,6 +5,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/server';
+import { fetchAllPages } from '@/lib/supabase/fetch-all';
 import type { AdminUpdateBlessing } from '@/types';
 import { validateCsrfToken, csrfErrorResponse } from '@/lib/csrf';
 import { requireAdmin } from '@/lib/auth/admin';
@@ -43,7 +44,24 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: '查询失败' }, { status: 500 });
     }
 
-    return NextResponse.json({ data, count, page, pageSize });
+    // 附加 sentence_count：每行该句祝福共有多少位同学送出（全量 content 计数）
+    const { rows: allContents, error: countError } = await fetchAllPages<{ content: string }>(
+      (from, to) => supabase.from('blessings').select('content').range(from, to)
+    );
+    if (countError) {
+      console.error('[Admin API] 句计数失败:', countError);
+      return NextResponse.json({ error: '查询失败' }, { status: 500 });
+    }
+    const contentCounts = new Map<string, number>();
+    for (const row of allContents) {
+      contentCounts.set(row.content, (contentCounts.get(row.content) || 0) + 1);
+    }
+    const dataWithCount = ((data as Record<string, unknown>[]) || []).map((b) => ({
+      ...b,
+      sentence_count: contentCounts.get(String(b.content)) || 1,
+    }));
+
+    return NextResponse.json({ data: dataWithCount, count, page, pageSize });
   } catch (err) {
     console.error('[Admin API] 查询异常:', err);
     return NextResponse.json({ error: '服务器内部错误' }, { status: 500 });

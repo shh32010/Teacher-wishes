@@ -487,7 +487,7 @@ export default function TemplateManager() {
                   <tr>
                     <th className="p-4">情绪</th>
                     <th className="p-4">祝福内容</th>
-                    <th className="p-4">礼物</th>
+                    <th className="p-4">学生数量</th>
                     <th className="p-4">发送者</th>
                     <th className="p-4">点赞</th>
                     <th className="p-4">时间</th>
@@ -509,8 +509,8 @@ export default function TemplateManager() {
                         )}
                       </td>
                       <td className="max-w-sm p-4 text-ink truncate">{b.content}</td>
-                      <td className="p-4 text-ink-light whitespace-nowrap">
-                        {b.gift ? `${b.gift.icon} ${b.gift.name}` : '-'}
+                      <td className="p-4 text-ink-muted whitespace-nowrap">
+                        {b.sentence_count ?? 1} 位同学
                       </td>
                       <td className="p-4 text-ink-light whitespace-nowrap">
                         {b.is_anonymous ? '匿名' : b.nickname || '-'}
