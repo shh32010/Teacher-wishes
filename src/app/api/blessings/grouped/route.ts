@@ -19,25 +19,42 @@ export async function GET(request: NextRequest) {
 
     // anon RLS 自动只返回 approved；按时间倒序取全量（聚合的「最新」语义依赖此顺序）
     // 明确字段：不再返回 teacher 关联（v2 叙事统一献给全体老师）
-    const { data, error } = await supabase
-      .from('blessings')
-      .select(
-        `id, content, nickname, class, is_anonymous, likes, is_featured,
-         created_at, emotion, template_id, gift_id,
-         gift:gifts(id, name, icon)`
-      )
-      .eq('status', 'approved')
-      .order('created_at', { ascending: false })
-      .limit(3000);
+    // ⚠️ Supabase PostgREST 单次上限 1000 行——循环分页取全量，
+    //    否则超过 1000 条后旧祝福被静默截断（count 偏小/整组消失）
+    const PAGE_SIZE = 1000;
+    const MAX_ROWS = 5000; // 活动规模保护上限
+    const allRows: unknown[] = [];
+    let queryError: { message?: string } | null = null;
 
-    if (error) {
-      console.error('[API] 聚合查询失败:', error);
+    for (let offset = 0; offset < MAX_ROWS; offset += PAGE_SIZE) {
+      const { data, error } = await supabase
+        .from('blessings')
+        .select(
+          `id, content, nickname, class, is_anonymous, likes, is_featured,
+           created_at, emotion, template_id, gift_id,
+           gift:gifts(id, name, icon)`
+        )
+        .eq('status', 'approved')
+        .order('created_at', { ascending: false })
+        .range(offset, offset + PAGE_SIZE - 1);
+
+      if (error) {
+        queryError = error;
+        break;
+      }
+      if (!data || data.length === 0) break;
+      allRows.push(...data);
+      if (data.length < PAGE_SIZE) break; // 最后一页
+    }
+
+    if (queryError) {
+      console.error('[API] 聚合查询失败:', queryError);
       return NextResponse.json({ error: '查询失败' }, { status: 500 });
     }
 
     // 字段化 select 不含 user_id/teacher_id 等 DB 内部列；teacher 关联为 many-to-one
     // 运行时返回对象（supabase-js 类型推断保守为数组），聚合逻辑按对象读取
-    const blessings = (data as unknown as Blessing[]) || [];
+    const blessings = (allRows as unknown as Blessing[]) || [];
     const groups = groupBlessings(blessings, sort);
 
     const res = NextResponse.json({
