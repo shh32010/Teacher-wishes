@@ -47,6 +47,7 @@ export default function TemplateManager() {
   const [category, setCategory] = useState('');
   const [search, setSearch] = useState('');
   const [searchInput, setSearchInput] = useState('');
+  const [page, setPage] = useState(1);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [importResult, setImportResult] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
@@ -63,18 +64,19 @@ export default function TemplateManager() {
 
   const categoryParam = category ? `&category=${encodeURIComponent(category)}` : '';
   const searchParam = search ? `&search=${encodeURIComponent(search)}` : '';
-  // 显示全部词库（pageSize 500 覆盖当前规模，不分页）
+  // 分页展示（50/页，150 条约 3 页，含停用句）
   const { data, error, isLoading, mutate } = useSWR(
-    `/api/admin/templates?page=1&pageSize=500${categoryParam}${searchParam}`,
+    `/api/admin/templates?page=${page}&pageSize=50${categoryParam}${searchParam}`,
     fetcher
   );
 
   const templates: BlessingTemplate[] = data?.data || [];
+  const totalPages = Math.ceil((data?.count || 0) / 50);
 
-  // 筛选/搜索变化时清空选择（避免表头全选态与实际选中集不一致的混乱）
+  // 翻页/筛选/搜索变化时清空选择（避免表头全选态与实际选中集不一致的混乱）
   useEffect(() => {
     setSelectedIds(new Set());
-  }, [category, search]);
+  }, [page, category, search]);
 
   const toggleSelect = (id: string) => {
     setSelectedIds((prev) => {
@@ -223,7 +225,10 @@ export default function TemplateManager() {
       <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
         <div className="flex flex-wrap items-center gap-2">
           <button
-            onClick={() => setCategory('')}
+            onClick={() => {
+              setCategory('');
+              setPage(1);
+            }}
             className={`rounded-lg px-3 py-1.5 text-sm ${
               category === '' ? 'bg-primary text-white' : 'glass text-ink-muted hover:text-ink'
             }`}
@@ -233,7 +238,10 @@ export default function TemplateManager() {
           {CATEGORIES.map((c) => (
             <button
               key={c}
-              onClick={() => setCategory(c === category ? '' : c)}
+              onClick={() => {
+                setCategory(c === category ? '' : c);
+                setPage(1);
+              }}
               className={`rounded-lg px-3 py-1.5 text-sm ${
                 category === c ? 'bg-primary text-white' : 'glass text-ink-muted hover:text-ink'
               }`}
@@ -249,6 +257,7 @@ export default function TemplateManager() {
             onKeyDown={(e) => {
               if (e.key === 'Enter') {
                 setSearch(searchInput.trim());
+                setPage(1);
               }
             }}
             placeholder="搜索祝福语..."
@@ -387,6 +396,29 @@ export default function TemplateManager() {
               ))}
             </tbody>
           </table>
+        </div>
+      )}
+
+      {/* 分页 */}
+      {totalPages > 1 && (
+        <div className="mt-4 flex items-center justify-center gap-2">
+          <button
+            onClick={() => setPage((p) => Math.max(1, p - 1))}
+            disabled={page <= 1}
+            className="rounded-lg px-3 py-1.5 text-sm glass text-ink-muted disabled:opacity-30"
+          >
+            ← 上一页
+          </button>
+          <span className="text-sm text-ink-muted">
+            {page} / {totalPages}
+          </span>
+          <button
+            onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+            disabled={page >= totalPages}
+            className="rounded-lg px-3 py-1.5 text-sm glass text-ink-muted disabled:opacity-30"
+          >
+            下一页 →
+          </button>
         </div>
       )}
 
