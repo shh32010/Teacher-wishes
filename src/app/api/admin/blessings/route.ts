@@ -28,7 +28,7 @@ export async function GET(request: NextRequest) {
 
     let query = supabase
       .from('blessings')
-      .select('*, teacher:teachers(*)', { count: 'exact' })
+      .select('*, teacher:teachers(*), gift:gifts(id, name, icon)', { count: 'exact' })
       .order('created_at', { ascending: false })
       .range(offset, offset + pageSize - 1);
 

@@ -265,9 +265,9 @@ export default function AdminPage() {
                           className="rounded"
                         />
                       </th>
-                      <th className="p-4">发送者</th>
+                      <th className="p-4">情绪</th>
                       <th className="p-4">祝福内容</th>
-                      <th className="p-4">祝福对象</th>
+                      <th className="p-4">礼物</th>
                       <th className="p-4">点赞</th>
                       <th className="p-4">时间</th>
                     </tr>
@@ -290,8 +290,14 @@ export default function AdminPage() {
                             className="rounded"
                           />
                         </td>
-                        <td className="p-4 text-ink">
-                          {blessing.is_anonymous ? '匿名' : blessing.nickname || '-'}
+                        <td className="p-4 text-ink whitespace-nowrap">
+                          {blessing.emotion ? (
+                            <span className="rounded-full bg-accent/10 px-2 py-0.5 text-xs text-accent">
+                              {blessing.emotion}
+                            </span>
+                          ) : (
+                            '-'
+                          )}
                         </td>
                         <td className="max-w-xs p-4 text-ink truncate">
                           {blessing.is_featured && (
@@ -302,7 +308,7 @@ export default function AdminPage() {
                           {blessing.content}
                         </td>
                         <td className="p-4 text-ink-light whitespace-nowrap">
-                          {blessing.teacher?.name || '全体'}
+                          {blessing.gift ? `${blessing.gift.icon} ${blessing.gift.name}` : '-'}
                         </td>
                         <td className="p-4 text-ink-muted">{blessing.likes}</td>
                         <td className="p-4 text-ink-muted">
