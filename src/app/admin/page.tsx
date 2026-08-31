@@ -267,7 +267,6 @@ export default function AdminPage() {
                       </th>
                       <th className="p-4">情绪</th>
                       <th className="p-4">祝福内容</th>
-                      <th className="p-4">礼物</th>
                       <th className="p-4">点赞</th>
                       <th className="p-4">时间</th>
                     </tr>
@@ -306,9 +305,6 @@ export default function AdminPage() {
                             </span>
                           )}
                           {blessing.content}
-                        </td>
-                        <td className="p-4 text-ink-light whitespace-nowrap">
-                          {blessing.gift ? `${blessing.gift.icon} ${blessing.gift.name}` : '-'}
                         </td>
                         <td className="p-4 text-ink-muted">{blessing.likes}</td>
                         <td className="p-4 text-ink-muted">
