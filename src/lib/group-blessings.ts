@@ -17,8 +17,6 @@ export interface BlessingGroup {
   gift_icons: string[];
   /** 情绪标签（取组内最新一条） */
   emotion: string | null;
-  /** 历史祝福的老师名（组内第一条非空；v2 新祝福为 null） */
-  teacher_name: string | null;
   /** 点赞代表条（组内最新一条的 id，点赞按钮指向它） */
   representative_id: string;
   /** 组内是否有精选 */
@@ -58,7 +56,6 @@ export function groupBlessings(
         total_likes: b.likes,
         gift_icons: b.gift ? [b.gift.icon] : [],
         emotion: b.emotion ?? null,
-        teacher_name: b.teacher?.name ?? null,
         representative_id: b.id,
         is_featured: b.is_featured,
         latest_nickname: b.is_anonymous ? null : (b.nickname ?? null),

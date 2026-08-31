@@ -18,13 +18,13 @@ export async function GET(request: NextRequest) {
     const supabase = createAnonClient();
 
     // anon RLS 自动只返回 approved；按时间倒序取全量（聚合的「最新」语义依赖此顺序）
-    // 明确字段：teacher 仅取名字（历史祝福「往年」标签用），gift 取展示三件套
+    // 明确字段：不再返回 teacher 关联（v2 叙事统一献给全体老师）
     const { data, error } = await supabase
       .from('blessings')
       .select(
         `id, content, nickname, class, is_anonymous, likes, is_featured,
          created_at, emotion, template_id, gift_id,
-         gift:gifts(id, name, icon), teacher:teachers(id, name)`
+         gift:gifts(id, name, icon)`
       )
       .eq('status', 'approved')
       .order('created_at', { ascending: false })

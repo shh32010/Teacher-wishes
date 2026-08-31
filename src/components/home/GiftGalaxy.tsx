@@ -503,15 +503,11 @@ export default function GiftGalaxy() {
                       {selectedStar.blessing.content}
                     </p>
 
-                    {/* 礼物标签（v2.0）或历史祝福标记（teacher 数据已不在公开契约中返回） */}
-                    {selectedStar.blessing.gift ? (
+                    {/* 礼物标签（星河粒子均为带礼物的祝福，不显示任何老师名字） */}
+                    {selectedStar.blessing.gift && (
                       <span className="mt-4 inline-block rounded-full bg-accent/10 px-4 py-1.5 text-xs text-accent">
                         {selectedStar.blessing.gift.icon} {selectedStar.blessing.gift.name} ·
                         献给全体老师
-                      </span>
-                    ) : (
-                      <span className="mt-4 inline-block rounded-full bg-accent/10 px-4 py-1.5 text-xs text-accent">
-                        献给全体老师（往年）
                       </span>
                     )}
 

@@ -36,14 +36,12 @@ test.describe('祝福墙 & 祝福提交', () => {
     await expect(page).toHaveURL(/\/gift/);
   });
 
-  test('聚合卡片：历史祝福保留老师标签，新祝福显示礼物与全体老师', async ({ page }) => {
+  test('聚合卡片：不显示老师名字，统一「献给全体老师」', async ({ page }) => {
     await page.goto('/wall');
 
-    // 历史祝福（mock 数据有 teacher_name）→ 「（往年）」标签
-    await expect(page.getByText('张老师（往年）')).toBeVisible({ timeout: 10_000 });
-
-    // v2 新祝福（mock 数据有 gift_icons）→ 「献给全体老师」
-    await expect(page.getByText('献给全体老师')).toBeVisible();
+    // 所有聚合卡统一显示「献给全体老师」（不出现任何老师名字标签）
+    await expect(page.getByText('献给全体老师').first()).toBeVisible({ timeout: 10_000 });
+    await expect(page.getByText(/老师（往年）/)).toHaveCount(0);
   });
 
   test('祝福墙统计数字显示正确', async ({ page }) => {

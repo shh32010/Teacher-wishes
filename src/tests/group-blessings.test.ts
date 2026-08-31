@@ -125,28 +125,19 @@ describe('groupBlessings', () => {
     expect(groups[0].latest_class).toBeNull();
   });
 
-  it('历史祝福（有老师）聚合时保留老师名', () => {
+  it('无礼物的祝福聚合时 gift_icons 为空数组', () => {
     const blessings = [
       makeBlessing({
         id: 'a1',
-        content: '张老师，感谢您三年来的谆谆教诲！',
+        content: '往年的一句话',
         teacher_id: 't1',
         gift_id: null,
         gift: undefined,
         emotion: null,
         template_id: null,
-        teacher: {
-          id: 't1',
-          name: '张老师',
-          department: null,
-          avatar_url: null,
-          description: null,
-          created_at: 'x',
-        },
       }),
     ];
     const groups = groupBlessings(blessings);
-    expect(groups[0].teacher_name).toBe('张老师');
     expect(groups[0].gift_icons).toEqual([]);
   });
 
