@@ -116,7 +116,17 @@ export default function AICenter() {
 
   return (
     <div className="space-y-6">
-      <h2 className="text-lg font-bold text-ink">AI 活动助手</h2>
+      <h2 className="text-lg font-bold text-ink">🤖 AI 中心</h2>
+
+      {/* 智能推荐机制说明（学生端 AI 如何工作） */}
+      <div className="glass-card p-4">
+        <p className="mb-2 text-sm font-bold text-ink">智能推荐机制</p>
+        <p className="text-xs leading-relaxed text-ink-light">
+          学生在送礼流程选择情绪后，AI 根据祝福语库的标签进行语义匹配，
+          按命中程度排序，从甲方提供的官方祝福语中推荐最合适的 3 条。
+          活动期间不调用实时大模型——纯标签匹配，零成本、零延迟、永不断线。
+        </p>
+      </div>
 
       {/* 批量分类 */}
       <div className="glass-card p-4">

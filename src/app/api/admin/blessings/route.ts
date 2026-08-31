@@ -5,7 +5,6 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/server';
-import { fetchAllPages } from '@/lib/supabase/fetch-all';
 import type { AdminUpdateBlessing } from '@/types';
 import { validateCsrfToken, csrfErrorResponse } from '@/lib/csrf';
 import { requireAdmin } from '@/lib/auth/admin';
@@ -44,17 +43,18 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: '查询失败' }, { status: 500 });
     }
 
-    // 附加 sentence_count：每行该句祝福共有多少位同学送出（全量 content 计数）
-    const { rows: allContents, error: countError } = await fetchAllPages<{ content: string }>(
-      (from, to) => supabase.from('blessings').select('content').range(from, to)
-    );
-    if (countError) {
-      console.error('[Admin API] 句计数失败:', countError);
+    // sentence_count 由数据库侧聚合（RPC GROUP BY），避免全表扫描到应用层；
+    // 统计结果仅去重句数量级（≤ 数百行），一次 RPC 轻量返回
+    const { data: statsRows, error: statsError } = await supabase.rpc('get_sentence_stats');
+
+    if (statsError) {
+      console.error('[Admin API] 句计数 RPC 失败:', statsError);
       return NextResponse.json({ error: '查询失败' }, { status: 500 });
     }
+
     const contentCounts = new Map<string, number>();
-    for (const row of allContents) {
-      contentCounts.set(row.content, (contentCounts.get(row.content) || 0) + 1);
+    for (const row of (statsRows as { content: string; sentence_count: number }[]) || []) {
+      contentCounts.set(row.content, Number(row.sentence_count));
     }
     const dataWithCount = ((data as Record<string, unknown>[]) || []).map((b) => ({
       ...b,

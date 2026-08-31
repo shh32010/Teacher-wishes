@@ -82,6 +82,17 @@ export async function POST(request: NextRequest) {
   try {
     const body: CreateBlessingPayload = await request.json();
 
+    // 活动状态检查（anon 可读 activity_settings）：closed 时拒绝新提交
+    const anonForSettings = createAnonClient();
+    const { data: statusRow } = await anonForSettings
+      .from('activity_settings')
+      .select('value')
+      .eq('key', 'activity_status')
+      .single();
+    if (statusRow?.value === 'closed') {
+      return NextResponse.json({ error: '活动已结束，感谢参与' }, { status: 503 });
+    }
+
     // v2.0 契约：客户端只传 template_id + gift_id，
     // 祝福内容由服务端从官方词库读取，客户端伪造 content 无效
     const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
