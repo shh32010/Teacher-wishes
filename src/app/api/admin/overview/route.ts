@@ -58,13 +58,12 @@ export async function GET(request: NextRequest) {
     const emotionCounts = new Map<string, number>();
     const giftCounts = new Map<string, { name: string; icon: string; count: number }>();
     const contentCounts = new Map<string, number>();
-    const contentGiftCounts = new Map<string, number>();
-    const participants = new Set<string>();
     let totalLikes = 0;
+    let featuredCount = 0;
 
     for (const b of blessings) {
       totalLikes += b.likes;
-      participants.add(`${b.nickname || ''}-${b.class || ''}`);
+      if (b.is_featured) featuredCount++;
       if (b.emotion) emotionCounts.set(b.emotion, (emotionCounts.get(b.emotion) || 0) + 1);
       if (b.gift_id && giftMap.has(b.gift_id)) {
         const g = giftMap.get(b.gift_id)!;
@@ -73,9 +72,6 @@ export async function GET(request: NextRequest) {
         giftCounts.set(g.id, entry);
       }
       contentCounts.set(b.content, (contentCounts.get(b.content) || 0) + 1);
-      if (b.gift_id) {
-        contentGiftCounts.set(b.content, (contentGiftCounts.get(b.content) || 0) + 1);
-      }
     }
 
     // 高频词：模板 tags 词频统计（top 8）
@@ -101,7 +97,8 @@ export async function GET(request: NextRequest) {
       kpis: {
         total_blessings: blessings.length,
         total_gifts: Array.from(giftCounts.values()).reduce((s, g) => s + g.count, 0),
-        total_participants: participants.size,
+        // 无真实用户身份体系，不伪造「参与人数」；用精选数作为第四个 KPI
+        featured_count: featuredCount,
         total_likes: totalLikes,
       },
       emotions: Array.from(emotionCounts.entries())

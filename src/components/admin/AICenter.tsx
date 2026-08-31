@@ -244,7 +244,7 @@ function InsightsPanel() {
             </div>
             <div className="rounded-xl bg-ink/5 p-3 text-center">
               <p className="text-xl font-bold text-primary">{data.total_participants}</p>
-              <p className="text-xs text-ink-muted">参与人数</p>
+              <p className="text-xs text-ink-muted">祝福记录数</p>
             </div>
           </div>
 
@@ -292,7 +292,7 @@ function InsightsPanel() {
 
           {data.top_keywords.length > 0 && (
             <div>
-              <p className="mb-1 text-xs text-ink-muted">高频关键词</p>
+              <p className="mb-1 text-xs text-ink-muted">祝福主题</p>
               <div className="flex flex-wrap gap-2">
                 {data.top_keywords.map((k) => (
                   <span

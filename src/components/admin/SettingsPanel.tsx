@@ -128,24 +128,27 @@ export default function SettingsPanel() {
         </div>
 
         {/* 活动时间（北京时间 UTC+8） */}
-        <div className="grid grid-cols-2 gap-3">
-          <div>
-            <label className="mb-1 block text-sm text-ink-light">开始时间（北京时间 UTC+8）</label>
-            <input
-              type="datetime-local"
-              value={startAt}
-              onChange={(e) => setStartAt(e.target.value)}
-              className="input-glass w-full"
-            />
-          </div>
-          <div>
-            <label className="mb-1 block text-sm text-ink-light">结束时间（北京时间 UTC+8）</label>
-            <input
-              type="datetime-local"
-              value={endAt}
-              onChange={(e) => setEndAt(e.target.value)}
-              className="input-glass w-full"
-            />
+        <div className="rounded-xl bg-accent/10 px-4 py-3">
+          <p className="mb-2 text-sm font-bold text-ink">🕐 活动时间（北京时间 UTC+8）</p>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <label className="mb-1 block text-xs text-ink-light">开始时间</label>
+              <input
+                type="datetime-local"
+                value={startAt}
+                onChange={(e) => setStartAt(e.target.value)}
+                className="input-glass w-full"
+              />
+            </div>
+            <div>
+              <label className="mb-1 block text-xs text-ink-light">结束时间</label>
+              <input
+                type="datetime-local"
+                value={endAt}
+                onChange={(e) => setEndAt(e.target.value)}
+                className="input-glass w-full"
+              />
+            </div>
           </div>
         </div>
 

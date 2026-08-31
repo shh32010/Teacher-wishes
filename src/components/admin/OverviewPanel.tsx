@@ -16,7 +16,7 @@ interface OverviewData {
   kpis: {
     total_blessings: number;
     total_gifts: number;
-    total_participants: number;
+    featured_count: number;
     total_likes: number;
   };
   emotions: { emotion: string; count: number }[];
@@ -36,7 +36,7 @@ export default function OverviewPanel() {
   const kpis = [
     { label: '💌 祝福总数', value: data.kpis.total_blessings, color: 'text-accent' },
     { label: '🎁 礼物送出', value: data.kpis.total_gifts, color: 'text-primary' },
-    { label: '👥 参与人数', value: data.kpis.total_participants, color: 'text-primary' },
+    { label: '📝 精选祝福', value: data.kpis.featured_count, color: 'text-primary' },
     { label: '❤️ 点赞总数', value: data.kpis.total_likes, color: 'text-secondary' },
   ];
 
@@ -94,7 +94,7 @@ export default function OverviewPanel() {
               </span>
             ))}
           </div>
-          <p className="mb-2 text-sm font-bold text-ink">高频关键词</p>
+          <p className="mb-2 text-sm font-bold text-ink">祝福主题</p>
           <div className="flex flex-wrap gap-2">
             {data.top_keywords.map((k) => (
               <span
