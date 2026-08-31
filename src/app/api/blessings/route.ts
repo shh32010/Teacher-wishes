@@ -82,15 +82,31 @@ export async function POST(request: NextRequest) {
   try {
     const body: CreateBlessingPayload = await request.json();
 
-    // 活动状态检查（anon 可读 activity_settings）：closed 时拒绝新提交
+    // 活动状态 + 时间窗检查（anon 可读 activity_settings）：
+    // 人工总开关 open 且 当前时间 ∈ [start_at, end_at] 才允许提交
     const anonForSettings = createAnonClient();
-    const { data: statusRow } = await anonForSettings
+    const { data: settingsRows } = await anonForSettings
       .from('activity_settings')
-      .select('value')
-      .eq('key', 'activity_status')
-      .single();
-    if (statusRow?.value === 'closed') {
+      .select('key, value');
+
+    const settingMap = new Map(
+      ((settingsRows as { key: string; value: string }[]) || []).map((r) => [r.key, r.value])
+    );
+
+    if (settingMap.get('activity_status') === 'closed') {
       return NextResponse.json({ error: '活动已结束，感谢参与' }, { status: 503 });
+    }
+
+    const startAt = settingMap.get('start_at');
+    const endAt = settingMap.get('end_at');
+    if (startAt || endAt) {
+      const now = Date.now();
+      if (startAt && now < new Date(startAt).getTime()) {
+        return NextResponse.json({ error: '活动尚未开始，敬请期待' }, { status: 503 });
+      }
+      if (endAt && now > new Date(endAt).getTime()) {
+        return NextResponse.json({ error: '活动已结束，感谢参与' }, { status: 503 });
+      }
     }
 
     // v2.0 契约：客户端只传 template_id + gift_id，

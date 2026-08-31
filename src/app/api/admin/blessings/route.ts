@@ -28,7 +28,13 @@ export async function GET(request: NextRequest) {
 
     let query = supabase
       .from('blessings')
-      .select('*, teacher:teachers(*), gift:gifts(id, name, icon)', { count: 'exact' })
+      // v2 显式字段：不再返回 teacher 关联（教师体系已退出后台）
+      .select(
+        `id, content, nickname, class, is_anonymous, likes, is_featured,
+         status, emotion, template_id, gift_id, created_at,
+         gift:gifts(id, name, icon)`,
+        { count: 'exact' }
+      )
       .order('created_at', { ascending: false })
       .range(offset, offset + pageSize - 1);
 

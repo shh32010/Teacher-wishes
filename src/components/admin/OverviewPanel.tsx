@@ -1,11 +1,10 @@
 // ============================================================
-// 活动概览 — 只读 Dashboard（5 秒看懂活动状态，不做任何 CRUD）
+// 活动概览 — 只读 Dashboard（单一聚合接口 /api/admin/overview）
 // ============================================================
 
 'use client';
 
 import useSWR from 'swr';
-import type { BlessingStats } from '@/types';
 
 const fetcher = async (url: string) => {
   const res = await fetch(url);
@@ -13,28 +12,32 @@ const fetcher = async (url: string) => {
   return res.json();
 };
 
-interface InsightsData {
-  total_blessings: number;
-  total_participants: number;
+interface OverviewData {
+  kpis: {
+    total_blessings: number;
+    total_gifts: number;
+    total_participants: number;
+    total_likes: number;
+  };
   emotions: { emotion: string; count: number }[];
   gifts: { name: string; icon: string; count: number }[];
+  top_blessings: { content: string; count: number }[];
   top_keywords: { word: string; count: number }[];
   summary: string | null;
 }
 
 export default function OverviewPanel() {
-  const { data: stats } = useSWR<BlessingStats>('/api/blessings/stats', fetcher);
-  const { data: insights } = useSWR<InsightsData>('/api/ai/insights', fetcher);
-  const { data: grouped } = useSWR('/api/blessings/grouped?sort=likes', fetcher);
+  const { data, error, isLoading } = useSWR<OverviewData>('/api/admin/overview', fetcher);
 
-  const totalGifts = insights?.gifts.reduce((sum, g) => sum + g.count, 0) ?? 0;
-  const topBlessings = (grouped?.groups || []).slice(0, 5);
+  if (isLoading) return <div className="py-20 text-center text-ink-muted">加载中...</div>;
+  if (error || !data)
+    return <div className="py-20 text-center text-red-500">加载失败，请刷新重试</div>;
 
   const kpis = [
-    { label: '💌 祝福总数', value: stats?.total_blessings ?? '—', color: 'text-accent' },
-    { label: '🎁 礼物送出', value: totalGifts || '—', color: 'text-primary' },
-    { label: '👥 参与人数', value: insights?.total_participants ?? '—', color: 'text-primary' },
-    { label: '❤️ 点赞总数', value: stats?.total_likes ?? '—', color: 'text-secondary' },
+    { label: '💌 祝福总数', value: data.kpis.total_blessings, color: 'text-accent' },
+    { label: '🎁 礼物送出', value: data.kpis.total_gifts, color: 'text-primary' },
+    { label: '👥 参与人数', value: data.kpis.total_participants, color: 'text-primary' },
+    { label: '❤️ 点赞总数', value: data.kpis.total_likes, color: 'text-secondary' },
   ];
 
   return (
@@ -55,18 +58,18 @@ export default function OverviewPanel() {
         {/* 情绪分布 */}
         <div className="glass-card p-4">
           <p className="mb-3 text-sm font-bold text-ink">情绪分布</p>
-          {(insights?.emotions || []).length === 0 ? (
+          {data.emotions.length === 0 ? (
             <p className="py-6 text-center text-xs text-ink-muted">暂无数据</p>
           ) : (
             <div className="space-y-2">
-              {insights!.emotions.map((e, i) => (
+              {data.emotions.map((e, i) => (
                 <div key={e.emotion} className="flex items-center gap-2">
                   <span className="w-12 shrink-0 text-xs text-ink-light">{e.emotion}</span>
                   <div className="h-2 flex-1 overflow-hidden rounded-full bg-ink/5">
                     <div
                       className="h-full rounded-full"
                       style={{
-                        width: `${(e.count / insights!.total_blessings) * 100}%`,
+                        width: `${(e.count / data.kpis.total_blessings) * 100}%`,
                         background: `hsl(${28 + i * 30} 80% 55%)`,
                       }}
                     />
@@ -82,7 +85,7 @@ export default function OverviewPanel() {
         <div className="glass-card p-4">
           <p className="mb-3 text-sm font-bold text-ink">热门礼物</p>
           <div className="mb-4 flex flex-wrap gap-2">
-            {(insights?.gifts || []).slice(0, 4).map((g) => (
+            {data.gifts.slice(0, 4).map((g) => (
               <span
                 key={g.name}
                 className="rounded-full bg-accent/10 px-2.5 py-1 text-xs text-accent"
@@ -93,7 +96,7 @@ export default function OverviewPanel() {
           </div>
           <p className="mb-2 text-sm font-bold text-ink">高频关键词</p>
           <div className="flex flex-wrap gap-2">
-            {(insights?.top_keywords || []).map((k) => (
+            {data.top_keywords.map((k) => (
               <span
                 key={k.word}
                 className="rounded-full bg-primary/10 px-2.5 py-1 text-xs text-primary"
@@ -105,12 +108,12 @@ export default function OverviewPanel() {
         </div>
       </div>
 
-      {/* 热门祝福 */}
-      {topBlessings.length > 0 && (
+      {/* 热门祝福 Top5 */}
+      {data.top_blessings.length > 0 && (
         <div className="glass-card p-4">
           <p className="mb-3 text-sm font-bold text-ink">热门祝福 Top5</p>
           <div className="space-y-2">
-            {topBlessings.map((g: { content: string; count: number }, i: number) => (
+            {data.top_blessings.map((g, i) => (
               <div key={g.content} className="flex items-center justify-between gap-3">
                 <p className="min-w-0 truncate text-sm text-ink">
                   <span className="mr-2 text-xs text-ink-muted">#{i + 1}</span>
@@ -124,10 +127,10 @@ export default function OverviewPanel() {
       )}
 
       {/* AI 总结 */}
-      {insights?.summary && (
+      {data.summary && (
         <div className="glass-card p-4">
           <p className="mb-2 text-sm font-bold text-ink">🤖 AI 活动洞察</p>
-          <p className="text-sm leading-relaxed text-ink">{insights.summary}</p>
+          <p className="text-sm leading-relaxed text-ink">{data.summary}</p>
         </div>
       )}
     </div>

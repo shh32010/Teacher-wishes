@@ -100,6 +100,19 @@ export async function PATCH(request: NextRequest) {
       return NextResponse.json({ error: '没有有效的更新项' }, { status: 400 });
     }
 
+    // 时间窗口校验：开始时间必须早于结束时间
+    const merged: Record<string, string> = {};
+    for (const r of rows) merged[r.key] = r.value;
+    const mergedStart = merged.start_at;
+    const mergedEnd = merged.end_at;
+    if (
+      mergedStart &&
+      mergedEnd &&
+      new Date(mergedStart).getTime() >= new Date(mergedEnd).getTime()
+    ) {
+      return NextResponse.json({ error: '开始时间必须早于结束时间' }, { status: 400 });
+    }
+
     const supabase = createAdminClient();
     const { error } = await supabase.from('activity_settings').upsert(rows);
 

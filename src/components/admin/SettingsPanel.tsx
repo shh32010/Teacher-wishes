@@ -127,10 +127,10 @@ export default function SettingsPanel() {
           </div>
         </div>
 
-        {/* 活动时间 */}
+        {/* 活动时间（北京时间 UTC+8） */}
         <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="mb-1 block text-sm text-ink-light">开始时间</label>
+            <label className="mb-1 block text-sm text-ink-light">开始时间（北京时间 UTC+8）</label>
             <input
               type="datetime-local"
               value={startAt}
@@ -139,7 +139,7 @@ export default function SettingsPanel() {
             />
           </div>
           <div>
-            <label className="mb-1 block text-sm text-ink-light">结束时间</label>
+            <label className="mb-1 block text-sm text-ink-light">结束时间（北京时间 UTC+8）</label>
             <input
               type="datetime-local"
               value={endAt}
