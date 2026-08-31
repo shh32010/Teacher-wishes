@@ -124,10 +124,7 @@ export default function WallPage() {
           </a>
         }
         right={
-          <a
-            href="/gift"
-            className="hidden rounded-lg border border-primary/40 px-3 py-1 text-sm text-primary transition-colors hover:bg-primary/10 sm:block"
-          >
+          <a href="/gift" className="btn-primary hidden px-4 py-1.5 text-sm sm:block">
             🎁 送出礼物
           </a>
         }
