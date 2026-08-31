@@ -1,6 +1,7 @@
 // ============================================================
-// 礼物星河（v2.0）— 中心 TEACHERS 光核 + 教师天体外圈 + 礼物/祝福粒子环绕
-// 斐波那契螺旋分布 + 悬浮预览气泡 + 点击弹窗详情
+// 礼物星河（v2.0）— 中心 TEACHERS 光核 + 教师天体外圈 + 祝福星星环绕
+// 聚合模型：每颗星星 = 一句祝福（同句多人送出合并为一颗，大小按送出人数）
+// 弹窗展示该句的礼物数量分布（🌹×8 🌟×5）与总赞
 // 产品原则 1：不比较老师 — 教师弹窗不展示收到祝福数量
 // ============================================================
 
@@ -9,7 +10,8 @@
 import { useEffect, useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
-import type { Blessing, Teacher } from '@/types';
+import type { BlessingGroup } from '@/lib/group-blessings';
+import type { Teacher } from '@/types';
 
 interface Star {
   id: string;
@@ -17,7 +19,7 @@ interface Star {
   y: number;
   size: number;
   type: 'blessing' | 'teacher';
-  blessing?: Blessing;
+  group?: BlessingGroup;
   teacher?: Teacher;
 }
 
@@ -66,28 +68,25 @@ export default function GiftGalaxy() {
 
   useEffect(() => {
     // 视觉上限：防止大量祝福导致 DOM/Motion 元素过多
-    // 按热度排序取前 100；API 单页上限 50，需分两次取
-    const MAX_VISUAL_STARS = 100;
+    // 聚合模型：每句祝福一颗星（同句合并），当前词库 126 句 → 天然有界
+    const MAX_VISUAL_STARS = 120;
     let showTimer: ReturnType<typeof setTimeout> | null = null;
     Promise.all([
-      fetch('/api/blessings?page=1&pageSize=50&sort=likes').then((r) => r.json()),
-      fetch('/api/blessings?page=2&pageSize=50&sort=likes').then((r) => r.json()),
+      fetch('/api/blessings/grouped?sort=likes').then((r) => r.json()),
       fetch('/api/teachers').then((r) => r.json()),
     ])
-      .then(([page1, page2, teachersRes]) => {
-        const allBlessings: Blessing[] = [...(page1.data || []), ...(page2.data || [])];
-        // 星河展示全部祝福粒子：有礼物的显示礼物图标，无礼物的显示星点（视觉上限 100）
-        const blessings = allBlessings.slice(0, MAX_VISUAL_STARS);
+      .then(([groupedRes, teachersRes]) => {
+        const groups: BlessingGroup[] = (groupedRes.groups || []).slice(0, MAX_VISUAL_STARS);
         const teachers: Teacher[] = teachersRes.teachers || [];
 
-        const total = teachers.length + blessings.length;
+        const total = teachers.length + groups.length;
         const positions = generatePositions(total);
 
         const allStars: Star[] = [];
 
         // 教师天体 — 最外圈（教师展示，不参与数量对比）
         teachers.forEach((teacher, i) => {
-          const posIdx = blessings.length + i;
+          const posIdx = groups.length + i;
           allStars.push({
             id: `teacher-${teacher.id}`,
             x: positions[posIdx]?.x ?? 50,
@@ -98,16 +97,16 @@ export default function GiftGalaxy() {
           });
         });
 
-        // 礼物粒子 — 内圈到中圈（基线尺寸加大，礼物图标清晰可见；精选更大更亮）
-        blessings.forEach((blessing, i) => {
-          const baseSize = 5 + (blessing.likes > 10 ? 2 : blessing.likes > 5 ? 1.5 : 0);
+        // 祝福星星 — 每句一颗，送出人数越多越大越亮
+        groups.forEach((group, i) => {
+          const baseSize = 3.5 + (group.count > 10 ? 2.5 : group.count > 5 ? 1.5 : 0);
           allStars.push({
-            id: `blessing-${blessing.id}`,
+            id: `blessing-${group.representative_id}`,
             x: positions[i]?.x ?? 50,
             y: positions[i]?.y ?? 50,
-            size: blessing.is_featured ? baseSize + 3 : baseSize,
+            size: group.is_featured ? baseSize + 3 : baseSize,
             type: 'blessing',
-            blessing,
+            group,
           });
         });
 
@@ -296,7 +295,8 @@ export default function GiftGalaxy() {
             );
           }
 
-          // 礼物粒子（v2.0 新祝福带礼物 icon）/ 祝福星点（历史祝福）
+          // 祝福星星（每句一颗，三层辉光，送出人数越多越大）
+          const group = star.group!;
           return (
             <div key={star.id} className="pointer-events-auto">
               <motion.div
@@ -307,67 +307,42 @@ export default function GiftGalaxy() {
                 style={{ left: `${star.x}%`, top: `${star.y}%` }}
                 role="button"
                 tabIndex={0}
-                aria-label={
-                  star.blessing
-                    ? `来自${star.blessing.is_anonymous ? '匿名' : star.blessing.nickname || '同学'}的祝福：${star.blessing.content.slice(0, 20)}...`
-                    : '祝福星星'
-                }
+                aria-label={`祝福：${group.content.slice(0, 20)}...（${group.count} 位同学送出）`}
                 onKeyDown={(e) => handleStarKeyDown(e, star)}
                 onMouseEnter={() => setHovered(star.id)}
                 onMouseLeave={() => setHovered(null)}
                 onClick={() => setSelectedStar(star)}
               >
-                {star.blessing?.gift ? (
-                  // 礼物粒子：按礼物 icon 展示，精选更大
-                  <div
-                    className="flex items-center justify-center rounded-full"
-                    style={{
-                      width: star.size * 5,
-                      height: star.size * 5,
-                      marginLeft: -star.size * 2.5,
-                      marginTop: -star.size * 2.5,
-                      fontSize: star.size * 3.2,
-                      background:
-                        'radial-gradient(circle, color-mix(in srgb, var(--color-accent-gold) 30%, transparent) 0%, transparent 70%)',
-                      boxShadow: `0 0 ${star.size * 5}px color-mix(in srgb, var(--color-accent-gold) 35%, transparent)`,
-                    }}
-                    aria-hidden="true"
-                  >
-                    {star.blessing.gift.icon}
-                  </div>
-                ) : (
-                  // 祝福星星：无礼物的祝福显示为暖光星点（三层辉光）
-                  <div
-                    className="animate-star-twinkle rounded-full"
-                    style={{
-                      width: star.size * 2.5,
-                      height: star.size * 2.5,
-                      marginLeft: -star.size * 1.25,
-                      marginTop: -star.size * 1.25,
-                      background:
-                        'radial-gradient(circle, color-mix(in srgb, var(--color-accent-gold) 95%, transparent) 0%, color-mix(in srgb, var(--color-accent-gold) 55%, transparent) 35%, color-mix(in srgb, var(--color-primary) 15%, transparent) 65%, transparent 75%)',
-                      boxShadow: `0 0 ${star.size * 4}px color-mix(in srgb, var(--color-accent-gold) 60%, transparent), 0 0 ${star.size * 8}px color-mix(in srgb, var(--color-accent-gold) 25%, transparent), 0 0 ${star.size * 14}px color-mix(in srgb, var(--color-accent-gold) 10%, transparent)`,
-                    }}
-                  />
-                )}
+                <div
+                  className="animate-star-twinkle rounded-full"
+                  style={{
+                    width: star.size * 2.5,
+                    height: star.size * 2.5,
+                    marginLeft: -star.size * 1.25,
+                    marginTop: -star.size * 1.25,
+                    background:
+                      'radial-gradient(circle, color-mix(in srgb, var(--color-accent-gold) 95%, transparent) 0%, color-mix(in srgb, var(--color-accent-gold) 55%, transparent) 35%, color-mix(in srgb, var(--color-primary) 15%, transparent) 65%, transparent 75%)',
+                    boxShadow: `0 0 ${star.size * 4}px color-mix(in srgb, var(--color-accent-gold) 60%, transparent), 0 0 ${star.size * 8}px color-mix(in srgb, var(--color-accent-gold) 25%, transparent), 0 0 ${star.size * 14}px color-mix(in srgb, var(--color-accent-gold) 10%, transparent)`,
+                  }}
+                />
 
                 <AnimatePresence>
-                  {hovered === star.id && star.blessing && (
+                  {hovered === star.id && (
                     <motion.div
                       initial={{ opacity: 0, y: 5, scale: 0.9 }}
                       animate={{ opacity: 1, y: 0, scale: 1 }}
                       exit={{ opacity: 0 }}
                       className="absolute bottom-full left-1/2 z-20 mb-2 -translate-x-1/2"
                     >
-                      <div className="glass max-w-[200px] whitespace-nowrap rounded-xl px-4 py-3 text-center">
+                      <div className="glass max-w-[220px] whitespace-nowrap rounded-xl px-4 py-3 text-center">
                         <p className="truncate text-xs text-ink">
-                          {star.blessing.gift?.icon} {star.blessing.content.slice(0, 30)}
-                          {star.blessing.content.length > 30 ? '...' : ''}
+                          {group.content.slice(0, 30)}
+                          {group.content.length > 30 ? '...' : ''}
                         </p>
                         <p className="mt-1 text-xs text-ink-muted">
-                          — {star.blessing.is_anonymous ? '匿名' : star.blessing.nickname || '同学'}
+                          {group.count} 位同学送出 · ❤️ {group.total_likes}
                         </p>
-                        <p className="text-xs text-like">❤️ {star.blessing.likes}</p>
+                        <p className="text-xs text-accent">点击查看详情</p>
                       </div>
                       <div className="mx-auto h-0 w-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-ink/10" />
                     </motion.div>
@@ -474,57 +449,46 @@ export default function GiftGalaxy() {
                   </div>
                 )}
 
-                {selectedStar.type === 'blessing' && selectedStar.blessing && (
+                {selectedStar.type === 'blessing' && selectedStar.group && (
                   <div className="text-center">
-                    {/* 发送者头像 */}
-                    <div className="mx-auto mb-3 flex h-14 w-14 items-center justify-center rounded-full bg-primary/15">
-                      <span className="text-lg font-bold text-primary" aria-hidden="true">
-                        {(selectedStar.blessing.nickname || '匿')[0]}
-                      </span>
-                    </div>
-
-                    <p className="text-sm text-ink-light">
-                      {selectedStar.blessing.is_anonymous
-                        ? '匿名同学'
-                        : selectedStar.blessing.nickname || '匿名同学'}
-                      {selectedStar.blessing.class && <span> · {selectedStar.blessing.class}</span>}
-                    </p>
-
                     {/* 祝福内容 */}
-                    <p className="mt-4 text-base leading-relaxed text-ink">
-                      {selectedStar.blessing.content}
+                    <p className="mt-2 text-base leading-relaxed text-ink">
+                      {selectedStar.group.content}
                     </p>
 
-                    {/* 情绪标签 + 礼物（有则展示） */}
-                    <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
-                      {selectedStar.blessing.emotion && (
-                        <span className="rounded-full bg-accent/10 px-3 py-1 text-xs text-accent">
-                          {selectedStar.blessing.emotion}
-                        </span>
-                      )}
-                      {selectedStar.blessing.gift ? (
-                        <span className="rounded-full bg-accent/10 px-3 py-1 text-xs text-accent">
-                          {selectedStar.blessing.gift.icon} {selectedStar.blessing.gift.name} ·
-                          献给全体老师
-                        </span>
-                      ) : (
-                        <span className="rounded-full bg-accent/10 px-3 py-1 text-xs text-accent">
-                          献给全体老师
-                        </span>
-                      )}
-                    </div>
-
-                    {/* AI 仪式文案（v2 送礼时写入的快照） */}
-                    {selectedStar.blessing.ai_message && (
-                      <p className="mt-3 rounded-xl bg-ink/5 px-4 py-3 text-xs leading-relaxed text-ink-light">
-                        {selectedStar.blessing.ai_message}
-                      </p>
+                    {/* 情绪标签 */}
+                    {selectedStar.group.emotion && (
+                      <span className="mt-3 inline-block rounded-full bg-accent/10 px-3 py-1 text-xs text-accent">
+                        {selectedStar.group.emotion}
+                      </span>
                     )}
+
+                    {/* 礼物数量分布（核心展示：该句收到的各类礼物统计） */}
+                    <div className="mt-4 rounded-xl bg-ink/5 px-4 py-3">
+                      <p className="mb-2 text-xs font-medium text-ink-light">
+                        {selectedStar.group.count} 位同学送出，礼物构成：
+                      </p>
+                      <div className="flex flex-wrap items-center justify-center gap-2">
+                        {selectedStar.group.gift_counts.length > 0 ? (
+                          selectedStar.group.gift_counts.map((g, i) => (
+                            <span
+                              key={i}
+                              className="rounded-full bg-accent/10 px-2.5 py-1 text-xs text-accent"
+                            >
+                              {g.icon}
+                              {g.name} ×{g.count}
+                            </span>
+                          ))
+                        ) : (
+                          <span className="text-xs text-ink-muted">暂无礼物记录</span>
+                        )}
+                      </div>
+                    </div>
 
                     {/* 元信息（始终显示点赞数） */}
                     <div className="mt-4 flex items-center justify-center gap-4 text-xs text-ink-muted">
-                      <span>❤️ {selectedStar.blessing.likes} 赞</span>
-                      <span>{formatDate(selectedStar.blessing.created_at)}</span>
+                      <span>❤️ {selectedStar.group.total_likes} 赞</span>
+                      <span>最新 {formatDate(selectedStar.group.latest_created_at)}</span>
                     </div>
                   </div>
                 )}

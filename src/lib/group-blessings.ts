@@ -13,8 +13,8 @@ export interface BlessingGroup {
   count: number;
   /** 组内点赞总数 */
   total_likes: number;
-  /** 组内礼物 icons（去重，按首次出现顺序） */
-  gift_icons: string[];
+  /** 组内礼物数量分布（按首次出现顺序） */
+  gift_counts: { icon: string; name: string; count: number }[];
   /** 情绪标签（取组内最新一条） */
   emotion: string | null;
   /** 点赞代表条（组内最新一条的 id，点赞按钮指向它） */
@@ -45,8 +45,10 @@ export function groupBlessings(
     if (existing) {
       existing.count += 1;
       existing.total_likes += b.likes;
-      if (b.gift && !existing.gift_icons.includes(b.gift.icon)) {
-        existing.gift_icons.push(b.gift.icon);
+      if (b.gift) {
+        const entry = existing.gift_counts.find((g) => g.icon === b.gift!.icon);
+        if (entry) entry.count += 1;
+        else existing.gift_counts.push({ icon: b.gift.icon, name: b.gift.name, count: 1 });
       }
       if (b.is_featured) existing.is_featured = true;
     } else {
@@ -54,7 +56,7 @@ export function groupBlessings(
         content: b.content,
         count: 1,
         total_likes: b.likes,
-        gift_icons: b.gift ? [b.gift.icon] : [],
+        gift_counts: b.gift ? [{ icon: b.gift.icon, name: b.gift.name, count: 1 }] : [],
         emotion: b.emotion ?? null,
         representative_id: b.id,
         is_featured: b.is_featured,

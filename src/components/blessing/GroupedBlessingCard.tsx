@@ -132,16 +132,16 @@ export default function GroupedBlessingCard({
           </p>
         </div>
 
-        {/* 第三层：礼物 + 点赞（不显示任何老师名字，v2 叙事统一献给全体老师） */}
+        {/* 第三层：礼物数量分布 + 点赞（不显示任何老师名字，v2 叙事统一献给全体老师） */}
         <div className="flex items-center justify-between">
-          {group.gift_icons.length > 0 ? (
+          {group.gift_counts.length > 0 ? (
             <span
-              className="flex items-center gap-0.5 rounded-full bg-accent/10 px-3 py-0.5 text-xs text-accent"
-              title={`搭配礼物：${group.gift_icons.join('')}`}
+              className="flex items-center gap-1 rounded-full bg-accent/10 px-3 py-0.5 text-xs text-accent"
+              title={group.gift_counts.map((g) => `${g.icon}${g.name}×${g.count}`).join(' ')}
             >
-              {group.gift_icons.map((icon, i) => (
-                <span key={i} aria-hidden="true">
-                  {icon}
+              {group.gift_counts.slice(0, 4).map((g, i) => (
+                <span key={i}>
+                  {g.icon}×{g.count}
                 </span>
               ))}
               <span className="ml-1">献给全体老师</span>

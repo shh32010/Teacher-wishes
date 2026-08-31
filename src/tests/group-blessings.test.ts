@@ -55,59 +55,29 @@ describe('groupBlessings', () => {
     expect(same.representative_id).toBe('a1');
   });
 
-  it('组内礼物 icons 去重且保持首次出现顺序', () => {
+  it('组内礼物数量正确累计且保持首次出现顺序', () => {
+    const rose = {
+      id: 'rose',
+      name: '鲜花',
+      icon: '🌹',
+      description: null,
+      animation: 'bloom' as const,
+      sort_order: 1,
+      is_active: true,
+      usage_count: 0,
+      created_at: 'x',
+    };
+    const star = { ...rose, id: 'star', name: '星星', icon: '🌟', animation: 'twinkle' as const };
     const blessings = [
-      makeBlessing({
-        id: 'a1',
-        content: '同一句',
-        gift_id: 'rose',
-        gift: {
-          id: 'rose',
-          name: '鲜花',
-          icon: '🌹',
-          description: null,
-          animation: 'bloom',
-          sort_order: 1,
-          is_active: true,
-          usage_count: 0,
-          created_at: 'x',
-        },
-      }),
-      makeBlessing({
-        id: 'a2',
-        content: '同一句',
-        gift_id: 'star',
-        gift: {
-          id: 'star',
-          name: '星星',
-          icon: '🌟',
-          description: null,
-          animation: 'twinkle',
-          sort_order: 2,
-          is_active: true,
-          usage_count: 0,
-          created_at: 'x',
-        },
-      }),
-      makeBlessing({
-        id: 'a3',
-        content: '同一句',
-        gift_id: 'rose',
-        gift: {
-          id: 'rose',
-          name: '鲜花',
-          icon: '🌹',
-          description: null,
-          animation: 'bloom',
-          sort_order: 1,
-          is_active: true,
-          usage_count: 0,
-          created_at: 'x',
-        },
-      }),
+      makeBlessing({ id: 'a1', content: '同一句', gift_id: 'rose', gift: rose }),
+      makeBlessing({ id: 'a2', content: '同一句', gift_id: 'star', gift: star }),
+      makeBlessing({ id: 'a3', content: '同一句', gift_id: 'rose', gift: rose }),
     ];
     const groups = groupBlessings(blessings);
-    expect(groups[0].gift_icons).toEqual(['🌹', '🌟']);
+    expect(groups[0].gift_counts).toEqual([
+      { icon: '🌹', name: '鲜花', count: 2 },
+      { icon: '🌟', name: '星星', count: 1 },
+    ]);
   });
 
   it('匿名祝福不暴露昵称与班级', () => {
@@ -125,7 +95,7 @@ describe('groupBlessings', () => {
     expect(groups[0].latest_class).toBeNull();
   });
 
-  it('无礼物的祝福聚合时 gift_icons 为空数组', () => {
+  it('无礼物的祝福聚合时 gift_counts 为空数组', () => {
     const blessings = [
       makeBlessing({
         id: 'a1',
@@ -138,7 +108,7 @@ describe('groupBlessings', () => {
       }),
     ];
     const groups = groupBlessings(blessings);
-    expect(groups[0].gift_icons).toEqual([]);
+    expect(groups[0].gift_counts).toEqual([]);
   });
 
   it('likes 排序按组内总赞降序', () => {
