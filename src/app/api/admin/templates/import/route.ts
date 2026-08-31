@@ -17,8 +17,16 @@ export const dynamic = 'force-dynamic';
 const MAX_CSV_CHARS = 2 * 1024 * 1024; // 2MB 文本
 const MAX_ROWS = 1000;
 
-/** 合法分类（导入时缺失 → 暂归感恩类，待 AI 分类功能重新归类） */
-const VALID_CATEGORIES: EmotionCategory[] = ['感恩', '祝愿', '青春', '温暖', '文艺', '趣味'];
+/** 合法分类（导入时缺失/非法 → 归「未分类」，待 AI 分类功能归类） */
+const VALID_CATEGORIES: EmotionCategory[] = [
+  '感恩',
+  '祝愿',
+  '青春',
+  '温暖',
+  '文艺',
+  '趣味',
+  '未分类',
+];
 
 /** 表头别名映射 → 列名 */
 const HEADER_ALIASES: Record<string, 'content' | 'category'> = {
@@ -105,10 +113,10 @@ export async function POST(request: NextRequest) {
         continue;
       }
 
-      // 分类校验：缺失/非法 → 暂归感恩类
+      // 分类校验：缺失/非法 → 归「未分类」（后台可筛选，AI 分类后自动归入 6 类）
       const category = VALID_CATEGORIES.includes(rawCategory as EmotionCategory)
         ? (rawCategory as EmotionCategory)
-        : '感恩';
+        : '未分类';
 
       // 去重：库内已有 或 本批次重复
       if (existingContents.has(rawContent)) {

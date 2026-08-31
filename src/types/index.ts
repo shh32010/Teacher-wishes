@@ -5,8 +5,8 @@
 /** 祝福状态 */
 export type BlessingStatus = 'pending' | 'approved' | 'rejected';
 
-/** 情绪/词库分类（v2.0） */
-export type EmotionCategory = '感恩' | '祝愿' | '青春' | '温暖' | '文艺' | '趣味';
+/** 情绪/词库分类（v2.0）；「未分类」为导入兜底类，AI 分类后自动归入前 6 类 */
+export type EmotionCategory = '感恩' | '祝愿' | '青春' | '温暖' | '文艺' | '趣味' | '未分类';
 
 /** 礼物动画类型（v2.0） */
 export type GiftAnimation =

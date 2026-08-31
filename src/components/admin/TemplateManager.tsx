@@ -9,7 +9,7 @@ import useSWR from 'swr';
 import type { BlessingTemplate, EmotionCategory } from '@/types';
 import { getCsrfToken } from '@/lib/csrf-client';
 
-const CATEGORIES: EmotionCategory[] = ['感恩', '祝愿', '青春', '温暖', '文艺', '趣味'];
+const CATEGORIES: EmotionCategory[] = ['感恩', '祝愿', '青春', '温暖', '文艺', '趣味', '未分类'];
 
 const fetcher = async (url: string) => {
   const res = await fetch(url);

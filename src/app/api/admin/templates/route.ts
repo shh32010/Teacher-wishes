@@ -13,8 +13,16 @@ import { requireAdmin } from '@/lib/auth/admin';
 
 export const dynamic = 'force-dynamic';
 
-/** 合法词库分类（与迁移种子数据一致） */
-const VALID_CATEGORIES: EmotionCategory[] = ['感恩', '祝愿', '青春', '温暖', '文艺', '趣味'];
+/** 合法词库分类（含「未分类」兜底类，AI 分类后归入前 6 类） */
+const VALID_CATEGORIES: EmotionCategory[] = [
+  '感恩',
+  '祝愿',
+  '青春',
+  '温暖',
+  '文艺',
+  '趣味',
+  '未分类',
+];
 
 /** UUID 格式校验（与 admin/blessings 一致） */
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
