@@ -281,8 +281,9 @@ describe('isValidPaginatedResponse', () => {
 describe('BlessingStatus 状态机', () => {
   const validTransitions: Record<BlessingStatus, BlessingStatus[]> = {
     pending: ['approved', 'rejected'],
-    approved: ['rejected'], // 已通过可以被降级为拒绝
+    approved: ['rejected', 'hidden'], // 已通过可以被拒绝或隐藏（软删除）
     rejected: ['approved'], // 已拒绝可以重新通过
+    hidden: ['approved'], // 已隐藏可以恢复上墙
   };
 
   it('pending → approved 应合法', () => {
