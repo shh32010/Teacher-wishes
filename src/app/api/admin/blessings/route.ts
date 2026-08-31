@@ -62,7 +62,29 @@ export async function DELETE(request: NextRequest) {
   }
 
   try {
-    const body: { ids: string[] } = await request.json();
+    const body: { ids?: string[]; contents?: string[] } = await request.json();
+
+    const supabase = createAdminClient();
+
+    // v2 句级治理：按 content 删除该句全部祝福（治理列表为同句聚合）
+    if (body.contents && body.contents.length > 0) {
+      if (
+        body.contents.length > 50 ||
+        body.contents.some((c: string) => typeof c !== 'string' || c.length > 200)
+      ) {
+        return NextResponse.json({ error: '非法删除内容' }, { status: 400 });
+      }
+      const { data, error } = await supabase
+        .from('blessings')
+        .delete()
+        .in('content', body.contents)
+        .select('id');
+      if (error) {
+        console.error('[Admin API] 按内容删除失败:', error);
+        return NextResponse.json({ error: '删除失败' }, { status: 500 });
+      }
+      return NextResponse.json({ deleted: data?.length || 0 });
+    }
 
     if (!body.ids || body.ids.length === 0 || body.ids.length > 100) {
       return NextResponse.json({ error: '请指定 1~100 个祝福ID' }, { status: 400 });
@@ -74,7 +96,6 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: '非法祝福ID' }, { status: 400 });
     }
 
-    const supabase = createAdminClient();
     const { data, error } = await supabase
       .from('blessings')
       .delete()
