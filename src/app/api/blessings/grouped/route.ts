@@ -6,6 +6,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createAnonClient } from '@/lib/supabase/server';
+import { fetchAllPages } from '@/lib/supabase/fetch-all';
 import { groupBlessings } from '@/lib/group-blessings';
 import type { Blessing } from '@/types';
 
@@ -19,33 +20,19 @@ export async function GET(request: NextRequest) {
 
     // anon RLS 自动只返回 approved；按时间倒序取全量（聚合的「最新」语义依赖此顺序）
     // 明确字段：不再返回 teacher 关联（v2 叙事统一献给全体老师）
-    // ⚠️ Supabase PostgREST 单次上限 1000 行——循环分页取全量，
-    //    否则超过 1000 条后旧祝福被静默截断（count 偏小/整组消失）
-    const PAGE_SIZE = 1000;
-    const MAX_ROWS = 5000; // 活动规模保护上限
-    const allRows: unknown[] = [];
-    let queryError: { message?: string } | null = null;
-
-    for (let offset = 0; offset < MAX_ROWS; offset += PAGE_SIZE) {
-      const { data, error } = await supabase
+    // 经 fetchAllPages 循环分页，绕过 PostgREST 单次 1000 行上限
+    const { rows: allRows, error: queryError } = await fetchAllPages<Blessing>((from, to) =>
+      supabase
         .from('blessings')
         .select(
           `id, content, nickname, class, is_anonymous, likes, is_featured,
-           created_at, emotion, template_id, gift_id,
-           gift:gifts(id, name, icon)`
+             created_at, emotion, template_id, gift_id,
+             gift:gifts(id, name, icon)`
         )
         .eq('status', 'approved')
         .order('created_at', { ascending: false })
-        .range(offset, offset + PAGE_SIZE - 1);
-
-      if (error) {
-        queryError = error;
-        break;
-      }
-      if (!data || data.length === 0) break;
-      allRows.push(...data);
-      if (data.length < PAGE_SIZE) break; // 最后一页
-    }
+        .range(from, to)
+    );
 
     if (queryError) {
       console.error('[API] 聚合查询失败:', queryError);

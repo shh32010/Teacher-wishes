@@ -6,6 +6,7 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/server';
+import { fetchAllPages } from '@/lib/supabase/fetch-all';
 import { validateCsrfToken, csrfErrorResponse } from '@/lib/csrf';
 import { requireAdmin } from '@/lib/auth/admin';
 import { chat, isNotConfigured } from '@/lib/ai/provider';
@@ -25,14 +26,22 @@ export async function POST(request: NextRequest) {
   try {
     const supabase = createAdminClient();
 
-    // 聚合统计（服务端一次性取回，数据量可控）
-    const [{ data: blessings, error: bError }, { data: gifts, error: gError }] = await Promise.all([
-      supabase
-        .from('blessings')
-        .select('id, content, emotion, gift_id, nickname, class, is_anonymous')
-        .eq('status', 'approved'),
+    // 聚合统计（全量查询经 fetchAllPages 循环分页，绕过 PostgREST 1000 行上限）
+    const [blessingsResult, giftsResult] = await Promise.all([
+      fetchAllPages((from, to) =>
+        supabase
+          .from('blessings')
+          .select('id, content, emotion, gift_id, nickname, class, is_anonymous')
+          .eq('status', 'approved')
+          .range(from, to)
+      ),
       supabase.from('gifts').select('id, name, icon'),
     ]);
+
+    const bError = blessingsResult.error;
+    const gError = giftsResult.error;
+    const blessings = blessingsResult.rows;
+    const gifts = giftsResult.data;
 
     if (bError || gError) {
       console.error('[AI] 总结聚合失败:', bError || gError);

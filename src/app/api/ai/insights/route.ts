@@ -6,6 +6,7 @@
 
 import { NextResponse } from 'next/server';
 import { createAnonClient } from '@/lib/supabase/server';
+import { fetchAllPages } from '@/lib/supabase/fetch-all';
 import type { Blessing, Gift } from '@/types';
 
 export const dynamic = 'force-dynamic';
@@ -15,16 +16,24 @@ export async function GET() {
     const supabase = createAnonClient();
 
     // approved 祝福（anon RLS 自动过滤）+ 启用礼物 + 模板 tags（高频词数据源）
-    const [
-      { data: blessings, error: bError },
-      { data: gifts, error: gError },
-      { data: summaryRows },
-      { data: tagRows },
-    ] = await Promise.all([
-      supabase
-        .from('blessings')
-        .select('id, emotion, gift_id, nickname, class')
-        .eq('status', 'approved'),
+    // 全量查询经 fetchAllPages 循环分页，绕过 PostgREST 单次 1000 行上限
+    const [blessingsResult, tagRowsResult, giftsResult, summaryResult] = await Promise.all([
+      fetchAllPages((from, to) =>
+        supabase
+          .from('blessings')
+          .select('id, emotion, gift_id, nickname, class')
+          .eq('status', 'approved')
+          .range(from, to)
+      ),
+      // v2 祝福引用的模板 tags（anon 受 RLS 限制仅能读启用模板）
+      fetchAllPages((from, to) =>
+        supabase
+          .from('blessings')
+          .select('template: blessing_templates(tags)')
+          .eq('status', 'approved')
+          .not('template_id', 'is', null)
+          .range(from, to)
+      ),
       supabase.from('gifts').select('id, name, icon'),
       supabase
         .from('ai_generations')
@@ -33,13 +42,14 @@ export async function GET() {
         .eq('status', 'done')
         .order('created_at', { ascending: false })
         .limit(1),
-      // v2 祝福引用的模板 tags（anon 受 RLS 限制仅能读启用模板）
-      supabase
-        .from('blessings')
-        .select('template: blessing_templates(tags)')
-        .eq('status', 'approved')
-        .not('template_id', 'is', null),
     ]);
+
+    const bError = blessingsResult.error;
+    const gError = giftsResult.error;
+    const blessings = blessingsResult.rows;
+    const gifts = giftsResult.data;
+    const summaryRows = summaryResult.data;
+    const tagRows = tagRowsResult.rows;
 
     if (bError || gError) {
       console.error('[API] 洞察聚合失败:', bError || gError);
