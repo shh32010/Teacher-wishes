@@ -15,7 +15,7 @@
 | 管理后台未授权访问 | 高 | admin_token HMAC + requireAdmin |
 | 点赞刷量 | 中 | IP 唯一约束 + 限流 |
 | 祝福刷屏 | 中 | IP 限流 + Turnstile |
-| 审核绕过 | 中 | RLS + BEFORE INSERT 触发器 |
+| 审核绕过 | 中 | 词库契约触发器（013）——内容必须等于官方模板原文，无人工审核环节 |
 | 敏感词注入 | 低 | 待接入（bad-words 已安装） |
 | DDoS | 低 | Vercel Edge CDN + 限流 |
 
@@ -47,7 +47,7 @@
 
 ### 关键设计决策
 
-1. **用户不能 UPDATE 祝福**：防止通过 UPDATE 修改 `status`/`likes`/`is_featured` 绕过审核
+1. **用户不能 UPDATE 祝福**：防止通过 UPDATE 修改 `status`/`likes`/`is_featured`（v2 自动上墙后，治理只走管理后台删除）
 2. **increment_likes 仅 service_role**：API 路由作为唯一入口，防止直接调用 RPC
 3. **rate_limits 仅 service_role INSERT**：防止锁定攻击（批量写入他人 IP 限流记录）
 4. **cleanup_rate_limits 仅 service_role**：防止恶意清理限流记录

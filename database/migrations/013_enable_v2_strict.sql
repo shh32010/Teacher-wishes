@@ -78,3 +78,25 @@ CREATE TRIGGER trg_blessings_usage
 CREATE POLICY "公开读取已确认金句与总结" ON ai_generations
   FOR SELECT
   USING (type IN ('quote_of_day', 'closing') AND status = 'done');
+
+-- ── 4. v2 自动上墙（用户拍板 08-31） ──
+-- 内容 = 官方词库原文（入库已过滤敏感词）→ 提交即 approved 自动上墙；
+-- 事后治理走后台删除/下架。旧触发器（强制 pending）在此重建覆盖。
+-- 注意：本触发器重建须在词库契约触发器（1）之后生效，同文件顺序执行即可
+DROP TRIGGER IF EXISTS trg_blessing_insert ON blessings;
+
+CREATE OR REPLACE FUNCTION force_blessing_safe_defaults()
+RETURNS TRIGGER AS $$
+BEGIN
+  NEW.status := 'approved';   -- v2 自动上墙（内容安全由词库契约触发器保证）
+  NEW.likes := 0;
+  NEW.is_featured := false;
+  NEW.teacher_id := NULL;     -- v2 取消指定老师
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trg_blessing_insert
+  BEFORE INSERT ON blessings
+  FOR EACH ROW
+  EXECUTE FUNCTION force_blessing_safe_defaults();

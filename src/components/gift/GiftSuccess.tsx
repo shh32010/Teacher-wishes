@@ -48,7 +48,7 @@ export default function GiftSuccess({ gift, content, onRestart }: GiftSuccessPro
     <div className="glass-card p-8 text-center">
       <p className="mb-3 text-5xl">{gift.icon}</p>
       <h2 className="mb-1 text-xl font-bold text-ink">您的心意已经送达 ✨</h2>
-      <p className="mb-4 text-sm text-ink-muted">审核通过后，它会出现在全体老师的祝福星河里</p>
+      <p className="mb-4 text-sm text-ink-muted">它已经汇入全体老师的祝福星河</p>
 
       <div className="glass-card mb-6 p-4">
         <p className="text-ink">&ldquo;{content}&rdquo;</p>

@@ -228,7 +228,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       {
         success: true,
-        message: '🎁 礼物已送达！祝福已进入审核队列，审核通过后会出现在祝福星河',
+        message: '🎁 礼物已送达！祝福已自动汇入星河',
         gift_icon: gift.icon,
         gift_name: gift.name,
       },

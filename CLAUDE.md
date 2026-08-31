@@ -147,7 +147,7 @@ getClientIp(request)
 - `rate_limits` 仅允许 service_role INSERT（防锁定攻击）
 - **v2.0**：词库/礼物 anon 仅能读启用项（RLS `is_active=true`），停用即从学生端消失；写操作全部走管理 API（service_role）
 - **v2.0**：`ai_generations` 无任何 anon 策略（AI 内部数据不公开）
-- **v2.0**：013 严格触发器 — blessings INSERT 强制 `template_id` 非空（与前端同步上线后启用）
+- **v2.0**：013 严格触发器 — blessings INSERT 强制 `template_id` 非空 + content 与启用模板原文一致；**自动上墙**（内容安全由词库契约保证，提交即 approved，治理走后台删除）
 
 ---
 

@@ -98,21 +98,61 @@ async function runAssertions() {
   });
   check('anon 可执行 check_rate_limit', !q10.error && q10.data !== null, q10.error?.message);
 
-  // 11. 触发器：插入 approved+高赞 被强制为 pending+0
-  const ins = await anon.from('blessings').insert([{ content: marker, status: 'approved', likes: 99999 }]);
-  check('anon 可 INSERT blessings', !ins.error, ins.error?.message);
-  if (!ins.error) {
-    const row = await admin
+  // 11. 013 词库契约：无 template_id 的插入被触发器拒绝
+  const insNoTpl = await anon.from('blessings').insert([{ content: marker }]);
+  check('013: 无 template_id 插入被拒绝', !!insNoTpl.error);
+
+  // 12. 013 词库契约：content 篡改被拒绝（合法 template_id + 伪造 content）
+  const tplRow = await admin
+    .from('blessing_templates')
+    .select('id')
+    .eq('is_active', true)
+    .limit(1)
+    .single();
+  if (tplRow.data) {
+    const tampered = await anon
       .from('blessings')
-      .select('status,likes,id')
-      .eq('content', marker)
+      .insert([{ content: `${marker}-tampered`, template_id: tplRow.data.id }]);
+    check('013: content 篡改被拒绝', !!tampered.error);
+
+    // 13. v2 自动上墙：合法插入 → 强制 approved + likes=0 + teacher_id=null
+    const tplFull = await admin
+      .from('blessing_templates')
+      .select('id, content')
+      .eq('id', tplRow.data.id)
       .single();
-    check(
-      '触发器强制 pending + likes=0',
-      row.data?.status === 'pending' && row.data?.likes === 0,
-      `实际 ${row.data?.status}/${row.data?.likes}`
-    );
-    if (row.data?.id) createdBlessingIds.push(row.data.id);
+    const ins = await anon
+      .from('blessings')
+      .insert([
+        {
+          content: tplFull.data.content,
+          template_id: tplFull.data.id,
+          status: 'pending',
+          likes: 99999,
+          teacher_id: '00000000-0000-0000-0000-000000000000',
+        },
+      ]);
+    check('anon 可 INSERT blessings（合法模板）', !ins.error, ins.error?.message);
+    if (!ins.error) {
+      const row = await admin
+        .from('blessings')
+        .select('status,likes,teacher_id,id')
+        .eq('content', tplFull.data.content)
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .single();
+      check(
+        'v2 自动上墙：强制 approved + likes=0 + teacher_id=null',
+        row.data?.status === 'approved' &&
+          row.data?.likes === 0 &&
+          row.data?.teacher_id === null,
+        `实际 ${row.data?.status}/${row.data?.likes}/${row.data?.teacher_id}`
+      );
+      if (row.data?.id) createdBlessingIds.push(row.data.id);
+    }
+  } else {
+    check('013: content 篡改被拒绝', false, '无法获取测试模板: ' + tplRow.error?.message);
+    check('v2 自动上墙：强制 approved + likes=0 + teacher_id=null', false, '缺少测试模板');
   }
 
   // 12. anon 可读教师列表
