@@ -83,7 +83,7 @@ export default function HomePage() {
       {isActive('title') && <GiftGalaxy />}
 
       {/* 内容层（固定在屏幕上部，下方留给星河中心光核与粒子） */}
-      <div className="relative z-10 flex flex-col items-center gap-6 px-4 pt-[8vh] text-center">
+      <div className="relative z-10 flex flex-col items-center gap-3 px-4 pt-[4vh] text-center">
         <AnimatePresence>
           {isActive('quote1') && (
             <motion.p
