@@ -521,11 +521,9 @@ export default function GiftGalaxy() {
                       </p>
                     )}
 
-                    {/* 元信息（0 赞不显示点赞数） */}
+                    {/* 元信息（始终显示点赞数） */}
                     <div className="mt-4 flex items-center justify-center gap-4 text-xs text-ink-muted">
-                      {selectedStar.blessing.likes > 0 && (
-                        <span>❤️ {selectedStar.blessing.likes} 赞</span>
-                      )}
+                      <span>❤️ {selectedStar.blessing.likes} 赞</span>
                       <span>{formatDate(selectedStar.blessing.created_at)}</span>
                     </div>
                   </div>
