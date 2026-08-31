@@ -76,8 +76,8 @@ export default function GiftGalaxy() {
     ])
       .then(([page1, page2, teachersRes]) => {
         const allBlessings: Blessing[] = [...(page1.data || []), ...(page2.data || [])];
-        // v2.0：星河只展示带礼物的祝福（往年无礼物的历史祝福不再渲染星点）
-        const blessings = allBlessings.filter((b) => b.gift).slice(0, MAX_VISUAL_STARS);
+        // 星河展示全部祝福粒子：有礼物的显示礼物图标，无礼物的显示星点（视觉上限 100）
+        const blessings = allBlessings.slice(0, MAX_VISUAL_STARS);
         const teachers: Teacher[] = teachersRes.teachers || [];
 
         const total = teachers.length + blessings.length;
@@ -201,12 +201,12 @@ export default function GiftGalaxy() {
       {/* ==================== 星河层 ==================== */}
       <div className="pointer-events-none absolute inset-0 z-10 overflow-hidden">
         {/* 中心光核 — TEACHERS（全体老师，不指向个人）
-            位置偏下（top 55%），避开上方文案内容区，避免被引导文案遮挡 */}
+            位于星河视觉中心（top 52%）；文案区固定在屏幕上部，两者天然错开 */}
         <motion.div
           initial={{ opacity: 0, scale: 0.6 }}
           animate={{ opacity: visible ? 1 : 0, scale: visible ? 1 : 0.6 }}
           transition={{ delay: 0.3, duration: 1 }}
-          className="absolute left-1/2 top-[55%] flex -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center rounded-full"
+          className="absolute left-1/2 top-[52%] flex -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center rounded-full"
           style={{
             width: 120,
             height: 120,
@@ -336,6 +336,7 @@ export default function GiftGalaxy() {
                     {star.blessing.gift.icon}
                   </div>
                 ) : (
+                  // 祝福星星：无礼物的祝福显示为暖光星点（三层辉光）
                   <div
                     className="animate-star-twinkle rounded-full"
                     style={{

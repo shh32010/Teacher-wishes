@@ -72,7 +72,7 @@ export default function HomePage() {
   };
 
   return (
-    <main className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden">
+    <main className="relative flex min-h-screen flex-col items-center justify-start overflow-hidden">
       {/* 黄昏暖色粒子背景 */}
       <StarBackground count={80} />
 
@@ -82,8 +82,8 @@ export default function HomePage() {
       {/* 祝福星河层（标题后显示） */}
       {isActive('title') && <GiftGalaxy />}
 
-      {/* 内容层（pb 上移内容区，为下方中心光核让位） */}
-      <div className="relative z-10 flex flex-col items-center gap-6 px-4 pb-[22vh] text-center">
+      {/* 内容层（固定在屏幕上部，下方留给星河中心光核与粒子） */}
+      <div className="relative z-10 flex flex-col items-center gap-6 px-4 pt-[8vh] text-center">
         <AnimatePresence>
           {isActive('quote1') && (
             <motion.p
