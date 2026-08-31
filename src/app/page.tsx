@@ -82,8 +82,8 @@ export default function HomePage() {
       {/* 祝福星河层（标题后显示） */}
       {isActive('title') && <GiftGalaxy />}
 
-      {/* 内容层 */}
-      <div className="relative z-10 flex flex-col items-center gap-6 px-4 text-center">
+      {/* 内容层（pb 上移内容区，为下方中心光核让位） */}
+      <div className="relative z-10 flex flex-col items-center gap-6 px-4 pb-[22vh] text-center">
         <AnimatePresence>
           {isActive('quote1') && (
             <motion.p

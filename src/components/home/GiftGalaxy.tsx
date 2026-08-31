@@ -77,10 +77,9 @@ export default function GiftGalaxy() {
       fetch('/api/teachers').then((r) => r.json()),
     ])
       .then(([page1, page2, teachersRes]) => {
-        const blessings: Blessing[] = [...(page1.data || []), ...(page2.data || [])].slice(
-          0,
-          MAX_VISUAL_STARS
-        );
+        const allBlessings: Blessing[] = [...(page1.data || []), ...(page2.data || [])];
+        // v2.0：星河只展示带礼物的祝福（往年无礼物的历史祝福不再渲染星点）
+        const blessings = allBlessings.filter((b) => b.gift).slice(0, MAX_VISUAL_STARS);
         const teachers: Teacher[] = teachersRes.teachers || [];
 
         const total = teachers.length + blessings.length;
@@ -101,9 +100,9 @@ export default function GiftGalaxy() {
           });
         });
 
-        // 礼物/祝福粒子 — 内圈到中圈，精选更大更亮
+        // 礼物粒子 — 内圈到中圈（基线尺寸加大，礼物图标清晰可见；精选更大更亮）
         blessings.forEach((blessing, i) => {
-          const baseSize = 2.5 + (blessing.likes > 10 ? 2 : blessing.likes > 5 ? 1.5 : 0);
+          const baseSize = 5 + (blessing.likes > 10 ? 2 : blessing.likes > 5 ? 1.5 : 0);
           allStars.push({
             id: `blessing-${blessing.id}`,
             x: positions[i]?.x ?? 50,
@@ -203,12 +202,13 @@ export default function GiftGalaxy() {
     <>
       {/* ==================== 星河层 ==================== */}
       <div className="pointer-events-none absolute inset-0 z-10 overflow-hidden">
-        {/* 中心光核 — TEACHERS（全体老师，不指向个人） */}
+        {/* 中心光核 — TEACHERS（全体老师，不指向个人）
+            位置偏下（top 55%），避开上方文案内容区，避免被引导文案遮挡 */}
         <motion.div
           initial={{ opacity: 0, scale: 0.6 }}
           animate={{ opacity: visible ? 1 : 0, scale: visible ? 1 : 0.6 }}
           transition={{ delay: 0.3, duration: 1 }}
-          className="absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center rounded-full"
+          className="absolute left-1/2 top-[55%] flex -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center rounded-full"
           style={{
             width: 120,
             height: 120,
