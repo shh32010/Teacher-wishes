@@ -165,7 +165,7 @@ export async function PATCH(request: NextRequest) {
   try {
     const body: {
       ids?: string[];
-      updates?: { category?: string; is_active?: boolean; sort_order?: number };
+      updates?: { category?: string; is_active?: boolean; sort_order?: number; remark?: string };
     } = await request.json();
 
     if (!body.ids || body.ids.length === 0 || body.ids.length > 100) {
