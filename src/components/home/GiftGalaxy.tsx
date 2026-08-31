@@ -495,12 +495,26 @@ export default function GiftGalaxy() {
                       {selectedStar.blessing.content}
                     </p>
 
-                    {/* 礼物标签（星河粒子均为带礼物的祝福，不显示任何老师名字） */}
-                    {selectedStar.blessing.gift && (
-                      <span className="mt-4 inline-block rounded-full bg-accent/10 px-4 py-1.5 text-xs text-accent">
-                        {selectedStar.blessing.gift.icon} {selectedStar.blessing.gift.name} ·
-                        献给全体老师
-                      </span>
+                    {/* 情绪标签 + 礼物（有则展示） */}
+                    <div className="mt-4 flex flex-wrap items-center justify-center gap-2">
+                      {selectedStar.blessing.emotion && (
+                        <span className="rounded-full bg-accent/10 px-3 py-1 text-xs text-accent">
+                          {selectedStar.blessing.emotion}
+                        </span>
+                      )}
+                      {selectedStar.blessing.gift && (
+                        <span className="rounded-full bg-accent/10 px-3 py-1 text-xs text-accent">
+                          {selectedStar.blessing.gift.icon} {selectedStar.blessing.gift.name} ·
+                          献给全体老师
+                        </span>
+                      )}
+                    </div>
+
+                    {/* AI 仪式文案（v2 送礼时写入的快照） */}
+                    {selectedStar.blessing.ai_message && (
+                      <p className="mt-3 rounded-xl bg-ink/5 px-4 py-3 text-xs leading-relaxed text-ink-light">
+                        {selectedStar.blessing.ai_message}
+                      </p>
                     )}
 
                     {/* 元信息 */}
