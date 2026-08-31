@@ -149,7 +149,7 @@ export default function HomePage() {
                     opacity: 0.85,
                   }}
                 />
-                金色星辉是老师，暖光点点是祝福
+                金色天体是每位老师，光点是祝福，礼物化作小图标点缀星河
                 <span
                   className="mx-1 inline-block h-2.5 w-2.5 animate-star-twinkle rounded-full align-middle"
                   style={{
