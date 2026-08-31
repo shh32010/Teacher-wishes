@@ -53,24 +53,47 @@ export async function POST(request: NextRequest) {
     let model = 'rule-fallback';
 
     try {
-      // 优先 LLM 批量分类
-      const aiRes = await chat([
-        { role: 'system', content: '你是教师节祝福语分类助手，只输出 JSON。' },
-        { role: 'user', content: buildClassifyPrompt(contents) },
-      ]);
+      // 优先 LLM 批量分类（maxTokens 3000：50 条 JSON 输出约 3000 token，防截断）
+      const aiRes = await chat(
+        [
+          { role: 'system', content: '你是教师节祝福语分类助手，只输出 JSON。' },
+          { role: 'user', content: buildClassifyPrompt(contents) },
+        ],
+        { maxTokens: 3000 }
+      );
       const parsed = parseJsonLoose<ClassifyResult>(aiRes.content);
       results = parsed.results || [];
       model = aiRes.model;
     } catch (err) {
-      // 未配置 / 调用失败 → 关键词规则降级
+      // 失败降级策略：未配置 key → 规则；调用失败 → 重试一次，仍失败才规则
       if (!isNotConfigured(err)) {
-        console.error('[AI] 分类调用失败，降级规则分类:', err);
+        console.error('[AI] 分类首次调用失败，重试一次:', err);
+        try {
+          const retry = await chat(
+            [
+              { role: 'system', content: '你是教师节祝福语分类助手，只输出 JSON。' },
+              { role: 'user', content: buildClassifyPrompt(contents) },
+            ],
+            { maxTokens: 3000 }
+          );
+          const parsed = parseJsonLoose<ClassifyResult>(retry.content);
+          results = parsed.results || [];
+          model = retry.model;
+        } catch (retryErr) {
+          console.error('[AI] 分类重试也失败，降级规则分类:', retryErr);
+          mode = 'rule';
+          results = contents.map((content, index) => {
+            const r = ruleClassify(content);
+            return { index, category: r.category, tags: r.tags };
+          });
+        }
+      } else {
+        mode = 'rule';
+        results = contents.map((content, index) => {
+          const r = ruleClassify(content);
+          return { index, category: r.category, tags: r.tags };
+        });
       }
-      mode = 'rule';
-      results = contents.map((content, index) => {
-        const r = ruleClassify(content);
-        return { index, category: r.category, tags: r.tags };
-      });
     }
 
     // 逐条更新（分类合法才写，非法回退默认）
@@ -110,7 +133,7 @@ export async function POST(request: NextRequest) {
       message:
         mode === 'ai'
           ? `AI 分类完成 ${classified} 条`
-          : `规则分类完成 ${classified} 条（未配置 AI key）`,
+          : `规则分类完成 ${classified} 条（AI 已降级，标签质量低于 AI）`,
     });
   } catch (err) {
     console.error('[AI] 分类异常:', err);

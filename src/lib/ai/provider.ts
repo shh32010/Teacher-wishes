@@ -42,10 +42,15 @@ function resolveProvider(): ProviderConfig {
 
 /**
  * 调用 LLM 对话补全
+ * @param options.maxTokens 输出上限（默认 4000——批量分类 50 条的 JSON 输出约 3000 token，
+ *   过小会截断 JSON 导致解析失败）
  * @throws AiNotConfiguredError 未配置 key
  * @throws Error 网络/服务端错误
  */
-export async function chat(messages: AiChatMessage[]): Promise<AiChatResult> {
+export async function chat(
+  messages: AiChatMessage[],
+  options?: { maxTokens?: number; temperature?: number }
+): Promise<AiChatResult> {
   const apiKey = process.env.AI_API_KEY;
   if (!apiKey) {
     throw new AiNotConfiguredError();
@@ -63,8 +68,8 @@ export async function chat(messages: AiChatMessage[]): Promise<AiChatResult> {
     body: JSON.stringify({
       model,
       messages,
-      temperature: 0.7,
-      max_tokens: 1000,
+      temperature: options?.temperature ?? 0.7,
+      max_tokens: options?.maxTokens ?? 4000,
     }),
   });
 
