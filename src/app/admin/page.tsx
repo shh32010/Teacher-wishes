@@ -52,6 +52,12 @@ export default function AdminPage() {
 
   const groups: BlessingGroup[] = data?.groups || [];
 
+  // 前端分页（聚合数据全量在内存，91 句按 50/页切片）
+  const PAGE_SIZE = 50;
+  const [page, setPage] = useState(1);
+  const totalPages = Math.max(1, Math.ceil(groups.length / PAGE_SIZE));
+  const pageGroups = groups.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+
   const toggleSelect = (content: string) => {
     setSelectedContents((prev) => {
       const next = new Set(prev);
@@ -277,7 +283,7 @@ export default function AdminPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {groups.map((group) => (
+                    {pageGroups.map((group) => (
                       <tr
                         key={group.content}
                         className={`border-b border-ink/5 transition-colors ${
@@ -322,6 +328,69 @@ export default function AdminPage() {
                     ))}
                   </tbody>
                 </table>
+              </div>
+            )}
+
+            {/* 分页 */}
+            {totalPages > 1 && (
+              <div className="mt-4 flex items-center justify-center gap-1">
+                <button
+                  onClick={() => {
+                    setPage((p) => Math.max(1, p - 1));
+                    setSelectedContents(new Set());
+                  }}
+                  disabled={page <= 1}
+                  className="rounded-lg px-2 py-1.5 text-sm glass text-ink-muted hover:text-ink disabled:opacity-30"
+                >
+                  ←
+                </button>
+                {(() => {
+                  // 窗口化：1 ... p-2 p-1 p p+1 p+2 ... N
+                  const nums: (number | '…')[] = [];
+                  const winStart = Math.max(1, page - 2);
+                  const winEnd = Math.min(totalPages, page + 2);
+                  if (winStart > 1) {
+                    nums.push(1);
+                    if (winStart > 2) nums.push('…');
+                  }
+                  for (let n = winStart; n <= winEnd; n++) nums.push(n);
+                  if (winEnd < totalPages) {
+                    if (winEnd < totalPages - 1) nums.push('…');
+                    nums.push(totalPages);
+                  }
+                  return nums.map((n, i) =>
+                    n === '…' ? (
+                      <span key={`e${i}`} className="px-1 text-ink-muted">
+                        …
+                      </span>
+                    ) : (
+                      <button
+                        key={n}
+                        onClick={() => {
+                          setPage(n);
+                          setSelectedContents(new Set());
+                        }}
+                        className={`rounded-lg px-2.5 py-1.5 text-sm transition-colors ${
+                          page === n
+                            ? 'bg-primary text-white'
+                            : 'glass text-ink-muted hover:text-ink'
+                        }`}
+                      >
+                        {n}
+                      </button>
+                    )
+                  );
+                })()}
+                <button
+                  onClick={() => {
+                    setPage((p) => Math.min(totalPages, p + 1));
+                    setSelectedContents(new Set());
+                  }}
+                  disabled={page >= totalPages}
+                  className="rounded-lg px-2 py-1.5 text-sm glass text-ink-muted hover:text-ink disabled:opacity-30"
+                >
+                  →
+                </button>
               </div>
             )}
           </>
