@@ -37,19 +37,17 @@ const fetcher = async (url: string) => {
   return res.json();
 };
 
-type FilterStatus = 'pending' | 'approved' | 'rejected' | 'all';
 type AdminTab = 'blessings' | 'templates' | 'gifts' | 'ai' | 'teachers';
 
 export default function AdminPage() {
   const router = useRouter();
   const [tab, setTab] = useState<AdminTab>('blessings');
-  const [filter, setFilter] = useState<FilterStatus>('pending');
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [page, setPage] = useState(1);
 
-  const statusParam = filter === 'all' ? '' : `&status=${filter}`;
+  // v2 自动上墙：无待审核流程，直接浏览全部祝福（治理：精选/删除）
   const { data, error, isLoading, mutate } = useSWR(
-    `/api/admin/blessings?page=${page}&pageSize=50${statusParam}`,
+    `/api/admin/blessings?page=${page}&pageSize=50`,
     fetcher
   );
   const totalPages = Math.ceil((data?.count || 0) / 50);
@@ -117,7 +115,7 @@ export default function AdminPage() {
                   tab === 'blessings' ? 'bg-primary text-white' : 'text-ink-muted hover:text-ink'
                 }`}
               >
-                祝福管理
+                祝福治理
               </button>
               <button
                 onClick={() => setTab('templates')}
@@ -198,68 +196,10 @@ export default function AdminPage() {
               </div>
             )}
 
-            {/* 工具栏 */}
-            <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
-              <div className="flex gap-2">
-                {[
-                  {
-                    value: 'pending' as FilterStatus,
-                    label: '待审核',
-                    count: stats?.pending_count,
-                  },
-                  {
-                    value: 'approved' as FilterStatus,
-                    label: '已通过',
-                    count: stats?.approved_count,
-                  },
-                  {
-                    value: 'rejected' as FilterStatus,
-                    label: '已拒绝',
-                    count: stats?.rejected_count,
-                  },
-                  { value: 'all' as FilterStatus, label: '全部', count: stats?.total_count },
-                ].map(({ value, label, count }) => (
-                  <button
-                    key={value}
-                    onClick={() => {
-                      setFilter(value);
-                      setSelectedIds(new Set());
-                      setPage(1);
-                    }}
-                    className={`rounded-lg px-3 py-1.5 text-sm transition-colors ${
-                      filter === value
-                        ? 'bg-primary text-white'
-                        : 'glass text-ink-muted hover:text-ink'
-                    }`}
-                  >
-                    {label}
-                    {count !== undefined && (
-                      <span
-                        className={`ml-1.5 rounded-full px-1.5 py-0.5 text-xs ${
-                          filter === value ? 'bg-white/20' : 'bg-ink/10'
-                        }`}
-                      >
-                        {count}
-                      </span>
-                    )}
-                  </button>
-                ))}
-              </div>
-
+            {/* 工具栏（v2 自动上墙：仅治理操作——精选/删除） */}
+            <div className="mb-6 flex flex-wrap items-center justify-end gap-4">
               {selectedIds.size > 0 && (
                 <div className="flex gap-2">
-                  <button
-                    onClick={() => handleBatchUpdate({ status: 'approved' })}
-                    className="rounded-lg bg-success px-3 py-1.5 text-sm text-white hover:bg-success-dark"
-                  >
-                    ✅ 通过 ({selectedIds.size})
-                  </button>
-                  <button
-                    onClick={() => handleBatchUpdate({ status: 'rejected' })}
-                    className="rounded-lg bg-danger px-3 py-1.5 text-sm text-white hover:bg-danger-light"
-                  >
-                    ❌ 拒绝
-                  </button>
                   <button
                     onClick={() => {
                       // 已全选精选 → 取消精选；否则 → 设为精选
@@ -328,7 +268,6 @@ export default function AdminPage() {
                       <th className="p-4">发送者</th>
                       <th className="p-4">祝福内容</th>
                       <th className="p-4">祝福对象</th>
-                      <th className="p-4">状态</th>
                       <th className="p-4">点赞</th>
                       <th className="p-4">时间</th>
                     </tr>
@@ -364,23 +303,6 @@ export default function AdminPage() {
                         </td>
                         <td className="p-4 text-ink-light whitespace-nowrap">
                           {blessing.teacher?.name || '全体'}
-                        </td>
-                        <td className="p-4">
-                          <span
-                            className={`rounded-full px-2 py-0.5 text-xs ${
-                              blessing.status === 'approved'
-                                ? 'bg-green-500/15 text-green-600'
-                                : blessing.status === 'rejected'
-                                  ? 'bg-red-500/15 text-red-600'
-                                  : 'bg-yellow-500/15 text-yellow-600'
-                            }`}
-                          >
-                            {blessing.status === 'approved'
-                              ? '已通过'
-                              : blessing.status === 'rejected'
-                                ? '已拒绝'
-                                : '待审核'}
-                          </span>
                         </td>
                         <td className="p-4 text-ink-muted">{blessing.likes}</td>
                         <td className="p-4 text-ink-muted">
