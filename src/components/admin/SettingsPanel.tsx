@@ -79,7 +79,10 @@ export default function SettingsPanel() {
         setMessage(`❌ ${result.error || '保存失败'}`);
         return;
       }
-      setMessage('✅ 已保存，立即生效');
+      const savedAt = new Date();
+      const hh = String(savedAt.getHours()).padStart(2, '0');
+      const mm = String(savedAt.getMinutes()).padStart(2, '0');
+      setMessage(`✅ 已保存（${hh}:${mm}），立即生效`);
       mutate();
     } catch {
       setMessage('❌ 网络错误，请重试');
@@ -125,6 +128,18 @@ export default function SettingsPanel() {
               🔴 已结束（拒绝提交）
             </button>
           </div>
+          {/* 时间窗状态提示 */}
+          <p className="mt-2 text-xs text-ink-muted">
+            {(() => {
+              const now = Date.now();
+              const s = startAt ? new Date(`${startAt}:00+08:00`).getTime() : null;
+              const e = endAt ? new Date(`${endAt}:00+08:00`).getTime() : null;
+              if (status === 'closed') return '🔴 人工关闭：学生端拒绝提交，后台数据不受影响';
+              if (s && now < s) return `🟡 尚未开始（开始于 ${startAt}，北京时间）`;
+              if (e && now > e) return `⚪ 已超过结束时间（结束于 ${endAt}，北京时间）`;
+              return '🟢 时间窗内：学生可正常提交';
+            })()}
+          </p>
         </div>
 
         {/* 活动时间（北京时间 UTC+8） */}

@@ -92,9 +92,15 @@ export default function AdminPage() {
     }
   };
 
-  const handleDelete = async () => {
+  /** 软删除：隐藏祝福（墙/星河不可见，后台可恢复） */
+  const handleHide = async () => {
     if (selectedIds.size === 0) return;
-    if (!confirm(`确定删除选中的 ${selectedIds.size} 条祝福记录？此操作不可恢复。`)) return;
+    if (
+      !confirm(
+        `确定隐藏选中的 ${selectedIds.size} 条祝福？\n\n墙/星河将不再显示，可在祝福记录中恢复。`
+      )
+    )
+      return;
     try {
       const csrfToken = await getCsrfToken();
       const res = await fetch('/api/admin/blessings', {
@@ -107,10 +113,34 @@ export default function AdminPage() {
       });
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));
-        alert(err.error || '删除失败');
+        alert(err.error || '隐藏失败');
         return;
       }
       setSelectedIds(new Set());
+      mutate();
+    } catch {
+      alert('操作失败');
+    }
+  };
+
+  /** 恢复：hidden → approved 重新上墙 */
+  const handleRestore = async (id: string) => {
+    try {
+      const csrfToken = await getCsrfToken();
+      const res = await fetch('/api/admin/blessings', {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          ...(csrfToken ? { 'X-CSRF-Token': csrfToken } : {}),
+        },
+        body: JSON.stringify({ ids: [id], updates: { status: 'approved' } }),
+      });
+      if (!res.ok) {
+        const err = await res.json().catch(() => ({}));
+        alert(err.error || '恢复失败');
+        return;
+      }
+      setDetailBlessing(null);
       mutate();
     } catch {
       alert('操作失败');
@@ -211,10 +241,10 @@ export default function AdminPage() {
                         ⭐ 精选
                       </button>
                       <button
-                        onClick={handleDelete}
+                        onClick={handleHide}
                         className="rounded-lg bg-red-500/15 px-3 py-1.5 text-sm text-danger hover:bg-red-500/25"
                       >
-                        🗑️ 删除 ({selectedIds.size} 条)
+                        🙈 隐藏 ({selectedIds.size} 条)
                       </button>
                     </>
                   )}
@@ -260,7 +290,9 @@ export default function AdminPage() {
                         {blessings.map((b) => (
                           <tr
                             key={b.id}
-                            className="cursor-pointer border-b border-ink/5 transition-colors hover:bg-ink/5"
+                            className={`cursor-pointer border-b border-ink/5 transition-colors hover:bg-ink/5 ${
+                              b.status === 'hidden' ? 'opacity-50' : ''
+                            }`}
                             onClick={() => setDetailBlessing(b)}
                           >
                             <td className="p-4" onClick={(e) => e.stopPropagation()}>
@@ -416,7 +448,19 @@ export default function AdminPage() {
                   </p>
                   <p>提交时间：{formatDateTime(detailBlessing.created_at)}</p>
                   <p>❤️ {detailBlessing.likes} 赞</p>
+                  {detailBlessing.status === 'hidden' && (
+                    <p className="text-danger">状态：已隐藏（墙/星河不可见）</p>
+                  )}
                 </div>
+
+                {detailBlessing.status === 'hidden' && (
+                  <button
+                    onClick={() => handleRestore(detailBlessing.id)}
+                    className="btn-primary mt-4 w-full"
+                  >
+                    ♻️ 恢复上墙
+                  </button>
+                )}
               </div>
             </motion.div>
           </>

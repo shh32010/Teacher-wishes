@@ -105,6 +105,7 @@ export default function OverviewPanel() {
               </span>
             ))}
           </div>
+          <p className="mt-2 text-[10px] text-ink-muted">基于祝福语库标签统计</p>
         </div>
       </div>
 

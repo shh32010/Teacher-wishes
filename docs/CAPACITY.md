@@ -27,6 +27,7 @@
 | IP 限流（送礼 100条/10分钟、点赞 20次/分钟） + CSRF + Turnstile | 防恶意刷量，保护写入路径 |
 | Supabase RLS + RPC（`increment_likes`） | 原子化操作，减少数据库往返 |
 | v2.0 同句聚合（`/api/blessings/grouped`） | 全量 approved 一次取回 JS 聚合（≤3000 条、内容短，约 1MB 响应），分页请求从「每页一次」降为「每组一次」 |
+| 后台活动概览（`/api/admin/overview`） | 服务端单次全量读取 + JS 聚合（替代 3 个请求）。**适用预期活动规模（数千条）；若祝福总量达约 1 万条以上，应迁移到数据库聚合/RPC 方案**（get_sentence_stats 已示范该模式） |
 
 ---
 

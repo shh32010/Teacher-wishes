@@ -120,20 +120,21 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: '非法祝福ID' }, { status: 400 });
     }
 
+    // 软删除：置为 hidden（墙/星河经 RLS 自动不可见；后台可查看/恢复）
     const { data, error } = await supabase
       .from('blessings')
-      .delete()
+      .update({ status: 'hidden' })
       .in('id', body.ids)
       .select('id');
 
     if (error) {
-      console.error('[Admin API] 删除失败:', error);
-      return NextResponse.json({ error: '删除失败' }, { status: 500 });
+      console.error('[Admin API] 隐藏失败:', error);
+      return NextResponse.json({ error: '隐藏失败' }, { status: 500 });
     }
 
     return NextResponse.json({ deleted: data?.length || 0 });
   } catch (err) {
-    console.error('[Admin API] 删除异常:', err);
+    console.error('[Admin API] 隐藏异常:', err);
     return NextResponse.json({ error: '服务器内部错误' }, { status: 500 });
   }
 }
@@ -159,8 +160,8 @@ export async function PATCH(request: NextRequest) {
     // 字段白名单过滤 — 防止攻击者通过 updates 修改任意列（content、likes、user_id 等）
     const allowedUpdates: Record<string, unknown> = {};
     if (body.updates.status !== undefined) {
-      // 仅允许有效的审核状态值
-      const validStatuses = ['pending', 'approved', 'rejected'];
+      // 仅允许有效的审核状态值（hidden 用于恢复：hidden → approved 重新上墙）
+      const validStatuses = ['pending', 'approved', 'rejected', 'hidden'];
       if (validStatuses.includes(body.updates.status)) {
         allowedUpdates.status = body.updates.status;
       }

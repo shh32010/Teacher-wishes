@@ -22,7 +22,9 @@ export async function GET(request: NextRequest) {
     const supabase = createAdminClient();
     const { data, error } = await supabase
       .from('gifts')
-      .select('*')
+      .select(
+        'id, name, icon, description, animation, sort_order, is_active, usage_count, created_at'
+      )
       .order('sort_order', { ascending: true });
 
     if (error) {
