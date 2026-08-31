@@ -8,8 +8,19 @@
 
 import { useEffect, useState, useMemo } from 'react';
 
-/** 飘落物类型 */
-type PetalType = 'sakura' | 'ginkgo' | 'maple';
+/** 飘落物类型（3 种季节元素 + 8 种数字礼物） */
+type PetalType =
+  | 'sakura'
+  | 'ginkgo'
+  | 'maple'
+  | 'rose'
+  | 'star'
+  | 'book'
+  | 'chalk'
+  | 'coffee'
+  | 'letter'
+  | 'apple'
+  | 'sapling';
 
 interface Petal {
   id: number;
@@ -27,17 +38,38 @@ const PETAL_EMOJI: Record<PetalType, string> = {
   sakura: '🌸',
   ginkgo: '🍂',
   maple: '🍁',
+  rose: '🌹',
+  star: '🌟',
+  book: '📚',
+  chalk: '✏️',
+  coffee: '☕',
+  letter: '💌',
+  apple: '🍎',
+  sapling: '🌱',
 };
 
 /** 根据屏幕宽度决定花瓣数量 */
 function getPetalCount(): number {
-  if (typeof window === 'undefined') return 20;
-  return window.innerWidth < 768 ? 10 : 20;
+  if (typeof window === 'undefined') return 24;
+  return window.innerWidth < 768 ? 12 : 24;
 }
 
 /** 生成随机飘落物（仅使用 transform 动画，无 top/left 动画） */
 function generatePetals(count: number): Petal[] {
-  const types: PetalType[] = ['sakura', 'ginkgo', 'maple'];
+  // 季节元素与礼物混合飘落：3 花瓣 + 8 礼物 = 11 种均匀循环
+  const types: PetalType[] = [
+    'sakura',
+    'rose',
+    'ginkgo',
+    'star',
+    'maple',
+    'book',
+    'chalk',
+    'coffee',
+    'letter',
+    'apple',
+    'sapling',
+  ];
   return Array.from({ length: count }, (_, i) => ({
     id: i,
     type: types[i % types.length],
