@@ -179,7 +179,6 @@ getClientIp(request)
 │   │   ├── layout.tsx             # 根布局 + SEO metadata
 │   │   ├── gift/page.tsx          # v2.0 送礼主流程（6 步状态机）
 │   │   ├── wall/page.tsx          # 祝福墙（无限滚动 + Realtime）
-│   │   ├── teacher/[id]/page.tsx  # 教师主页（SSR，历史祝福）
 │   │   ├── admin/
 │   │   │   ├── page.tsx           # 管理后台（审核/词库/礼物/AI 中心/教师 5 tab）
 │   │   │   └── login/page.tsx     # 管理员登录
@@ -243,8 +242,7 @@ getClientIp(request)
 | `/api/blessings` | POST | Anon | CSRF + 限流 | **v2.0** 送礼提交：`template_id`+`gift_id`，服务端查词库取内容 |
 | `/api/blessings/[id]/like` | POST | Anon | CSRF + 限流 | 点赞 RPC |
 | `/api/blessings/stats` | GET | Anon | 无 | 聚合统计 |
-| `/api/teachers` | GET | Anon | 无 | 教师列表（教师介绍用，不参与送礼流程） |
-| `/api/teachers/[id]` | GET | Anon | 无 | 教师详情 + 历史祝福 |
+| `/api/teachers` | GET | Anon | 无 | 教师列表（星河天体/后台教师管理用，不参与送礼流程） |
 | `/api/templates` | GET | Anon | 无 | 公开词库（分页+分类，RLS 仅返回启用） |
 | `/api/templates/random` | GET | Anon | 无 | 「换一句」随机一条（mood 可选） |
 | `/api/gifts` | GET | Anon | 无 | 礼物列表（RLS 仅返回启用） |

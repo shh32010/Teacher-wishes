@@ -214,49 +214,11 @@
 
 ---
 
-### `GET /api/teachers/[id]`
-
-获取教师详情及其收到的祝福列表。
-
-**路径参数:** `id` — 教师 UUID
-
-**Query Parameters:**
-
-| 参数 | 类型 | 默认 | 说明 |
-| :--- | :--- | :--- | :--- |
-| `page` | int | `1` | 页码 |
-| `pageSize` | int | `20` | 每页数量，最大 50 |
-
-**响应:**
-
-```json
-{
-  "teacher": {
-    "id": "uuid",
-    "name": "王老师",
-    "department": "语文组",
-    "avatar_url": "https://...",
-    "description": "从教20年的资深语文教师",
-    "created_at": "2026-01-01T00:00:00Z"
-  },
-  "blessings": [...],
-  "count": 12,
-  "page": 1,
-  "pageSize": 20
-}
-```
-
----
-
 ### `GET /api/templates`
 
 **v2.0** 公开词库查询（anon client 受 RLS 限制，仅返回启用的祝福语）。
 
 **查询参数:** `page`、`pageSize`（≤50）、`category`（感恩|祝愿|青春|温暖|文艺|趣味）
-
-### `GET /api/templates/random`
-
-**v2.0** 「换一句」随机一条。**查询参数:** `mood`（可选，分类）。响应 `{ template }`，词库为空返回 404。`Cache-Control: no-store`。
 
 ### `GET /api/gifts`
 

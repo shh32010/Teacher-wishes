@@ -8,7 +8,6 @@
 
 import { useEffect, useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import type { Blessing, Teacher } from '@/types';
 
@@ -60,7 +59,6 @@ function stableRandom(id: string): number {
 }
 
 export default function GiftGalaxy() {
-  const router = useRouter();
   const [stars, setStars] = useState<Star[]>([]);
   const [hovered, setHovered] = useState<string | null>(null);
   const [visible, setVisible] = useState(false);
@@ -472,13 +470,6 @@ export default function GiftGalaxy() {
                         {selectedStar.teacher!.description}
                       </p>
                     )}
-
-                    <button
-                      onClick={() => router.push(`/teacher/${selectedStar.teacher!.id}`)}
-                      className="btn-primary mt-5 inline-block"
-                    >
-                      📖 查看老师纪念主页
-                    </button>
                   </div>
                 )}
 

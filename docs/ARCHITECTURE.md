@@ -31,7 +31,6 @@
 │   │   ├── layout.tsx             # 根布局 + SEO metadata
 │   │   ├── gift/page.tsx          # v2.0 送礼主流程（6 步状态机）
 │   │   ├── wall/page.tsx          # 祝福墙（无限滚动 + Realtime）
-│   │   ├── teacher/[id]/page.tsx  # 教师主页（SSR，历史祝福）
 │   │   ├── admin/
 │   │   │   ├── page.tsx           # 管理后台（审核/词库/礼物/AI 中心/教师 5 tab）
 │   │   │   └── login/page.tsx     # 管理员登录
@@ -52,8 +51,7 @@
 │   │   ├── blessing/              # 祝福相关组件
 │   │   │   ├── BlessingCard.tsx   # 祝福卡片（礼物/情绪标签 + 点赞）
 │   │   │   ├── ConfettiTrigger.tsx # 彩带庆祝特效
-│   │   │   ├── LikeBurst.tsx      # 点赞爱心爆发动画
-│   │   │   └── SortToggle.tsx     # 排序切换按钮
+│   │   │   └── LikeBurst.tsx      # 点赞爱心爆发动画
 │   │   ├── gift/                  # v2.0 送礼流程组件
 │   │   │   ├── GiftFlow.tsx       # 6 步状态机容器（含确认步 + Turnstile）
 │   │   │   ├── EmotionPicker.tsx  # 情绪选择
@@ -72,8 +70,7 @@
 │   │       ├── GlassCard.tsx      # 毛玻璃卡片
 │   │       ├── NavHeader.tsx      # 玻璃态导航栏
 │   │       ├── PageTransition.tsx # 页面转场动画
-│   │       ├── ThemeToggle.tsx    # 主题切换按钮
-│   │       └── ShareButton.tsx    # 分享链接复制
+│   │       └── ThemeToggle.tsx    # 主题切换按钮
 │   ├── lib/
 │   │   ├── supabase/              # Supabase 客户端封装
 │   │   │   ├── client.ts          # 浏览器端（含 Realtime）
@@ -224,7 +221,6 @@ flowchart TB
         Home["首页 /\n礼物星河 + 今日金句"]
         Gift["送礼流程 /gift\n6 步状态机"]
         Wall["祝福墙 /wall"]
-        Teacher["教师页 /teacher/[id]"]
         Admin["管理后台 /admin\n5 tab"]
     end
 

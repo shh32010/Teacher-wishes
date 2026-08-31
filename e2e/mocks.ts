@@ -429,28 +429,6 @@ export async function registerAllApiMocks(page: Page): Promise<void> {
     });
   });
 
-  // 教师详情（SSR 页面的 API）
-  await page.route(/\/api\/teachers\/[^/]+$/, async (route: Route) => {
-    const url = new URL(route.request().url());
-    const id = url.pathname.split('/').pop();
-    const teacher = MOCK_TEACHERS.find((t) => t.id === id);
-
-    if (!teacher) {
-      await route.fulfill({
-        status: 404,
-        contentType: 'application/json',
-        body: JSON.stringify({ error: '教师未找到' }),
-      });
-      return;
-    }
-
-    await route.fulfill({
-      status: 200,
-      contentType: 'application/json',
-      body: JSON.stringify(teacher),
-    });
-  });
-
   // admin login API
   await page.route('/api/admin/login', async (route: Route) => {
     if (route.request().method() === 'POST') {

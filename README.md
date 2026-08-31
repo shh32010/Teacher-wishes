@@ -20,10 +20,6 @@
   <img src="./public/screenshots/wall.png" alt="祝福墙 — 同句聚合卡片" width="48%">
 </p>
 
-<p align="center">
-  <img src="./public/screenshots/teacher.png" alt="教师主页 — 往年祝福" width="48%">
-</p>
-
 ---
 
 ## ✨ 功能
@@ -32,9 +28,8 @@
 - 📚 **甲方祝福语库** — 学生从官方词库选择祝福（不再自由输入）；后台支持单条 CRUD + CSV 批量导入 + AI 自动分类
 - 🎀 **数字礼物系统** — 8 种礼物（鲜花/星星/书本/粉笔/咖啡/信件/苹果/小树）+ 8 种定制动画，礼物化作光点飞入星河
 - 🌌 **教师节祝福星河** — 中心 TEACHERS 光核 + 教师天体外圈 + 礼物粒子环绕；不比较老师，全校心意汇聚
-- 💬 **祝福墙（同句聚合）** — 同一句祝福多人送出时合并展示「N 位同学送出了这句祝福」，历史祝福保留老师标签
+- 💬 **祝福墙（同句聚合）** — 同一句祝福多人送出时合并展示「N 位同学送出了这句祝福」，统一献给全体老师
 - 🤖 **AI 智能赋能** — DeepSeek adapter（可切智谱/SiliconFlow）：智能祝福推荐（DB 语义匹配，零 LLM 零延迟）、词库批量分类、今日金句、全校情绪洞察、收官总结；**无 key 时全部规则降级，AI 故障不影响核心链路**
-- 👩‍🏫 **教师主页** — 教师介绍 + 往年定向祝福（v2 新祝福献给全体老师）
 - 🔐 **管理后台** — 祝福审核 / 词库管理 / 礼物管理 / AI 中心 / 教师管理 5 大面板
 - 🛡️ **安全防护** — admin_token HMAC 二次验签 + CSRF 全环境强制 + 服务端取词契约 + 严格触发器（数据库层防绕过）+ RLS + Turnstile
 - ♿ **无障碍 + 监控** — WCAG AA、焦点陷阱、Vercel Analytics、Sentry
@@ -116,16 +111,15 @@ src/
 │   ├── page.tsx              #   首页（时间线 + 礼物星河 + 今日金句）
 │   ├── gift/page.tsx         #   送礼主流程（6 步状态机）
 │   ├── wall/page.tsx         #   祝福墙（同句聚合 + Realtime）
-│   ├── teacher/[id]/page.tsx #   教师主页（SSR，往年祝福）
 │   ├── admin/                #   管理后台（5 面板）
 │   └── api/                  #   blessings/templates/gifts/ai/admin/csrf/cron
 ├── components/
 │   ├── gift/                 #   GiftFlow / TemplatePicker / GiftSelector / GiftAnimation 等
-│   ├── blessing/             #   GroupedBlessingCard / BlessingCard / SortToggle / LikeBurst
+│   ├── blessing/             #   GroupedBlessingCard / LikeBurst
 │   ├── home/                 #   GiftGalaxy / StarBackground / StatsPanel / FallingPetals
 │   ├── ai/                   #   QuoteOfDay
 │   ├── admin/                #   TemplateManager / GiftManager / AICenter / TeacherManager
-│   └── ui/                   #   GlassCard / NavHeader / PageTransition / ShareButton
+│   └── ui/                   #   GlassCard / NavHeader / PageTransition
 ├── lib/
 │   ├── ai/                   #   provider（DeepSeek adapter）/ prompts / 仪式文案矩阵
 │   ├── supabase/             #   客户端（浏览器/服务端/实时）
