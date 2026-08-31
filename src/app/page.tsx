@@ -72,7 +72,7 @@ export default function HomePage() {
   };
 
   return (
-    <main className="relative flex min-h-screen flex-col items-center justify-start overflow-hidden">
+    <main className="relative flex min-h-screen flex-col items-center justify-center overflow-hidden">
       {/* 黄昏暖色粒子背景 */}
       <StarBackground count={80} />
 
@@ -82,8 +82,8 @@ export default function HomePage() {
       {/* 祝福星河层（标题后显示） */}
       {isActive('title') && <GiftGalaxy />}
 
-      {/* 内容层（固定在屏幕上部，下方留给星河中心光核与粒子） */}
-      <div className="relative z-10 flex flex-col items-center gap-3 px-4 pt-[4vh] text-center">
+      {/* 内容层（垂直居中，星河粒子作为背景环绕） */}
+      <div className="relative z-10 flex flex-col items-center gap-6 px-4 text-center">
         <AnimatePresence>
           {isActive('quote1') && (
             <motion.p
@@ -149,7 +149,7 @@ export default function HomePage() {
                     opacity: 0.85,
                   }}
                 />
-                金色天体是每位老师，光点是祝福，礼物化作小图标点缀星河
+                金色天体是每位老师，光点是每句祝福
                 <span
                   className="mx-1 inline-block h-2.5 w-2.5 animate-star-twinkle rounded-full align-middle"
                   style={{

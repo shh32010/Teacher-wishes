@@ -1,5 +1,5 @@
 // ============================================================
-// 礼物星河（v2.0）— 中心 TEACHERS 光核 + 教师天体外圈 + 祝福星星环绕
+// 礼物星河（v2.0）— 教师天体外圈 + 祝福星星环绕
 // 聚合模型：每颗星星 = 一句祝福（同句多人送出合并为一颗，大小按送出人数）
 // 弹窗展示该句的礼物数量分布（🌹×8 🌟×5）与总赞
 // 产品原则 1：不比较老师 — 教师弹窗不展示收到祝福数量
@@ -199,28 +199,6 @@ export default function GiftGalaxy() {
     <>
       {/* ==================== 星河层 ==================== */}
       <div className="pointer-events-none absolute inset-0 z-10 overflow-hidden">
-        {/* 中心光核 — TEACHERS（全体老师，不指向个人）
-            位于星河视觉中心（top 60%）；文案区固定在屏幕上部，两者天然错开 */}
-        <motion.div
-          initial={{ opacity: 0, scale: 0.6 }}
-          animate={{ opacity: visible ? 1 : 0, scale: visible ? 1 : 0.6 }}
-          transition={{ delay: 0.3, duration: 1 }}
-          className="absolute left-1/2 top-[60%] flex -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center rounded-full"
-          style={{
-            width: 100,
-            height: 100,
-            background:
-              'radial-gradient(circle, color-mix(in srgb, var(--color-accent-gold) 50%, transparent) 0%, color-mix(in srgb, var(--color-primary) 30%, transparent) 55%, transparent 75%)',
-            boxShadow:
-              '0 0 48px color-mix(in srgb, var(--color-accent-gold) 45%, transparent), 0 0 96px color-mix(in srgb, var(--color-primary) 20%, transparent)',
-          }}
-        >
-          <span className="text-base font-bold tracking-widest text-ink drop-shadow-lg">
-            TEACHERS
-          </span>
-          <span className="mt-0.5 text-xs text-ink-light">教师节祝福星河</span>
-        </motion.div>
-
         {stars.map((star) => {
           if (star.type === 'teacher') {
             return (
