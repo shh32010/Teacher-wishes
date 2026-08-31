@@ -20,6 +20,56 @@ const fetcher = async (url: string) => {
   return res.json();
 };
 
+/** 10 页一组的分页控件 */
+function Pagination({
+  page,
+  totalPages,
+  onChange,
+}: {
+  page: number;
+  totalPages: number;
+  onChange: (p: number) => void;
+}) {
+  if (totalPages <= 1) return null;
+  const groupSize = 10;
+  const groupStart = Math.floor((page - 1) / groupSize) * groupSize;
+  const groupPages: number[] = [];
+  for (let n = groupStart + 1; n <= Math.min(groupStart + groupSize, totalPages); n++) {
+    groupPages.push(n);
+  }
+  return (
+    <div className="mt-4 flex items-center justify-center gap-1">
+      <button
+        onClick={() => onChange(groupStart)}
+        disabled={groupStart <= 0}
+        className="rounded-lg px-2 py-1.5 text-sm glass text-ink-muted hover:text-ink disabled:opacity-30"
+        title="上一组"
+      >
+        ◀
+      </button>
+      {groupPages.map((n) => (
+        <button
+          key={n}
+          onClick={() => onChange(n)}
+          className={`rounded-lg px-2.5 py-1.5 text-sm transition-colors ${
+            page === n ? 'bg-primary text-white' : 'glass text-ink-muted hover:text-ink'
+          }`}
+        >
+          {n}
+        </button>
+      ))}
+      <button
+        onClick={() => onChange(Math.min(totalPages, groupStart + groupSize + 1))}
+        disabled={groupStart + groupSize >= totalPages}
+        className="rounded-lg px-2 py-1.5 text-sm glass text-ink-muted hover:text-ink disabled:opacity-30"
+        title="下一组"
+      >
+        ▶
+      </button>
+    </div>
+  );
+}
+
 /** 请求管理端写接口的统一封装（携带 CSRF） */
 async function adminWrite(
   url: string,
@@ -440,28 +490,8 @@ export default function TemplateManager() {
             </div>
           )}
 
-          {/* 分页 */}
-          {totalPages > 1 && (
-            <div className="mt-4 flex items-center justify-center gap-2">
-              <button
-                onClick={() => setPage((p) => Math.max(1, p - 1))}
-                disabled={page <= 1}
-                className="rounded-lg px-3 py-1.5 text-sm glass text-ink-muted disabled:opacity-30"
-              >
-                ← 上一页
-              </button>
-              <span className="text-sm text-ink-muted">
-                {page} / {totalPages}
-              </span>
-              <button
-                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                disabled={page >= totalPages}
-                className="rounded-lg px-3 py-1.5 text-sm glass text-ink-muted disabled:opacity-30"
-              >
-                下一页 →
-              </button>
-            </div>
-          )}
+          {/* 分页（10 页一组） */}
+          <Pagination page={page} totalPages={totalPages} onChange={setPage} />
 
           <input
             ref={fileRef}
@@ -524,27 +554,16 @@ export default function TemplateManager() {
             </div>
           )}
 
-          {/* 分页 */}
+          {/* 分页（10 页一组） */}
+          <Pagination
+            page={blessingPage}
+            totalPages={blessingTotalPages}
+            onChange={setBlessingPage}
+          />
           {blessingTotalPages > 1 && (
-            <div className="mt-4 flex items-center justify-center gap-2">
-              <button
-                onClick={() => setBlessingPage((p) => Math.max(1, p - 1))}
-                disabled={blessingPage <= 1}
-                className="rounded-lg px-3 py-1.5 text-sm glass text-ink-muted disabled:opacity-30"
-              >
-                ← 上一页
-              </button>
-              <span className="text-sm text-ink-muted">
-                {blessingPage} / {blessingTotalPages}（共 {blessingsData?.count ?? 0} 条）
-              </span>
-              <button
-                onClick={() => setBlessingPage((p) => Math.min(blessingTotalPages, p + 1))}
-                disabled={blessingPage >= blessingTotalPages}
-                className="rounded-lg px-3 py-1.5 text-sm glass text-ink-muted disabled:opacity-30"
-              >
-                下一页 →
-              </button>
-            </div>
+            <p className="mt-2 text-center text-xs text-ink-muted">
+              共 {blessingsData?.count ?? 0} 条祝福
+            </p>
           )}
         </>
       )}
