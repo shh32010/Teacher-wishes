@@ -129,4 +129,21 @@ describe('groupBlessings', () => {
     const groups = groupBlessings(blessings, 'time');
     expect(groups.map((g) => g.content)).toEqual(['乙', '甲']);
   });
+
+  it('精选组置顶（无论 time/likes 排序）', () => {
+    const blessings = [
+      makeBlessing({ id: 'a1', content: '普通句', created_at: '2026-08-29T12:00:00Z', likes: 99 }),
+      makeBlessing({
+        id: 'b1',
+        content: '精选句',
+        created_at: '2026-08-29T10:00:00Z',
+        likes: 1,
+        is_featured: true,
+      }),
+    ];
+    const byTime = groupBlessings(blessings, 'time');
+    expect(byTime[0].content).toBe('精选句');
+    const byLikes = groupBlessings(blessings, 'likes');
+    expect(byLikes[0].content).toBe('精选句');
+  });
 });

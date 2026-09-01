@@ -69,11 +69,12 @@ export function groupBlessings(
 
   const groups = Array.from(groupMap.values());
 
-  if (sort === 'likes') {
-    groups.sort((a, b) => b.total_likes - a.total_likes);
-  } else {
-    groups.sort((a, b) => (a.latest_created_at < b.latest_created_at ? 1 : -1));
-  }
+  // 精选组置顶（无论排序方式），其余按 time/likes 排序
+  groups.sort((a, b) => {
+    if (a.is_featured !== b.is_featured) return a.is_featured ? -1 : 1;
+    if (sort === 'likes') return b.total_likes - a.total_likes;
+    return a.latest_created_at < b.latest_created_at ? 1 : -1;
+  });
 
   return groups;
 }

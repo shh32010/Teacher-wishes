@@ -35,6 +35,7 @@ export async function GET(request: NextRequest) {
          gift:gifts(id, name, icon)`,
         { count: 'exact' }
       )
+      .order('is_featured', { ascending: false })
       .order('created_at', { ascending: false })
       .range(offset, offset + pageSize - 1);
 
