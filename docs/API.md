@@ -39,7 +39,7 @@
 
 ### `GET /api/blessings`
 
-获取已审核的祝福列表（分页 + 教师筛选）。
+获取已审核的祝福列表（分页 + 排序）。
 
 **Query Parameters:**
 
@@ -47,33 +47,28 @@
 | :--- | :--- | :--- | :--- |
 | `page` | int | `1` | 页码，最小 1 |
 | `pageSize` | int | `20` | 每页数量，最大 50 |
-| `teacher_id` | UUID | — | 按教师筛选 |
 | `sort` | string | `time` | 排序方式：`time`（最新）/ `likes`（最热） |
 
-**响应:**
+**响应（v2.0 公开契约：blessing + gift，不返回 teacher 关联）:**
 
 ```json
 {
   "data": [
     {
       "id": "uuid",
-      "user_id": null,
-      "teacher_id": "uuid",
       "nickname": "小明",
       "class": "高一(3)班",
-      "content": "王老师辛苦了！",
+      "content": "感谢您的谆谆教诲，让成长的路上充满方向。",
       "likes": 5,
       "is_featured": false,
       "is_anonymous": false,
-      "status": "approved",
-      "created_at": "2026-08-06T10:00:00Z",
-      "teacher": {
-        "id": "uuid",
-        "name": "王老师",
-        "department": "语文组",
-        "avatar_url": null,
-        "description": null,
-        "created_at": "2026-01-01T00:00:00Z"
+      "emotion": "感恩",
+      "ai_message": "这束花，送给每一位辛勤耕耘的老师。",
+      "created_at": "2026-09-01T10:00:00Z",
+      "gift": {
+        "id": "rose",
+        "name": "鲜花",
+        "icon": "🌹"
       }
     }
   ],
@@ -276,7 +271,7 @@
 | 参数 | 类型 | 默认 | 说明 |
 | :--- | :--- | :--- | :--- |
 | `pageSize` | int | `50` | 每页数量 |
-| `status` | string | — | `pending` / `approved` / `rejected` |
+| `status` | string | — | `pending` / `approved` / `rejected` / `hidden`（软删除） |
 
 **响应:** 同 `GET /api/blessings`，但不过滤 `status`（或按指定状态过滤）。
 
@@ -301,7 +296,7 @@
 | 字段 | 类型 | 说明 |
 | :--- | :--- | :--- |
 | `ids` | UUID[] | 必填，祝福 ID 列表 |
-| `updates.status` | string | 可选，仅允许 `pending`/`approved`/`rejected` |
+| `updates.status` | string | 可选，仅允许 `pending`/`approved`/`rejected`/`hidden`（hidden→approved 即恢复上墙） |
 | `updates.is_featured` | boolean | 可选，是否精选 |
 
 > 🔒 **字段白名单**：服务端仅接受 `status`（含合法值校验）和 `is_featured` 字段，其他任意字段（如 `content`/`likes`/`user_id`）会被过滤，防止通过 service_role 修改任意列。
@@ -327,7 +322,7 @@
 
 ### `DELETE /api/admin/blessings`
 
-批量删除祝福。
+批量隐藏祝福（软删除：置 `status=hidden`，墙/星河经 RLS 自动不可见，后台可查看并恢复）。
 
 **请求体:**
 

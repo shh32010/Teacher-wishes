@@ -1,6 +1,6 @@
 # 🏗 架构文档 — 教师节祝福墙
 
-> **版本状态**：v2.0.0 开发中，目标 **2026-09-05** 上线。v2.0 设计蓝图见 [`docs/V2_DESIGN.md`](./V2_DESIGN.md)（2026-08-29 定稿），本文档按 v2.0 目标架构描述。
+> **版本状态**：v2.0 RC（2026-09-01 功能冻结，验收中），目标 2026-09-05 上线。v2.0 设计蓝图见 [`docs/V2_DESIGN.md`](./V2_DESIGN.md)（2026-08-29 定稿），本文档按 v2.0 目标架构描述。
 
 ---
 
@@ -11,7 +11,7 @@
 | **前端框架** | Next.js 14 (App Router) + TypeScript |
 | **样式** | Tailwind CSS（Glassmorphism 毛玻璃主题） |
 | **动画** | Framer Motion + tsParticles v4 + Canvas Confetti |
-| **数据获取** | SWR + useSWRInfinite + Supabase Realtime |
+| **数据获取** | SWR + Supabase Realtime |
 | **后端 API** | Next.js Route Handlers |
 | **数据库** | Supabase PostgreSQL + RLS + Realtime |
 | **存储** | Supabase Storage（教师头像） |
@@ -30,32 +30,32 @@
 │   │   ├── page.tsx               # 首页（时间线 + 礼物星河 + 精选金句）
 │   │   ├── layout.tsx             # 根布局 + SEO metadata
 │   │   ├── gift/page.tsx          # v2.0 送礼主流程（6 步状态机）
-│   │   ├── wall/page.tsx          # 祝福墙（无限滚动 + Realtime）
+│   │   ├── wall/page.tsx          # 祝福墙（同句聚合 + Realtime）
 │   │   ├── admin/
-│   │   │   ├── page.tsx           # 管理后台（审核/词库/礼物/AI 中心/教师 5 tab）
+│   │   │   ├── page.tsx           # 管理后台（概览/祝福管理/礼物/AI/设置 5 模块）
 │   │   │   └── login/page.tsx     # 管理员登录
 │   │   └── api/                   # API Route Handlers
-│   │       ├── blessings/         # 祝福 CRUD + 点赞 + 统计（v2.0 送礼契约）
-│   │       ├── teachers/          # 教师列表 + 详情
-│   │       ├── templates/         # v2.0 公开词库（含 random）
+│   │       ├── blessings/         # 祝福 CRUD + 点赞 + 统计 + 同句聚合（v2.0 送礼契约）
+│   │       ├── teachers/          # 教师列表（星河天体展示用）
+│   │       ├── templates/         # v2.0 公开词库
 │   │       ├── gifts/             # v2.0 公开礼物
 │   │       ├── ai/                # v2.0 AI（recommend/quote/insights）
 │   │       └── admin/             # 管理端（blessings/templates/gifts/ai/login/logout/upload）
 │   ├── components/
 │   │   ├── home/                  # 首页组件
 │   │   │   ├── StarBackground.tsx # tsParticles 星空
-│   │   │   ├── GiftGalaxy.tsx     # v2.0 礼物星河（中心 TEACHERS 光核 + 礼物粒子）
+│   │   │   ├── GiftGalaxy.tsx     # v2.0 礼物星河（教师天体 + 每句一颗祝福星）
 │   │   │   ├── StatsPanel.tsx     # 数据看板
 │   │   │   ├── CountUp.tsx        # 数字滚动动画
 │   │   │   └── FallingPetals.tsx  # 花瓣飘落动画
 │   │   ├── blessing/              # 祝福相关组件
-│   │   │   ├── BlessingCard.tsx   # 祝福卡片（礼物/情绪标签 + 点赞）
+│   │   │   ├── GroupedBlessingCard.tsx # 同句聚合卡片（点击详情弹窗 + 点赞）
 │   │   │   ├── ConfettiTrigger.tsx # 彩带庆祝特效
 │   │   │   └── LikeBurst.tsx      # 点赞爱心爆发动画
 │   │   ├── gift/                  # v2.0 送礼流程组件
 │   │   │   ├── GiftFlow.tsx       # 6 步状态机容器（含确认步 + Turnstile）
 │   │   │   ├── EmotionPicker.tsx  # 情绪选择
-│   │   │   ├── TemplatePicker.tsx # 祝福选择（AI 推荐 + 换一句 + 分类浏览）
+│   │   │   ├── TemplatePicker.tsx # 祝福选择（AI 推荐 + 换一批 + 分类浏览）
 │   │   │   ├── GiftSelector.tsx   # 礼物宫格
 │   │   │   ├── GiftAnimation.tsx  # 8 种礼物动画（3.8s）
 │   │   │   └── GiftSuccess.tsx    # 完成页 + 分享
@@ -87,7 +87,6 @@
 │   │   ├── profanity.ts           # 敏感词过滤（词库导入双保险）
 │   │   └── utils.ts               # 工具函数
 │   ├── hooks/
-│   │   ├── useInfiniteScroll.ts   # 无限滚动 Hook
 │   │   ├── useTheme.ts            # 主题切换 Hook
 │   │   └── useTurnstile.ts        # v2.0 Turnstile Hook（widget 生命周期）
 │   ├── types/
@@ -101,14 +100,12 @@
 │   │   ├── csv.test.ts            # v2.0 CSV 解析测试
 │   │   ├── ai-lib.test.ts         # v2.0 AI 工具层测试
 │   │   ├── GlassCard.test.tsx     # GlassCard 组件测试
-│   │   └── BlessingCard.test.tsx  # BlessingCard 组件测试
 │   └── middleware.ts              # Admin 路由鉴权中间件
 ├── e2e/                           # Playwright E2E 测试
 │   ├── homepage.spec.ts           # 首页测试
 │   ├── gift.spec.ts               # v2.0 送礼流程测试
 │   ├── blessing.spec.ts           # 祝福墙测试
 │   ├── admin.spec.ts              # 管理后台测试
-│   ├── teacher.spec.ts            # 教师页测试
 │   └── a11y.spec.ts               # 无障碍测试
 ├── load-tests/                    # k6 负载测试（v2.0 契约）
 │   ├── smoke.js                   # 冒烟测试
@@ -139,7 +136,7 @@ erDiagram
 
     blessings {
         uuid id PK "祝福唯一标识"
-        uuid teacher_id FK "关联教师"
+        uuid teacher_id FK "v1 遗留（v2 恒 null）"
         uuid user_id "关联用户 (预留)"
         text nickname "发送者昵称"
         text class "发送者班级"
@@ -147,7 +144,7 @@ erDiagram
         int likes "点赞数 (default 0)"
         bool is_featured "是否精选"
         bool is_anonymous "是否匿名"
-        text status "审核状态: pending/approved/rejected"
+        text status "状态: pending/approved/rejected/hidden（软删除）"
         timestamptz created_at "创建时间"
     }
 
