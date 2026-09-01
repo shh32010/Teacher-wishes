@@ -134,12 +134,12 @@ export async function POST(request: NextRequest) {
 
     const supabase = createAnonClient();
 
-    // 速率限制：每10分钟最多200条（校园 NAT 场景下同一出口 IP 可能服务数十名学生，
-    // 100 条在活动现场集中提交时会误伤；Turnstile + 3 秒冷却仍为前置防线）
+    // 速率限制：每10分钟最多400条（校园 NAT 场景下同一出口 IP 可能服务全校学生，
+    // 阈值放宽防误伤；Turnstile + 3 秒冷却仍为前置防线，400 仍可防脚本刷量）
     const { data: remaining, error: rateError } = await supabase.rpc('check_rate_limit', {
       client_ip: ip,
       action_name: 'submit_blessing',
-      max_requests: 200,
+      max_requests: 400,
       window_minutes: 10,
     });
 
