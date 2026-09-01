@@ -193,7 +193,7 @@ export default function HomePage() {
                 onClick={() => router.push('/wall')}
                 className="text-sm text-ink-muted hover:text-ink transition-colors"
               >
-                先看看祝福星河 →
+                先看看祝福墙 →
               </button>
             </motion.div>
           )}

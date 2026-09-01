@@ -20,7 +20,7 @@ export default function GiftPage() {
           <div className="flex items-center gap-4">
             <h1 className="text-lg font-bold text-ink">🎁 送出我的祝福</h1>
             <a href="/wall" className="text-sm text-ink-muted hover:text-ink">
-              祝福星河 →
+              祝福墙 →
             </a>
           </div>
         }

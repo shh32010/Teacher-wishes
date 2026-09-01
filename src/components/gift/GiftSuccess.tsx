@@ -69,7 +69,7 @@ export default function GiftSuccess({ gift, content, onRestart }: GiftSuccessPro
           href="/wall"
           className="rounded-xl bg-accent px-4 py-2.5 text-center font-bold text-ink hover:bg-accent-light"
         >
-          查看祝福星河 →
+          查看祝福墙 →
         </a>
         <button onClick={handleShare} className="btn-ghost">
           {copied ? '✅ 已复制' : '分享这一刻'}
