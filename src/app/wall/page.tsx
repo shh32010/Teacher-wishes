@@ -39,7 +39,7 @@ export default function WallPage() {
     fetcher,
     {
       revalidateOnFocus: false,
-      refreshInterval: 5 * 60 * 1000,
+      refreshInterval: 60 * 1000, // Realtime 失效时的轮询兜底（1 分钟）
       errorRetryCount: 3,
     }
   );
