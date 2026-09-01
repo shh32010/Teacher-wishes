@@ -236,9 +236,15 @@ async function runAssertions() {
     check('anon 不能 UPDATE gifts', false, '无法获取测试礼物: ' + giftRow.error?.message);
   }
 
-  // 21. anon 不能读 ai_generations（RLS 无策略 → 空数组而非报错）
-  const q21 = await anon.from('ai_generations').select('id').limit(1);
-  check('anon 不能读 ai_generations', !q21.error && (q21.data?.length || 0) === 0);
+  // 21. ai_generations 最小公开策略（013）：anon 仅可读已确认金句/总结，
+  //     内部数据（classify/quote_score 等）不得泄露
+  const q21 = await anon.from('ai_generations').select('type').limit(100);
+  const visibleTypes = new Set((q21.data || []).map((r) => r.type));
+  check(
+    'ai_generations 最小公开（无 classify/quote_score 泄露）',
+    !q21.error && !visibleTypes.has('classify') && !visibleTypes.has('quote_score'),
+    `可见类型: ${JSON.stringify([...visibleTypes])}`
+  );
 }
 
 // ── 清理：无论成功失败都执行 ──
