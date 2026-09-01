@@ -230,7 +230,7 @@
 
 ### `GET /api/ai/quote`
 
-**v2.0** 今日金句（AI-4）。返回管理员确认的最新一条 `{ quote, created_at }`；无金句返回 `{ quote: null }`（前端隐藏区块）。
+**v2.0** 精选金句（AI-4）。返回管理员确认的最新一条 `{ quote, created_at }`；无金句返回 `{ quote: null }`（前端隐藏区块）。
 
 ### `GET /api/ai/insights`
 
@@ -269,7 +269,7 @@
 
 ### `GET /api/admin/blessings`
 
-获取所有祝福列表（含待审核），支持状态筛选。
+获取所有祝福记录列表（v2 自动上墙，支持状态筛选含 hidden 软删除）。
 
 **Query Parameters:**
 

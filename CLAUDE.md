@@ -175,7 +175,7 @@ getClientIp(request)
 ```
 ├── src/
 │   ├── app/                       # Next.js App Router
-│   │   ├── page.tsx               # 首页（故事式时间线 + 礼物星河 + 今日金句）
+│   │   ├── page.tsx               # 首页（故事式时间线 + 礼物星河 + 精选金句）
 │   │   ├── layout.tsx             # 根布局 + SEO metadata
 │   │   ├── gift/page.tsx          # v2.0 送礼主流程（6 步状态机）
 │   │   ├── wall/page.tsx          # 祝福墙（无限滚动 + Realtime）
@@ -247,7 +247,7 @@ getClientIp(request)
 | `/api/templates/random` | GET | Anon | 无 | 「换一句」随机一条（mood 可选） |
 | `/api/gifts` | GET | Anon | 无 | 礼物列表（RLS 仅返回启用） |
 | `/api/ai/recommend` | GET | Anon | 无 | AI 推荐 3 句（DB tags 语义匹配，无 LLM） |
-| `/api/ai/quote` | GET | Anon | 无 | 今日金句（管理员确认后展示） |
+| `/api/ai/quote` | GET | Anon | 无 | 精选金句（管理员确认后展示） |
 | `/api/ai/insights` | GET | Anon | 无 | 情绪/礼物洞察 + AI 总结 |
 | `/api/admin/blessings` | GET | Admin | requireAdmin | 管理后台列表 |
 | `/api/admin/blessings` | PATCH | Admin | requireAdmin + CSRF | 审核/置顶/精选 |

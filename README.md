@@ -8,7 +8,7 @@
   <a href="https://github.com/shh32010/Teacher-wishes/actions"><img src="https://github.com/shh32010/Teacher-wishes/actions/workflows/ci.yml/badge.svg" alt="Build"></a>
   <a href="./LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="License"></a>
   <a href="./PROGRESS.md"><img src="https://img.shields.io/badge/status-v2.0%20RC-blue" alt="Progress"></a>
-  <img src="https://img.shields.io/badge/tests-117%20unit%20%7C%2025%20E2E%20%7C%20k6%20load-8b5cf6" alt="Tests">
+  <img src="https://img.shields.io/badge/tests-102%20unit%20%7C%2023%20E2E%20%7C%20k6%20load-8b5cf6" alt="Tests">
 </p>
 
 ---
@@ -29,7 +29,7 @@
 - 🎀 **数字礼物系统** — 8 种礼物（鲜花/星星/书本/粉笔/咖啡/信件/苹果/小树）+ 8 种定制动画，礼物化作光点飞入星河
 - 🌌 **教师节祝福星河** — 中心 TEACHERS 光核 + 教师天体外圈 + 礼物粒子环绕；不比较老师，全校心意汇聚
 - 💬 **祝福墙（同句聚合）** — 同一句祝福多人送出时合并展示「N 位同学送出了这句祝福」，统一献给全体老师
-- 🤖 **AI 智能赋能** — DeepSeek adapter（可切智谱/SiliconFlow）：智能祝福推荐（DB 语义匹配，零 LLM 零延迟）、词库批量分类、今日金句、全校情绪洞察、收官总结；**无 key 时全部规则降级，AI 故障不影响核心链路**
+- 🤖 **AI 智能赋能** — DeepSeek adapter（可切智谱/SiliconFlow）：智能祝福推荐（DB 语义匹配，零 LLM 零延迟）、词库批量分类、精选金句、全校情绪洞察、收官总结；**无 key 时全部规则降级，AI 故障不影响核心链路**
 - 🔐 **管理后台** — 活动概览 / 祝福管理（记录+语库）/ 礼物管理 / AI 中心 / 活动设置 5 大模块
 - 🛡️ **安全防护** — admin_token HMAC 二次验签 + CSRF 全环境强制 + 服务端取词契约 + 严格触发器（数据库层防绕过）+ RLS + Turnstile
 - ♿ **无障碍 + 监控** — WCAG AA、焦点陷阱、Vercel Analytics、Sentry
@@ -47,7 +47,7 @@
 | 动画 | Framer Motion / tsParticles v4 / Canvas Confetti |
 | 数据请求 | SWR / Supabase Realtime |
 | 安全 | CSRF + IP 限流 + Turnstile + RLS + 严格触发器 |
-| 测试 | Vitest（117）+ Playwright（25）+ k6 |
+| 测试 | Vitest（102）+ Playwright（23）+ k6 |
 | 部署 | Vercel + Supabase |
 
 ---
@@ -93,8 +93,8 @@ npm run dev
 ## 🧪 测试
 
 ```bash
-npm test                     # Vitest 单元测试（117 用例）
-npm run test:e2e             # Playwright E2E（25 用例）
+npm test                     # Vitest 单元测试（102 用例）
+npm run test:e2e             # Playwright E2E（23 用例）
 npm run test:security        # 数据库安全回归（RLS/权限断言）
 npm run test:smoke           # k6 冒烟测试
 npm run test:load            # k6 负载测试
@@ -108,7 +108,7 @@ npm run test:stress          # k6 压力测试
 ```
 src/
 ├── app/
-│   ├── page.tsx              #   首页（时间线 + 礼物星河 + 今日金句）
+│   ├── page.tsx              #   首页（时间线 + 礼物星河 + 精选金句）
 │   ├── gift/page.tsx         #   送礼主流程（6 步状态机）
 │   ├── wall/page.tsx         #   祝福墙（同句聚合 + Realtime）
 │   ├── admin/                #   管理后台（5 面板）
@@ -130,7 +130,7 @@ src/
 └── middleware.ts
 e2e/                          # Playwright E2E
 load-tests/                   # k6 负载测试
-database/                     # migrations（001~013）+ 迁移执行脚本 + 安全回归
+database/                     # migrations（001~017）+ 迁移执行脚本 + 安全回归
 docs/                         # 架构 / API / 安全 / 运维 / 容量 / V2 设计蓝图
 ```
 

@@ -27,7 +27,7 @@
 ```
 ├── src/
 │   ├── app/                       # Next.js App Router
-│   │   ├── page.tsx               # 首页（时间线 + 礼物星河 + 今日金句）
+│   │   ├── page.tsx               # 首页（时间线 + 礼物星河 + 精选金句）
 │   │   ├── layout.tsx             # 根布局 + SEO metadata
 │   │   ├── gift/page.tsx          # v2.0 送礼主流程（6 步状态机）
 │   │   ├── wall/page.tsx          # 祝福墙（无限滚动 + Realtime）
@@ -60,7 +60,7 @@
 │   │   │   ├── GiftAnimation.tsx  # 8 种礼物动画（3.8s）
 │   │   │   └── GiftSuccess.tsx    # 完成页 + 分享
 │   │   ├── ai/                    # v2.0 AI 展示组件
-│   │   │   └── QuoteOfDay.tsx     # 今日金句
+│   │   │   └── QuoteOfDay.tsx     # 精选金句
 │   │   ├── admin/                 # 管理后台组件
 │   │   │   ├── OverviewPanel.tsx  # 活动概览（只读 Dashboard）
 │   │   │   ├── TemplateManager.tsx # v2.0 词库管理（含 CSV 导入）
@@ -115,7 +115,7 @@
 │   ├── load.js                    # 负载测试
 │   └── stress.js                  # 压力测试
 ├── database/
-│   └── migrations/                # SQL 迁移脚本（001~013）
+│   └── migrations/                # SQL 迁移脚本（001~017）
 ├── docs/                          # 文档（含 V2_DESIGN.md 设计蓝图）
 └── public/                        # 静态资源
 ```
@@ -218,7 +218,7 @@ erDiagram
 ```mermaid
 flowchart TB
     subgraph Client["🖥 浏览器"]
-        Home["首页 /\n礼物星河 + 今日金句"]
+        Home["首页 /\n礼物星河 + 精选金句"]
         Gift["送礼流程 /gift\n6 步状态机"]
         Wall["祝福墙 /wall"]
         Admin["管理后台 /admin\n5 tab"]
