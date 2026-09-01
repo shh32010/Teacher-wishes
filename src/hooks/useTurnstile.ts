@@ -24,6 +24,7 @@ export function useTurnstile(active: boolean) {
   const widgetIdRef = useRef<string | null>(null);
   const pendingResolveRef = useRef<((token: string) => void) | null>(null);
   const [scriptReady, setScriptReady] = useState(false);
+  const [widgetFailed, setWidgetFailed] = useState(false);
 
   // 一次性加载 Turnstile 脚本
   useEffect(() => {
@@ -54,11 +55,15 @@ export function useTurnstile(active: boolean) {
         widgetIdRef.current = window.turnstile.render(containerRef.current, {
           sitekey: TURNSTILE_SITE_KEY,
           callback: (token: string) => resolvePending(token),
-          'error-callback': () => resolvePending(''),
+          'error-callback': () => {
+            setWidgetFailed(true);
+            resolvePending('');
+          },
           'expired-callback': () => resolvePending(''),
         });
       } catch {
-        // render 失败 → 视为无 token（服务端按未配置逻辑处理）
+        // render 失败 → 标记失败（前端提示），token 为空（服务端按未配置逻辑处理）
+        setWidgetFailed(true);
       }
     }
 
@@ -106,5 +111,11 @@ export function useTurnstile(active: boolean) {
     });
   }, []);
 
-  return { containerRef, getToken, enabled: TURNSTILE_SITE_KEY.length > 0 };
+  return {
+    containerRef,
+    getToken,
+    enabled: TURNSTILE_SITE_KEY.length > 0,
+    /** widget 渲染/校验失败（如域名不在 Turnstile 白名单） */
+    widgetFailed,
+  };
 }

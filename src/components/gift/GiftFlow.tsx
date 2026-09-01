@@ -71,6 +71,7 @@ export default function GiftFlow() {
     containerRef: turnstileRef,
     getToken: getTurnstileToken,
     enabled: turnstileEnabled,
+    widgetFailed: turnstileFailed,
   } = useTurnstile(step === 'confirm');
 
   // localStorage 记忆昵称/班级（与 v1 表单同 key，老用户无缝衔接）
@@ -214,7 +215,16 @@ export default function GiftFlow() {
               )}
 
               {/* Turnstile 人机验证（配置 site key 时展示） */}
-              {turnstileEnabled && <div ref={turnstileRef} className="mb-4 flex justify-center" />}
+              {turnstileEnabled && (
+                <div className="mb-4">
+                  {turnstileFailed && (
+                    <p className="mb-2 rounded-lg bg-danger/10 px-3 py-2 text-xs text-danger">
+                      人机验证组件加载失败，请刷新页面后重试
+                    </p>
+                  )}
+                  <div ref={turnstileRef} className="flex justify-center" />
+                </div>
+              )}
 
               <div className="flex gap-3">
                 <button
