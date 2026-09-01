@@ -156,13 +156,16 @@ export async function POST(request: NextRequest) {
     // - 生产环境：TURNSTILE_SECRET_KEY 必须配置，否则 503
     // - 生产环境已配置：必须有 token，验证失败返回 400
     // - 开发环境：可选，未配置时跳过验证
+    // - ⚠️ TURNSTILE_OPTIONAL=true 为临时降级开关（Turnstile 域名配置故障时应急，
+    //   其余防线照常：IP 限流 400/10min + 词库契约触发器 + 敏感词过滤）
     const turnstileSecret = process.env.TURNSTILE_SECRET_KEY;
+    const turnstileOptional = process.env.TURNSTILE_OPTIONAL === 'true';
     if (process.env.NODE_ENV === 'production') {
-      if (!turnstileSecret) {
+      if (!turnstileSecret && !turnstileOptional) {
         console.error('[API] 生产环境未配置 TURNSTILE_SECRET_KEY');
         return NextResponse.json({ error: '服务未配置人机验证，请联系管理员' }, { status: 503 });
       }
-      if (!body.turnstile_token) {
+      if (!body.turnstile_token && !turnstileOptional) {
         console.error('[API] 生产环境缺少 Turnstile token');
         return NextResponse.json({ error: '人机验证失败，请刷新重试' }, { status: 400 });
       }
