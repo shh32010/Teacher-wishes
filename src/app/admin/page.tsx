@@ -312,7 +312,14 @@ export default function AdminPage() {
                                 '-'
                               )}
                             </td>
-                            <td className="max-w-sm p-4 text-ink truncate">{b.content}</td>
+                            <td className="max-w-sm p-4 text-ink truncate">
+                              {b.is_featured && (
+                                <span className="mr-1" title="已精选">
+                                  ⭐
+                                </span>
+                              )}
+                              {b.content}
+                            </td>
                             <td className="p-4 text-ink-muted whitespace-nowrap">
                               {b.sentence_count ?? 1} 次
                             </td>
