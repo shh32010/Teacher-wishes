@@ -242,7 +242,7 @@ getClientIp(request)
 | `/api/blessings` | POST | Anon | CSRF + 限流 | **v2.0** 送礼提交：`template_id`+`gift_id`，服务端查词库取内容 |
 | `/api/blessings/[id]/like` | POST | Anon | CSRF + 限流 | 点赞 RPC |
 | `/api/blessings/stats` | GET | Anon | 无 | 聚合统计 |
-| `/api/teachers` | GET | Anon | 无 | 教师列表（星河天体/后台教师管理用，不参与送礼流程） |
+| `/api/teachers` | GET | Anon | 无 | 教师列表（星河教师天体展示用，不参与送礼流程） |
 | `/api/templates` | GET | Anon | 无 | 公开词库（分页+分类，RLS 仅返回启用） |
 | `/api/templates/random` | GET | Anon | 无 | 「换一句」随机一条（mood 可选） |
 | `/api/gifts` | GET | Anon | 无 | 礼物列表（RLS 仅返回启用） |
@@ -282,7 +282,11 @@ getClientIp(request)
 10. `010_fix_events_rls.sql` — events 表 RLS 修复
 11. `011_v2_gift_and_templates.sql` — **v2.0** 词库/礼物/ai_generations 新表 + blessings ALTER + RLS + 种子礼物
 12. `012_seed_templates.sql` — **v2.0** 测试词库 60 条（6 分类）
-13. `013_enable_v2_strict.sql` — **v2.0** 严格触发器（⚠️ 须与 v2.0 前端同步上线后执行）：INSERT 强制 `template_id` + content 必须与启用模板原文一致（防 anon key 直连 PostgREST 绕过词库契约）+ usage_count 计数触发器 + ai_generations 最小化公开策略（金句/总结）
+13. `013_enable_v2_strict.sql` — **v2.0** 严格触发器（⚠️ 须与 v2.0 前端同步上线后执行）：INSERT 强制 `template_id` + content 必须与启用模板原文一致（防 anon key 直连 PostgREST 绕过词库契约）+ usage_count 计数触发器 + ai_generations 最小化公开策略（金句/总结）+ 自动上墙（强制 approved）
+14. `014_templates_remark.sql` — 词库备注列
+15. `015_sentence_stats_rpc.sql` — 同句计数 RPC（数据库 GROUP BY 聚合，替代应用层全表扫描）
+16. `016_activity_settings.sql` — 活动设置表（人工开关/时间窗/参与开关，POST 提交链路校验）
+17. `017_dedup_metadata.sql` — AI 去重元数据（dedup_group_id/reason/by/override）
 
 ---
 

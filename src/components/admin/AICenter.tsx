@@ -149,7 +149,7 @@ export default function AICenter() {
       {/* 今日金句 */}
       <div className="glass-card p-4">
         <div className="mb-2 flex items-center justify-between">
-          <p className="text-sm font-bold text-ink">今日金句</p>
+          <p className="text-sm font-bold text-ink">精选金句</p>
           <button
             onClick={handleScoreQuotes}
             disabled={scoring}
@@ -237,15 +237,9 @@ function InsightsPanel() {
         <p className="text-xs text-ink-muted">加载中...</p>
       ) : (
         <div className="space-y-3">
-          <div className="grid grid-cols-2 gap-3">
-            <div className="rounded-xl bg-ink/5 p-3 text-center">
-              <p className="text-xl font-bold text-accent">{data.total_blessings}</p>
-              <p className="text-xs text-ink-muted">已审核祝福</p>
-            </div>
-            <div className="rounded-xl bg-ink/5 p-3 text-center">
-              <p className="text-xl font-bold text-primary">{data.total_participants}</p>
-              <p className="text-xs text-ink-muted">祝福记录数</p>
-            </div>
+          <div className="rounded-xl bg-ink/5 p-3 text-center">
+            <p className="text-xl font-bold text-accent">{data.total_blessings}</p>
+            <p className="text-xs text-ink-muted">祝福总数</p>
           </div>
 
           {data.emotions.length > 0 && (

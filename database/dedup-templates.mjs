@@ -50,6 +50,15 @@ async function main() {
   });
   await client.connect();
 
+  // 幂等性：新一轮去重前，重置上一轮的 AI 去重状态
+  // （管理员已恢复/覆盖的句子保留现状，不受重置影响）
+  const reset = await client.query(
+    `UPDATE blessing_templates
+     SET is_active = true, dedup_group_id = NULL, dedup_reason = NULL, dedup_by = NULL
+     WHERE dedup_by = 'ai' AND NOT COALESCE(dedup_override, false)`
+  );
+  if (reset.rowCount > 0) console.log(`🔄 重置上一轮 AI 去重状态: ${reset.rowCount} 条`);
+
   const { rows } = await client.query(
     'SELECT id, content, is_active FROM blessing_templates ORDER BY id'
   );
@@ -91,11 +100,11 @@ async function main() {
     const keep = g.keep;
     const removes = Array.isArray(g.remove) ? g.remove : [];
     console.log(`  ⭐ 保留（${groupId}）: ${keep}`);
-    // 保留句标记组 id
+    // 保留句：显式启用 + 标记组 id（防上一轮被隐藏的句子本轮成为 keep 时状态残留）
     const keepRow = rows.find((row) => row.content === keep);
     if (keepRow) {
       await client.query(
-        'UPDATE blessing_templates SET dedup_group_id = $1 WHERE id = $2',
+        'UPDATE blessing_templates SET is_active = true, dedup_group_id = $1 WHERE id = $2',
         [groupId, keepRow.id]
       );
     }

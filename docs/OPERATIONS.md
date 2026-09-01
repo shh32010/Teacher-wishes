@@ -83,6 +83,10 @@ Cloudflare (DNS 代理)
 011_v2_gift_and_templates.sql — v2.0 词库/礼物/ai_generations + blessings ALTER + RLS
 012_seed_templates.sql   — v2.0 测试词库 60 条（甲方素材到位后 CSV 覆盖导入）
 013_enable_v2_strict.sql — v2.0 严格触发器（⚠️ 须与 v2 前端同步上线后执行）
+014_templates_remark.sql — 词库备注列
+015_sentence_stats_rpc.sql — 同句计数 RPC（数据库聚合）
+016_activity_settings.sql — 活动设置表（时间窗/开关）
+017_dedup_metadata.sql — AI 去重元数据（分组/原因/覆盖标记）
 ```
 
 ### ⚠️ 上线顺序（硬性步骤，严禁打乱）

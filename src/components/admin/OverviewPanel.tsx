@@ -120,7 +120,7 @@ export default function OverviewPanel() {
                   <span className="mr-2 text-xs text-ink-muted">#{i + 1}</span>
                   {g.content}
                 </p>
-                <span className="shrink-0 text-xs text-ink-muted">{g.count} 位同学</span>
+                <span className="shrink-0 text-xs text-ink-muted">送出 {g.count} 次</span>
               </div>
             ))}
           </div>

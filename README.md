@@ -7,7 +7,7 @@
 <p align="center">
   <a href="https://github.com/shh32010/Teacher-wishes/actions"><img src="https://github.com/shh32010/Teacher-wishes/actions/workflows/ci.yml/badge.svg" alt="Build"></a>
   <a href="./LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="License"></a>
-  <a href="./PROGRESS.md"><img src="https://img.shields.io/badge/status-v2.0%20开发中-orange" alt="Progress"></a>
+  <a href="./PROGRESS.md"><img src="https://img.shields.io/badge/status-v2.0%20RC-blue" alt="Progress"></a>
   <img src="https://img.shields.io/badge/tests-117%20unit%20%7C%2025%20E2E%20%7C%20k6%20load-8b5cf6" alt="Tests">
 </p>
 
@@ -30,7 +30,7 @@
 - 🌌 **教师节祝福星河** — 中心 TEACHERS 光核 + 教师天体外圈 + 礼物粒子环绕；不比较老师，全校心意汇聚
 - 💬 **祝福墙（同句聚合）** — 同一句祝福多人送出时合并展示「N 位同学送出了这句祝福」，统一献给全体老师
 - 🤖 **AI 智能赋能** — DeepSeek adapter（可切智谱/SiliconFlow）：智能祝福推荐（DB 语义匹配，零 LLM 零延迟）、词库批量分类、今日金句、全校情绪洞察、收官总结；**无 key 时全部规则降级，AI 故障不影响核心链路**
-- 🔐 **管理后台** — 祝福审核 / 词库管理 / 礼物管理 / AI 中心 / 教师管理 5 大面板
+- 🔐 **管理后台** — 活动概览 / 祝福管理（记录+语库）/ 礼物管理 / AI 中心 / 活动设置 5 大模块
 - 🛡️ **安全防护** — admin_token HMAC 二次验签 + CSRF 全环境强制 + 服务端取词契约 + 严格触发器（数据库层防绕过）+ RLS + Turnstile
 - ♿ **无障碍 + 监控** — WCAG AA、焦点陷阱、Vercel Analytics、Sentry
 
@@ -118,7 +118,7 @@ src/
 │   ├── blessing/             #   GroupedBlessingCard / LikeBurst
 │   ├── home/                 #   GiftGalaxy / StarBackground / StatsPanel / FallingPetals
 │   ├── ai/                   #   QuoteOfDay
-│   ├── admin/                #   TemplateManager / GiftManager / AICenter / TeacherManager
+│   ├── admin/                #   OverviewPanel / TemplateManager / GiftManager / AICenter / SettingsPanel
 │   └── ui/                   #   GlassCard / NavHeader / PageTransition
 ├── lib/
 │   ├── ai/                   #   provider（DeepSeek adapter）/ prompts / 仪式文案矩阵

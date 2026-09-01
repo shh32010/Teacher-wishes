@@ -62,7 +62,7 @@
 │   │   ├── ai/                    # v2.0 AI 展示组件
 │   │   │   └── QuoteOfDay.tsx     # 今日金句
 │   │   ├── admin/                 # 管理后台组件
-│   │   │   ├── TeacherManager.tsx # 教师管理面板
+│   │   │   ├── OverviewPanel.tsx  # 活动概览（只读 Dashboard）
 │   │   │   ├── TemplateManager.tsx # v2.0 词库管理（含 CSV 导入）
 │   │   │   ├── GiftManager.tsx    # v2.0 礼物管理
 │   │   │   └── AICenter.tsx       # v2.0 AI 中心（分类/金句/总结/洞察）

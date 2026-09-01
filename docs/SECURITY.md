@@ -151,7 +151,7 @@ fetch('/api/blessings', {
 
 | 操作 | 限制 | 窗口 | 说明 |
 | :--- | :--- | :--- | :--- |
-| 提交祝福 | 100 次/IP | 10 分钟 | POST /api/blessings |
+| 提交祝福 | 200 次/IP | 10 分钟 | POST /api/blessings（校园 NAT 场景放宽阈值） |
 | 点赞 | 60 次/IP | 1 分钟 | POST /api/blessings/[id]/like |
 | 管理登录 | 5 次/IP | 1 分钟 | POST /api/admin/login |
 

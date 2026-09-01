@@ -221,7 +221,9 @@ export async function POST(request: NextRequest) {
     // is_anonymous 类型收窄（防 "0"/对象等非布尔值入库）
     const isAnonymous = typeof body.is_anonymous === 'boolean' ? body.is_anonymous : false;
 
-    // 匿名送出时服务端强制 class=null（数据最小化，兑现「不显示昵称和班级」承诺）
+    // 匿名送出时服务端强制 nickname/class 均为 null（数据最小化——真正匿名，
+    // 不能只在 UI 层隐藏而 API 仍返回昵称）
+    const finalNickname = isAnonymous ? null : trimmedNickname || null;
     const finalClass = isAnonymous ? null : trimmedClass || null;
 
     // 仪式文案：按「情绪 × 礼物」从静态矩阵取快照写入（AI-3）
@@ -237,7 +239,7 @@ export async function POST(request: NextRequest) {
         emotion: template.category,
         ai_message: aiMessage,
         teacher_id: null, // v2.0 取消指定老师，送给全体教师
-        nickname: trimmedNickname || null,
+        nickname: finalNickname,
         class: finalClass,
         content: template.content,
         is_anonymous: isAnonymous,

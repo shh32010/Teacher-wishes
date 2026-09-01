@@ -27,7 +27,7 @@ export default function QuoteOfDay() {
       transition={{ duration: 0.6 }}
       className="glass-card mx-auto mb-6 max-w-md px-6 py-4 text-center"
     >
-      <p className="mb-1 text-xs font-bold tracking-wider text-accent">✨ 今日最温暖的一句话</p>
+      <p className="mb-1 text-xs font-bold tracking-wider text-accent">✨ 精选金句</p>
       <p className="text-sm leading-relaxed text-ink">&ldquo;{quote}&rdquo;</p>
     </motion.div>
   );
