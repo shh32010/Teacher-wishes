@@ -59,6 +59,13 @@ export default function AdminPage() {
   const totalPages = Math.ceil((data?.count || 0) / 50);
   const blessings: Blessing[] = data?.data || [];
 
+  // ─── 祝福管理统计条（概览 KPI + 隐藏计数） ───
+  const { data: overview } = useSWR('/api/admin/overview', fetcher);
+  const { data: hiddenData } = useSWR(
+    '/api/admin/blessings?status=hidden&page=1&pageSize=1',
+    fetcher
+  );
+
   const toggleSelect = (id: string) => {
     setSelectedIds((prev) => {
       const next = new Set(prev);
@@ -225,6 +232,44 @@ export default function AdminPage() {
               <TemplateManager />
             ) : (
               <>
+                {/* 统计条 */}
+                {overview?.kpis && (
+                  <div className="mb-6 grid grid-cols-2 gap-4 md:grid-cols-5">
+                    {[
+                      {
+                        label: '💌 祝福总数',
+                        value: overview.kpis.total_blessings,
+                        color: 'text-accent',
+                      },
+                      {
+                        label: '🎁 礼物送出',
+                        value: overview.kpis.total_gifts,
+                        color: 'text-primary',
+                      },
+                      {
+                        label: '⭐ 精选',
+                        value: overview.kpis.featured_count,
+                        color: 'text-amber-500',
+                      },
+                      {
+                        label: '🙈 已隐藏',
+                        value: hiddenData?.count ?? 0,
+                        color: 'text-ink-muted',
+                      },
+                      {
+                        label: '❤️ 总赞',
+                        value: overview.kpis.total_likes,
+                        color: 'text-secondary',
+                      },
+                    ].map((k) => (
+                      <div key={k.label} className="glass-card p-3 text-center">
+                        <p className={`text-xl font-bold ${k.color}`}>{k.value}</p>
+                        <p className="mt-0.5 text-xs text-ink-muted">{k.label}</p>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
                 {/* 治理操作（勾选后出现） */}
                 <div className="mb-4 flex flex-wrap items-center justify-end gap-2">
                   {selectedIds.size > 0 && (
