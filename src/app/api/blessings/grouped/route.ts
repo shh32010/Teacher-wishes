@@ -50,7 +50,9 @@ export async function GET(request: NextRequest) {
       total_groups: groups.length,
       sort,
     });
-    res.headers.set('Cache-Control', 'public, s-maxage=5, stale-while-revalidate=30');
+    // 实时性优先：聚合查询本身轻量，禁用共享缓存——
+    // 否则 Cloudflare 边缘缓存会在 Realtime 刷新时返回旧响应
+    res.headers.set('Cache-Control', 'no-store');
     return res;
   } catch (err) {
     console.error('[API] 聚合异常:', err);

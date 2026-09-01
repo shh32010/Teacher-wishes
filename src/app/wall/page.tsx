@@ -38,7 +38,7 @@ export default function WallPage() {
     `/api/blessings/grouped?sort=${sortBy}`,
     fetcher,
     {
-      revalidateOnFocus: false,
+      revalidateOnFocus: true, // 切回页面即刷新（配合 Realtime 双保险）
       refreshInterval: 60 * 1000, // Realtime 失效时的轮询兜底（1 分钟）
       errorRetryCount: 3,
     }
