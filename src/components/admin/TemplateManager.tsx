@@ -127,10 +127,10 @@ export default function TemplateManager() {
   const templates: BlessingTemplate[] = data?.data || [];
   const totalPages = Math.ceil((data?.count || 0) / 50);
 
-  // 翻页/筛选/搜索变化时清空选择（避免表头全选态与实际选中集不一致的混乱）
+  // 翻页/筛选/搜索/视图变化时清空选择（避免表头全选态与实际选中集不一致的混乱）
   useEffect(() => {
     setSelectedIds(new Set());
-  }, [page, category, search]);
+  }, [page, category, search, viewFilter]);
 
   const toggleSelect = (id: string) => {
     setSelectedIds((prev) => {
@@ -296,7 +296,8 @@ export default function TemplateManager() {
           </button>
           <button
             onClick={() => {
-              setViewFilter('active');
+              // toggle 式：再点一次取消筛选回到全部
+              setViewFilter(viewFilter === 'active' ? 'all' : 'active');
               setPage(1);
             }}
             className={`rounded-lg px-3 py-1.5 text-sm ${
@@ -309,7 +310,7 @@ export default function TemplateManager() {
           </button>
           <button
             onClick={() => {
-              setViewFilter('dedup');
+              setViewFilter(viewFilter === 'dedup' ? 'all' : 'dedup');
               setPage(1);
             }}
             className={`rounded-lg px-3 py-1.5 text-sm ${
