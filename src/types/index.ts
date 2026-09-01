@@ -33,6 +33,14 @@ export interface BlessingTemplate {
   usage_count: number;
   /** 运营备注（如「甲方提供」「待替换」） */
   remark: string | null;
+  /** AI 去重分组 id（保留句与变体共享） */
+  dedup_group_id?: string | null;
+  /** 去重原因（semantic_duplicate） */
+  dedup_reason?: string | null;
+  /** 去重来源（ai / admin） */
+  dedup_by?: string | null;
+  /** 管理员覆盖 AI 判断（true 时下次 AI 去重跳过） */
+  dedup_override?: boolean;
   created_at: string;
   updated_at: string;
 }

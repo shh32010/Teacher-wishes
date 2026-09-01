@@ -49,6 +49,7 @@ export async function GET(request: NextRequest) {
   const searchParams = request.nextUrl.searchParams;
   const category = searchParams.get('category');
   const search = searchParams.get('search');
+  const activeFilter = searchParams.get('active'); // 'true' | 'false'（可选/相似句筛选）
   const page = Math.max(1, parseInt(searchParams.get('page') || '1', 10));
   const pageSize = Math.min(100, Math.max(1, parseInt(searchParams.get('pageSize') || '50', 10)));
   const offset = (page - 1) * pageSize;
@@ -59,7 +60,7 @@ export async function GET(request: NextRequest) {
     let query = supabase
       .from('blessing_templates')
       .select(
-        'id, content, category, tags, sort_order, is_active, usage_count, remark, created_at, updated_at',
+        'id, content, category, tags, sort_order, is_active, usage_count, remark, dedup_group_id, dedup_reason, dedup_by, dedup_override, created_at, updated_at',
         { count: 'exact' }
       )
       .order('sort_order', { ascending: true })
@@ -68,6 +69,9 @@ export async function GET(request: NextRequest) {
 
     if (category && VALID_CATEGORIES.includes(category as EmotionCategory)) {
       query = query.eq('category', category);
+    }
+    if (activeFilter === 'true' || activeFilter === 'false') {
+      query = query.eq('is_active', activeFilter === 'true');
     }
     if (search) {
       const trimmed = search.trim().slice(0, 50);
@@ -198,6 +202,10 @@ export async function PATCH(request: NextRequest) {
     }
     if (typeof body.updates.remark === 'string' && body.updates.remark.length <= 100) {
       allowedUpdates.remark = body.updates.remark || null;
+    }
+    // 管理员恢复相似句时标记覆盖（下次 AI 去重不再隐藏该句）
+    if (typeof body.updates.dedup_override === 'boolean') {
+      allowedUpdates.dedup_override = body.updates.dedup_override;
     }
 
     if (Object.keys(allowedUpdates).length === 0) {

@@ -82,23 +82,46 @@ async function main() {
 
   console.log(`\n发现 ${groups.length} 组语义重复：\n`);
 
-  // 3. 执行停用（is_active=false，可逆）
+  // 3. 执行停用（软隐藏 + 完整去重元数据；管理员已覆盖的句子跳过）
   let removedCount = 0;
+  let groupIdx = 0;
   for (const g of groups) {
+    groupIdx++;
+    const groupId = `grp_${String(groupIdx).padStart(3, '0')}`;
     const keep = g.keep;
     const removes = Array.isArray(g.remove) ? g.remove : [];
-    console.log(`  ✅ 保留: ${keep}`);
+    console.log(`  ⭐ 保留（${groupId}）: ${keep}`);
+    // 保留句标记组 id
+    const keepRow = rows.find((row) => row.content === keep);
+    if (keepRow) {
+      await client.query(
+        'UPDATE blessing_templates SET dedup_group_id = $1 WHERE id = $2',
+        [groupId, keepRow.id]
+      );
+    }
     for (const r of removes) {
       const target = rows.find((row) => row.content === r);
       if (!target) {
         console.log(`     ⚠️ 未在词库中找到（跳过）: ${r.slice(0, 30)}...`);
         continue;
       }
-      await client.query('UPDATE blessing_templates SET is_active = false WHERE id = $1', [
-        target.id,
-      ]);
+      // 管理员已覆盖的句子不再隐藏
+      const { rows: overrideRows } = await client.query(
+        'SELECT dedup_override FROM blessing_templates WHERE id = $1',
+        [target.id]
+      );
+      if (overrideRows[0]?.dedup_override) {
+        console.log(`     ↩️ 管理员已恢复（跳过）: ${r.slice(0, 30)}...`);
+        continue;
+      }
+      await client.query(
+        `UPDATE blessing_templates
+         SET is_active = false, dedup_group_id = $1, dedup_reason = 'semantic_duplicate', dedup_by = 'ai'
+         WHERE id = $2`,
+        [groupId, target.id]
+      );
       removedCount++;
-      console.log(`     ⛔ 停用: ${r.slice(0, 40)}${r.length > 40 ? '...' : ''}`);
+      console.log(`     🔗 隐藏变体: ${r.slice(0, 40)}${r.length > 40 ? '...' : ''}`);
     }
   }
 

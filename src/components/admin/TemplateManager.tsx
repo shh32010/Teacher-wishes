@@ -98,6 +98,8 @@ export default function TemplateManager() {
   const [search, setSearch] = useState('');
   const [searchInput, setSearchInput] = useState('');
   const [page, setPage] = useState(1);
+  // 视图筛选：全部 / 可选 / 相似句（AI 去重隐藏的变体）
+  const [viewFilter, setViewFilter] = useState<'all' | 'active' | 'dedup'>('all');
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [importResult, setImportResult] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
@@ -114,9 +116,11 @@ export default function TemplateManager() {
 
   const categoryParam = category ? `&category=${encodeURIComponent(category)}` : '';
   const searchParam = search ? `&search=${encodeURIComponent(search)}` : '';
-  // 分页展示（50/页，150 条约 3 页，含停用句）
+  const activeParam =
+    viewFilter === 'active' ? '&active=true' : viewFilter === 'dedup' ? '&active=false' : '';
+  // 分页展示（50/页，支持可选/相似句筛选）
   const { data, error, isLoading, mutate } = useSWR(
-    `/api/admin/templates?page=${page}&pageSize=50${categoryParam}${searchParam}`,
+    `/api/admin/templates?page=${page}&pageSize=50${categoryParam}${searchParam}${activeParam}`,
     fetcher
   );
 
@@ -224,7 +228,11 @@ export default function TemplateManager() {
 
   return (
     <div>
-      <h2 className="mb-4 text-lg font-bold text-ink">祝福语库</h2>
+      <h2 className="text-lg font-bold text-ink">祝福语库</h2>
+      <p className="mb-4 text-xs text-ink-muted">
+        AI 相似句去重：150 条原始句 → <span className="text-ink">126 条可选</span> +{' '}
+        <span className="text-ink">24 条相似句</span>（与保留句语义重复，已隐藏）
+      </p>
 
       {/* 新增表单 */}
       <div className="glass-card mb-6 space-y-3 p-4">
@@ -276,14 +284,41 @@ export default function TemplateManager() {
         <div className="flex flex-wrap items-center gap-2">
           <button
             onClick={() => {
+              setViewFilter('all');
               setCategory('');
               setPage(1);
             }}
             className={`rounded-lg px-3 py-1.5 text-sm ${
-              category === '' ? 'bg-primary text-white' : 'glass text-ink-muted hover:text-ink'
+              viewFilter === 'all' ? 'bg-primary text-white' : 'glass text-ink-muted hover:text-ink'
             }`}
           >
             全部
+          </button>
+          <button
+            onClick={() => {
+              setViewFilter('active');
+              setPage(1);
+            }}
+            className={`rounded-lg px-3 py-1.5 text-sm ${
+              viewFilter === 'active'
+                ? 'bg-primary text-white'
+                : 'glass text-ink-muted hover:text-ink'
+            }`}
+          >
+            ✅ 可选
+          </button>
+          <button
+            onClick={() => {
+              setViewFilter('dedup');
+              setPage(1);
+            }}
+            className={`rounded-lg px-3 py-1.5 text-sm ${
+              viewFilter === 'dedup'
+                ? 'bg-primary text-white'
+                : 'glass text-ink-muted hover:text-ink'
+            }`}
+          >
+            🔗 相似句
           </button>
           {CATEGORIES.map((c) => (
             <button
@@ -421,26 +456,42 @@ export default function TemplateManager() {
                     )}
                   </td>
                   <td className="p-4 text-ink-muted">{t.usage_count}</td>
-                  {/* 状态徽章直接点击切换 */}
+                  {/* 状态徽章直接点击切换（相似句 = AI 去重隐藏的变体，恢复时覆盖 AI 判断） */}
                   <td className="p-4">
-                    <button
-                      onClick={async () => {
-                        const result = await adminWrite('/api/admin/templates', 'PATCH', {
-                          ids: [t.id],
-                          updates: { is_active: !t.is_active },
-                        });
-                        if (!result.ok) alert(result.error);
-                        else mutate();
-                      }}
-                      className={`rounded-full px-2.5 py-0.5 text-xs transition-colors ${
-                        t.is_active
-                          ? 'bg-green-500/15 text-green-600 hover:bg-green-500/25'
-                          : 'bg-gray-500/15 text-gray-500 hover:bg-gray-500/25'
-                      }`}
-                      title={t.is_active ? '点击停用' : '点击启用'}
-                    >
-                      {t.is_active ? '启用' : '停用'}
-                    </button>
+                    {(() => {
+                      const isDedup = !t.is_active && !!t.dedup_reason;
+                      return (
+                        <button
+                          onClick={async () => {
+                            const updates = isDedup
+                              ? { is_active: true, dedup_override: true }
+                              : { is_active: !t.is_active };
+                            const result = await adminWrite('/api/admin/templates', 'PATCH', {
+                              ids: [t.id],
+                              updates,
+                            });
+                            if (!result.ok) alert(result.error);
+                            else mutate();
+                          }}
+                          className={`rounded-full px-2.5 py-0.5 text-xs transition-colors ${
+                            t.is_active
+                              ? 'bg-green-500/15 text-green-600 hover:bg-green-500/25'
+                              : isDedup
+                                ? 'bg-amber-500/15 text-amber-600 hover:bg-amber-500/25'
+                                : 'bg-gray-500/15 text-gray-500 hover:bg-gray-500/25'
+                          }`}
+                          title={
+                            isDedup
+                              ? 'AI 去重隐藏（与另一句语义重复）· 点击恢复为可选'
+                              : t.is_active
+                                ? '点击停用'
+                                : '点击启用'
+                          }
+                        >
+                          {t.is_active ? '✅ 可选' : isDedup ? '🔗 相似句' : '停用'}
+                        </button>
+                      );
+                    })()}
                   </td>
                 </tr>
               ))}
