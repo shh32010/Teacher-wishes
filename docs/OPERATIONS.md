@@ -183,6 +183,28 @@ vercel --prod
 
 ---
 
+## 数据生命周期
+
+### 运行期间
+
+| 数据 | 保留策略 |
+| :--- | :--- |
+| `rate_limits` | 仅活动期间防刷；RPC 概率清理 + 每日 Cron 清理 24 小时前记录 |
+| `blessing_likes` | 仅活动期间防同 IP 重复点赞（存 `ip_address`） |
+| `blessings` / 词库 / 礼物 / `ai_generations` | 长期保留（活动数据，不含个人 IP） |
+
+### 活动结束后（2026-09-10 之后）
+
+执行 `database/cleanup-after-event.sql`（Supabase SQL Editor）：
+
+1. **`rate_limits` 全部删除** — 防刷记录无保留价值
+2. **`blessing_likes` 清空** — 点赞总数已固化在 `blessings.likes` 冗余列，不影响展示；IP 一并清除
+3. 祝福/词库/AI 产物保留；昵称匿名化为可选（脚本内有说明，默认不执行）
+
+> 🔒 原则：**IP 不因「方便以后统计」永久保存**。所有含 IP 的表（`rate_limits`、`blessing_likes`）活动结束后必须清空。
+
+---
+
 ## Cron 任务
 
 ### 清理限流记录

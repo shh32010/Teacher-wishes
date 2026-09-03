@@ -7,8 +7,8 @@
 <p align="center">
   <a href="https://github.com/shh32010/Teacher-wishes/actions"><img src="https://github.com/shh32010/Teacher-wishes/actions/workflows/ci.yml/badge.svg" alt="Build"></a>
   <a href="./LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue" alt="License"></a>
-  <a href="./PROGRESS.md"><img src="https://img.shields.io/badge/status-v2.0%20RC-blue" alt="Progress"></a>
-  <img src="https://img.shields.io/badge/tests-102%20unit%20%7C%2023%20E2E%20%7C%20k6%20load-8b5cf6" alt="Tests">
+  <a href="./PROGRESS.md"><img src="https://img.shields.io/badge/status-v2.0.0-blue" alt="Progress"></a>
+  <img src="https://img.shields.io/badge/tests-103%20unit%20%7C%2023%20E2E%20%7C%20k6%20load-8b5cf6" alt="Tests">
 </p>
 
 ---
@@ -47,7 +47,7 @@
 | 动画 | Framer Motion / tsParticles v4 / Canvas Confetti |
 | 数据请求 | SWR / Supabase Realtime |
 | 安全 | CSRF + IP 限流 + Turnstile + RLS + 严格触发器 |
-| 测试 | Vitest（102）+ Playwright（23）+ k6 |
+| 测试 | Vitest（103）+ Playwright（23）+ k6 |
 | 部署 | Vercel + Supabase |
 
 ---
@@ -62,25 +62,44 @@ git clone git@github.com:shh32010/Teacher-wishes.git
 cd Teacher-wishes
 npm install
 
-# 2. 配置环境变量（Supabase Dashboard → Settings → API）
-cp .env.local.example .env.local
+# 2. 新建 .env.local 并配置环境变量（Supabase Dashboard → Settings → API）
 ```
 
-编辑 `.env.local`：
+`.env.local` 完整变量清单（生产部署时对应配置到 Vercel → Settings → Environment Variables）：
 
 ```env
+# ── Supabase（必填）──
 NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=your-anon-key
 SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
+
+# ── 管理员认证（必填）──
 ADMIN_PASSWORD=your-admin-password
-ADMIN_TOKEN_SECRET=your-token-secret        # 生产强制
-AI_PROVIDER=deepseek                        # 可选，未配置时 AI 走规则降级
-AI_API_KEY=your-ai-key                      # 可选
+ADMIN_TOKEN_SECRET=your-long-random-secret  # 生产强制（开发可回退 ADMIN_PASSWORD 签名）
+
+# ── Turnstile 人机验证（生产必填）──
+NEXT_PUBLIC_TURNSTILE_SITE_KEY=your-turnstile-site-key
+TURNSTILE_SECRET_KEY=your-turnstile-secret-key  # 未配置时生产提交返回 503
+TURNSTILE_OPTIONAL=false  # 临时降级开关（域名故障应急）：true=跳过验证，修复后删除
+
+# ── AI（可选 — 未配置时所有 AI 功能规则降级）──
+AI_PROVIDER=deepseek      # deepseek（默认）| zhipu | siliconflow
+AI_API_KEY=your-ai-key    # 仅服务端
+AI_MODEL=                 # 可选，覆盖默认模型
+
+# ── 其他（可选）──
+NEXT_PUBLIC_SITE_URL=https://your-domain.com  # SEO metadataBase，缺省用生产域名
+CRON_SECRET=your-cron-secret                  # /api/cron/cleanup 鉴权
+NEXT_PUBLIC_SENTRY_DSN=   # Sentry 客户端 DSN
+SENTRY_DSN=               # Sentry 服务端 DSN
+SENTRY_ORG= / SENTRY_PROJECT=
 ```
 
+> 🔒 安全红线：`SUPABASE_SERVICE_ROLE_KEY` / `ADMIN_TOKEN_SECRET` / `TURNSTILE_SECRET_KEY` / `AI_API_KEY` / `CRON_SECRET` **只能出现在服务端环境**，绝不能加 `NEXT_PUBLIC_` 前缀。
+
 ```bash
-# 3. 执行数据库迁移（Supabase SQL Editor，按文件名顺序）
-#    001~012 全部执行；013 严格触发器须与 v2 前端同步上线后执行
+# 3. 执行数据库迁移（Supabase SQL Editor，按文件名顺序全部执行）
+#    001~017（013 严格触发器已在 v2.0 上线，无需等待）
 
 # 4. 启动
 npm run dev
@@ -93,7 +112,7 @@ npm run dev
 ## 🧪 测试
 
 ```bash
-npm test                     # Vitest 单元测试（102 用例）
+npm test                     # Vitest 单元测试（103 用例）
 npm run test:e2e             # Playwright E2E（23 用例）
 npm run test:security        # 数据库安全回归（RLS/权限断言）
 npm run test:smoke           # k6 冒烟测试

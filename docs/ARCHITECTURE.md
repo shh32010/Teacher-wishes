@@ -1,6 +1,6 @@
 # 🏗 架构文档 — 教师节祝福墙
 
-> **版本状态**：v2.0 RC（2026-09-01 功能冻结，验收中），目标 2026-09-05 上线。v2.0 设计蓝图见 [`docs/V2_DESIGN.md`](./V2_DESIGN.md)（2026-08-29 定稿），本文档按 v2.0 目标架构描述。
+> **版本状态**：v2.0.0（2026-09-01 功能冻结，2026-09-03 起收敛期，目标 2026-09-05 上线）。v2.0 设计蓝图见 [`docs/V2_DESIGN.md`](./V2_DESIGN.md)（2026-08-29 定稿，已归档为设计参考），本文档为系统唯一架构真相。
 
 ---
 
@@ -267,7 +267,7 @@ flowchart TB
 
 ## 核心交互流程
 
-### 送礼提交（v2.0）
+### 送礼提交（v2.0 自动上墙）
 
 ```mermaid
 sequenceDiagram
@@ -278,24 +278,38 @@ sequenceDiagram
     participant DB as PostgreSQL
     participant RT as Realtime
 
-    User->>Flow: 选情绪 → 选祝福（AI 推荐）→ 选礼物 → 确认
-    Flow->>API: POST {template_id, gift_id, nickname?, turnstile_token}
+    User->>Flow: 选情绪 → 选祝福 → 选礼物（可跳过）→ 确认
+    Flow->>API: POST {template_id, gift_id?, nickname?, turnstile_token}
     API->>API: CSRF + 输入校验（UUID/slug/长度）
-    API->>RPC: check_rate_limit(ip)
+    API->>RPC: check_rate_limit(ip, 400/10min)
+    API->>RPC: check_rate_limit(global, 600/1min)
     RPC-->>API: remaining > 0
     API->>DB: 查询模板（RLS 仅返回启用项）
     DB-->>API: 模板 content + category
-    API->>DB: 查询礼物（RLS 仅返回启用项）
+    API->>DB: 查询礼物（可选，RLS 仅返回启用项）
     API->>API: 敏感词双保险 + 仪式文案矩阵取 ai_message
-    API->>DB: INSERT blessings（teacher_id=null, status=pending）
+    API->>DB: INSERT blessings（teacher_id=null, status=approved 触发器强制）
     API-->>Flow: 201 Created
     Flow->>User: 礼物动画（3.8s）→ 成功页
-    Note over User,Flow: 等待管理员审核
-    Admin->>API: PATCH status=approved
-    API->>DB: UPDATE blessings
-    DB-->>RT: postgres_changes INSERT
-    RT-->>Wall: 实时推送新祝福上墙/星河
+    DB-->>RT: postgres_changes INSERT（自动上墙，无人工审核）
+    RT-->>Wall: 失效通知（3 秒防抖）→ SWR mutate → 重新 GET grouped
 ```
+
+### Wall 数据一致性模型（定稿，2026-09-03）
+
+**核心原则：API 是唯一数据来源（source of truth），Realtime 只是失效信号，轮询是兜底。**
+
+| 层 | 职责 | 说明 |
+| :--- | :--- | :--- |
+| GET /api/blessings/grouped | **唯一真相** | 从数据库全量聚合（快照边界 + no-store），任何展示都以它为准 |
+| Realtime | **失效信号** | `postgres_changes` 仅触发 `mutate()` 重新 GET，**不直接修改 UI 数据**；3 秒防抖防请求风暴 |
+| SWR | 缓存 + 刷新编排 | `revalidateOnFocus: true` 切回页面即刷新；60 秒轮询兜底（Realtime 被网络/防火墙拦截时） |
+| 数据库 | 数据源 | grouped 快照边界上取整防微秒截断；服务端 Supabase 客户端全局 `cache: no-store` 防 Next.js Data Cache |
+
+**禁止事项**（防止复杂性回归）：
+- ❌ 不要在 Realtime 事件里直接拼装/修改卡片数据（双重真相）
+- ❌ 不要为 wall 增加新的缓存层或额外的分页机制
+- ❌ 不要在 grouped API 之外再建第二个聚合路径
 
 ### AI 后台任务（v2.0，低频手动触发）
 
