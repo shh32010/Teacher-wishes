@@ -239,7 +239,7 @@ getClientIp(request)
 | 路由 | 方法 | 客户端 | 认证 | 说明 |
 | :--- | :--- | :--- | :--- | :--- |
 | `/api/blessings` | GET | Anon | 无 | 祝福列表（分页+排序，含 gift 关联） |
-| `/api/blessings` | POST | Anon | CSRF + 限流 | **v2.0** 送礼提交：`template_id`+`gift_id`，服务端查词库取内容 |
+| `/api/blessings` | POST | Anon | CSRF + 限流 | **v2.0** 送礼提交：`template_id`+`gift_id`（可选，缺省=只送祝福），服务端查词库取内容 |
 | `/api/blessings/[id]/like` | POST | Anon | CSRF + 限流 | 点赞 RPC |
 | `/api/blessings/stats` | GET | Anon | 无 | 聚合统计 |
 | `/api/teachers` | GET | Anon | 无 | 教师列表（星河教师天体展示用，不参与送礼流程） |

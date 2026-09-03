@@ -19,11 +19,8 @@ interface GroupedBlessingCardProps {
   onLike?: (representativeId: string) => Promise<boolean>;
 }
 
-/** 首字符安全截取（emoji 代理对不乱码） */
-function firstChar(text: string | null): string {
-  if (!text) return '匿';
-  return Array.from(text)[0] || '匿';
-}
+/** 通用学子图标 — v2.1 不展示学生姓氏/昵称首字，统一用 🎓 标识 */
+const STUDENT_ICON = '🎓';
 
 export default function GroupedBlessingCard({
   group,
@@ -121,8 +118,11 @@ export default function GroupedBlessingCard({
           {/* 第一层：送出人数 + 时间 */}
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/15 text-xs font-bold text-primary">
-                {firstChar(group.latest_nickname)}
+              <div
+                className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary/15 text-sm"
+                aria-hidden="true"
+              >
+                {STUDENT_ICON}
               </div>
               <p className="truncate text-[13px] font-medium text-ink">
                 {group.count} 位同学送出了这句祝福

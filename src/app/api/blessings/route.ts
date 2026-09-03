@@ -109,13 +109,13 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // v2.0 契约：客户端只传 template_id + gift_id，
+    // v2.0 契约：客户端只传 template_id + gift_id（可选——跳过礼物=只送祝福），
     // 祝福内容由服务端从官方词库读取，客户端伪造 content 无效
     const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
     if (!body.template_id || !UUID_RE.test(body.template_id)) {
       return NextResponse.json({ error: '非法模板ID' }, { status: 400 });
     }
-    if (!body.gift_id || !/^[a-z][a-z0-9_-]{1,19}$/.test(body.gift_id)) {
+    if (body.gift_id && !/^[a-z][a-z0-9_-]{1,19}$/.test(body.gift_id)) {
       return NextResponse.json({ error: '非法礼物ID' }, { status: 400 });
     }
 
@@ -200,15 +200,20 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: '祝福语不存在或已停用' }, { status: 400 });
     }
 
-    // 服务端查礼物：同样受 RLS 过滤，停用礼物查不到
-    const { data: gift, error: giftError } = await supabase
-      .from('gifts')
-      .select('id, name, icon')
-      .eq('id', body.gift_id)
-      .single();
+    // 服务端查礼物（可选：跳过礼物=只送祝福，gift 为 null 合法）：
+    // 同样受 RLS 过滤，停用礼物查不到
+    let gift: { id: string; name: string; icon: string } | null = null;
+    if (body.gift_id) {
+      const { data: giftRow, error: giftError } = await supabase
+        .from('gifts')
+        .select('id, name, icon')
+        .eq('id', body.gift_id)
+        .single();
 
-    if (giftError || !gift) {
-      return NextResponse.json({ error: '礼物不存在或已停用' }, { status: 400 });
+      if (giftError || !giftRow) {
+        return NextResponse.json({ error: '礼物不存在或已停用' }, { status: 400 });
+      }
+      gift = giftRow;
     }
 
     // 敏感词过滤（双保险：词库入库时已过滤，此处防历史脏数据；昵称/班级仍需过滤）
@@ -230,15 +235,16 @@ export async function POST(request: NextRequest) {
     const finalClass = isAnonymous ? null : trimmedClass || null;
 
     // 仪式文案：按「情绪 × 礼物」从静态矩阵取快照写入（AI-3）
+    // 无礼物时 giftId 传空 → 矩阵查不到 → 自动降级通用文案
     const { getGiftMessage } = await import('@/lib/ai/messages');
-    const aiMessage = getGiftMessage(template.category as EmotionCategory | null, gift.id);
+    const aiMessage = getGiftMessage(template.category as EmotionCategory | null, gift?.id ?? '');
 
-    // 插入祝福（v2.0：不绑定老师；内容/情绪取自官方模板）
+    // 插入祝福（v2.0：不绑定老师；内容/情绪取自官方模板；礼物可选）
     // 不使用 .select()，避免 RLS SELECT 冲突
     const { error } = await supabase.from('blessings').insert([
       {
         template_id: template.id,
-        gift_id: gift.id,
+        gift_id: gift?.id ?? null,
         emotion: template.category,
         ai_message: aiMessage,
         teacher_id: null, // v2.0 取消指定老师，送给全体教师
@@ -260,9 +266,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       {
         success: true,
-        message: '🎁 礼物已送达！祝福已自动汇入星河',
-        gift_icon: gift.icon,
-        gift_name: gift.name,
+        message: gift ? '🎁 礼物已送达！祝福已自动汇入星河' : '✨ 祝福已自动汇入星河',
+        gift_icon: gift?.icon ?? null,
+        gift_name: gift?.name ?? null,
       },
       { status: 201 }
     );

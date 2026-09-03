@@ -60,6 +60,8 @@ export default function GiftFlow() {
   const [mood, setMood] = useState<EmotionCategory | null>(null);
   const [template, setTemplate] = useState<BlessingTemplate | null>(null);
   const [gift, setGift] = useState<Gift | null>(null);
+  // 跳过礼物：只送祝福（gift 为 null 且 skipGift=true 表示学生主动跳过）
+  const [skipGift, setSkipGift] = useState(false);
   const [nickname, setNickname] = useState('');
   const [class_, setClass_] = useState('');
   const [isAnonymous, setIsAnonymous] = useState(false);
@@ -80,9 +82,9 @@ export default function GiftFlow() {
     setClass_(localStorage.getItem('blessing_class') || '');
   }, []);
 
-  /** 提交祝福 + 礼物（sending 期间按钮禁用 + 服务端限流双保险） */
+  /** 提交祝福 + 礼物（gift 可选；sending 期间按钮禁用 + 服务端限流双保险） */
   const handleSend = async () => {
-    if (!template || !gift || sending) return;
+    if (!template || (!gift && !skipGift) || sending) return;
     setSending(true);
     setSendError(null);
     try {
@@ -93,7 +95,7 @@ export default function GiftFlow() {
         headers: { 'Content-Type': 'application/json', ...headers },
         body: JSON.stringify({
           template_id: template.id,
-          gift_id: gift.id,
+          gift_id: gift?.id ?? undefined,
           nickname: nickname.trim() || undefined,
           class: class_.trim() || undefined,
           is_anonymous: isAnonymous,
@@ -107,7 +109,8 @@ export default function GiftFlow() {
       }
       localStorage.setItem('blessing_nickname', nickname.trim());
       localStorage.setItem('blessing_class', class_.trim());
-      setStep('sending');
+      // 无礼物跳过动画，直接进入成功页（sending 仅为礼物动画呈现）
+      setStep(gift ? 'sending' : 'success');
     } catch {
       setSendError('网络错误，请重试');
     } finally {
@@ -120,6 +123,7 @@ export default function GiftFlow() {
     setMood(null);
     setTemplate(null);
     setGift(null);
+    setSkipGift(false);
     setSendError(null);
     setStep('emotion');
   };
@@ -162,6 +166,12 @@ export default function GiftFlow() {
             <GiftSelector
               onSelect={(g) => {
                 setGift(g);
+                setSkipGift(false);
+                setStep('confirm');
+              }}
+              onSkip={() => {
+                setGift(null);
+                setSkipGift(true);
                 setStep('confirm');
               }}
               onBack={() => setStep('blessing')}
@@ -169,16 +179,18 @@ export default function GiftFlow() {
           </motion.div>
         )}
 
-        {step === 'confirm' && template && gift && (
+        {step === 'confirm' && template && (gift || skipGift) && (
           <motion.div key="confirm" {...stepVariants} transition={{ duration: 0.3 }}>
             <div className="glass-card p-6">
               <h2 className="mb-4 text-lg font-bold text-ink">准备好了吗？</h2>
 
               {/* 预览卡片 */}
               <div className="glass-card mb-4 p-5 text-center">
-                <p className="mb-2 text-4xl">{gift.icon}</p>
+                <p className="mb-2 text-4xl">{gift?.icon ?? '💌'}</p>
                 <p className="mb-1 text-ink">&ldquo;{template.content}&rdquo;</p>
-                <p className="text-sm text-ink-muted">— 一份{gift.name}，献给全体老师</p>
+                <p className="text-sm text-ink-muted">
+                  {gift ? `— 一份${gift.name}，献给全体老师` : '— 一份祝福，献给全体老师'}
+                </p>
               </div>
 
               {/* 昵称/班级/匿名（可选） */}
@@ -239,7 +251,7 @@ export default function GiftFlow() {
                   disabled={sending}
                   className="flex-1 rounded-xl bg-primary px-4 py-2.5 font-bold text-white hover:bg-primary-light disabled:opacity-50"
                 >
-                  {sending ? '送出中...' : `送出${gift.icon} ${gift.name}`}
+                  {sending ? '送出中...' : gift ? `送出${gift.icon} ${gift.name}` : '送出祝福 ✨'}
                 </button>
               </div>
             </div>
@@ -256,7 +268,7 @@ export default function GiftFlow() {
           </motion.div>
         )}
 
-        {step === 'success' && gift && template && (
+        {step === 'success' && template && (gift || skipGift) && (
           <motion.div key="success" {...stepVariants} transition={{ duration: 0.3 }}>
             <GiftSuccess gift={gift} content={template.content} onRestart={restart} />
           </motion.div>

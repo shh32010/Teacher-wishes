@@ -8,7 +8,8 @@ import { useState, useEffect } from 'react';
 import type { Gift } from '@/types';
 
 interface GiftSuccessProps {
-  gift: Gift;
+  /** 礼物（跳过礼物时为 null） */
+  gift: Gift | null;
   content: string;
   onRestart: () => void;
 }
@@ -29,7 +30,9 @@ export default function GiftSuccess({ gift, content, onRestart }: GiftSuccessPro
   }, []);
 
   const handleShare = async () => {
-    const text = `教师节快乐！我送出了${gift.icon}${gift.name}和一句祝福——「${content}」`;
+    const text = gift
+      ? `教师节快乐！我送出了${gift.icon}${gift.name}和一句祝福——「${content}」`
+      : `教师节快乐！我送出了一份祝福——「${content}」`;
     const url = `${window.location.origin}/wall`;
     try {
       if (navigator.share) {
@@ -46,14 +49,14 @@ export default function GiftSuccess({ gift, content, onRestart }: GiftSuccessPro
 
   return (
     <div className="glass-card p-8 text-center">
-      <p className="mb-3 text-5xl">{gift.icon}</p>
+      <p className="mb-3 text-5xl">{gift?.icon ?? '💌'}</p>
       <h2 className="mb-1 text-xl font-bold text-ink">您的心意已经送达 ✨</h2>
       <p className="mb-4 text-sm text-ink-muted">它已经汇入全体老师的祝福星河</p>
 
       <div className="glass-card mb-6 p-4">
         <p className="text-ink">&ldquo;{content}&rdquo;</p>
         <p className="mt-1 text-xs text-ink-muted">
-          {gift.icon} 一份{gift.name} · 献给全体老师
+          {gift ? `${gift.icon} 一份${gift.name} · 献给全体老师` : '一份祝福 · 献给全体老师'}
         </p>
       </div>
 

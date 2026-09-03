@@ -10,10 +10,12 @@ import type { Gift } from '@/types';
 
 interface GiftSelectorProps {
   onSelect: (gift: Gift) => void;
+  /** 跳过礼物：只送祝福不选礼物 */
+  onSkip: () => void;
   onBack: () => void;
 }
 
-export default function GiftSelector({ onSelect, onBack }: GiftSelectorProps) {
+export default function GiftSelector({ onSelect, onSkip, onBack }: GiftSelectorProps) {
   const [gifts, setGifts] = useState<Gift[]>([]);
   const [loading, setLoading] = useState(true);
   const [loadFailed, setLoadFailed] = useState(false);
@@ -64,7 +66,15 @@ export default function GiftSelector({ onSelect, onBack }: GiftSelectorProps) {
         </div>
       )}
 
-      <button onClick={onBack} className="btn-ghost mt-6 w-full">
+      {/* 跳过礼物：只送祝福（礼物加载失败/暂无礼物时同样可用） */}
+      <button
+        onClick={onSkip}
+        className="btn-ghost mt-4 w-full text-sm text-ink-muted hover:text-ink"
+      >
+        不送礼物，直接送出祝福 →
+      </button>
+
+      <button onClick={onBack} className="btn-ghost mt-3 w-full">
         ← 返回重选祝福语
       </button>
     </div>
