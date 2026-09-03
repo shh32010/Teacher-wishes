@@ -20,11 +20,19 @@ export async function GET(request: NextRequest) {
 
     // 快照时间戳：分页前锁定数据边界，防活动期间并发写入导致
     // offset 分页漂移漏读/重读（快照之后的新插入进入下一次刷新）
+    //
+    // ⚠️ 网关缓存防御：生产实测同一 URL 的快照查询被中间层缓存
+    // （连续请求稳定返回旧 max=09-02 09:20，导致最新祝福被排除）。
+    // 双保险：1) lte(now) 时变参数让 URL 每次不同（语义不变：
+    // 快照行必然早于 now）；2) Cache-Control: no-store 请求头
+    const nowIso = new Date().toISOString();
     const { data: latestRow } = await supabase
       .from('blessings')
       .select('created_at')
+      .lte('created_at', nowIso)
       .order('created_at', { ascending: false })
-      .limit(1);
+      .limit(1)
+      .setHeader('Cache-Control', 'no-store');
     const snapshot = (latestRow?.[0] as { created_at?: string } | undefined)?.created_at;
 
     // 边界上取整 +1ms：DB 的 timestamptz 为微秒精度（如 .586174），
@@ -48,8 +56,12 @@ export async function GET(request: NextRequest) {
         )
         .eq('status', 'approved')
         .lte('created_at', upperBound.toISOString())
+        // 冗余时变条件（语义不变：upperBound 恒早于 now）：
+        // 让分页 URL 每次不同，绕开网关 URL 级缓存（同快照查询的防御）
+        .lte('created_at', nowIso)
         .order('created_at', { ascending: false })
         .range(from, to)
+        .setHeader('Cache-Control', 'no-store')
     );
 
     if (queryError) {
