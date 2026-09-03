@@ -27,6 +27,14 @@ export async function GET(request: NextRequest) {
       .limit(1);
     const snapshot = (latestRow?.[0] as { created_at?: string } | undefined)?.created_at;
 
+    // 边界上取整 +1ms：DB 的 timestamptz 为微秒精度（如 .586174），
+    // 一旦经 JS 链路截断为毫秒（.586），用截断值做 <= 比较会把
+    // 快照时刻最后 1ms 内写入的行排除（生产实测漏了最新 1 条祝福）。
+    // 上取整保证任何精度下边界都 ≥ 快照行本身；多含的快照后 1ms 新行
+    // 本来就在数据集中，仅可能提前一次刷新出现，无一致性风险
+    const upperBound = new Date(snapshot ?? Date.now());
+    upperBound.setMilliseconds(upperBound.getMilliseconds() + 1);
+
     // anon RLS 自动只返回 approved；按时间倒序取全量（聚合的「最新」语义依赖此顺序）
     // 明确字段：不再返回 teacher 关联（v2 叙事统一献给全体老师）
     // 经 fetchAllPages 循环分页，绕过 PostgREST 单次 1000 行上限
@@ -39,7 +47,7 @@ export async function GET(request: NextRequest) {
              gift:gifts(id, name, icon)`
         )
         .eq('status', 'approved')
-        .lte('created_at', snapshot ?? new Date().toISOString())
+        .lte('created_at', upperBound.toISOString())
         .order('created_at', { ascending: false })
         .range(from, to)
     );
