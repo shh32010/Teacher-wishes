@@ -27,6 +27,7 @@
 | 端点 | 限制 | 窗口 |
 | :--- | :--- | :--- |
 | `POST /api/blessings` | 每 IP 最多 400 条（校园 NAT 出口 IP 共享场景放宽） | 10 分钟 |
+| `POST /api/blessings`（全局桶） | 全站最多 600 条（防多 IP 分布式刷量） | 1 分钟 |
 | `POST /api/blessings/[id]/like` | 每 IP 最多 20 次 | 1 分钟 |
 | `POST /api/admin/login` | 每 IP 最多 5 次 | 1 分钟 |
 | 超限返回 `429 Too Many Requests` |

@@ -152,6 +152,29 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: '发送太频繁，请10分钟后再试' }, { status: 429 });
     }
 
+    // 全站活动级限流（第二道防线）：per-IP 限流防单点刷量，
+    // 全局桶防多 IP 分布式刷量（N 个出口 IP × 400 会把数据库打爆）。
+    // 阈值 600/分钟（≈10/s）：活动实测峰值远低于此，正常校园场景不误伤，
+    // 脚本/僵尸网络（即使换 IP）也撞全局上限。
+    const { data: globalRemaining, error: globalRateError } = await supabase.rpc(
+      'check_rate_limit',
+      {
+        client_ip: 'global',
+        action_name: 'submit_blessing_global',
+        max_requests: 600,
+        window_minutes: 1,
+      }
+    );
+
+    // fail-closed：全局桶 RPC 异常同样拒绝，不留绕行路径
+    if (globalRateError || globalRemaining === null) {
+      console.error('[API] 全局速率限制检查异常:', globalRateError);
+      return NextResponse.json({ error: '系统繁忙，请稍后重试' }, { status: 503 });
+    }
+    if (globalRemaining <= 0) {
+      return NextResponse.json({ error: '活动太火爆，请稍后再试' }, { status: 429 });
+    }
+
     // Turnstile 验证（Production fail-closed）：
     // - 生产环境：TURNSTILE_SECRET_KEY 必须配置，否则 503
     // - 生产环境已配置：必须有 token，验证失败返回 400
