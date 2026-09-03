@@ -83,17 +83,6 @@ export async function GET(request: NextRequest) {
     // 实时性优先：聚合查询本身轻量，禁用共享缓存——
     // 否则 Cloudflare 边缘缓存会在 Realtime 刷新时返回旧响应
     res.headers.set('Cache-Control', 'no-store');
-
-    // ⚠️ 临时诊断（定位生产 1362/1363 差 1 条根因，定位后立即移除）
-    const debugInfo = {
-      snapshot: String(snapshot ?? null),
-      upperBound: upperBound.toISOString(),
-      queriedRows: allRows.length,
-    };
-    console.log('[grouped][debug]', JSON.stringify(debugInfo));
-    res.headers.set('X-Debug-Snapshot', debugInfo.snapshot);
-    res.headers.set('X-Debug-UpperBound', debugInfo.upperBound);
-    res.headers.set('X-Debug-QueriedRows', String(debugInfo.queriedRows));
     return res;
   } catch (err) {
     console.error('[API] 聚合异常:', err);
