@@ -18,6 +18,15 @@ export async function GET(request: NextRequest) {
   try {
     const supabase = createAnonClient();
 
+    // 快照时间戳：分页前锁定数据边界，防活动期间并发写入导致
+    // offset 分页漂移漏读/重读（快照之后的新插入进入下一次刷新）
+    const { data: latestRow } = await supabase
+      .from('blessings')
+      .select('created_at')
+      .order('created_at', { ascending: false })
+      .limit(1);
+    const snapshot = (latestRow?.[0] as { created_at?: string } | undefined)?.created_at;
+
     // anon RLS 自动只返回 approved；按时间倒序取全量（聚合的「最新」语义依赖此顺序）
     // 明确字段：不再返回 teacher 关联（v2 叙事统一献给全体老师）
     // 经 fetchAllPages 循环分页，绕过 PostgREST 单次 1000 行上限
@@ -30,6 +39,7 @@ export async function GET(request: NextRequest) {
              gift:gifts(id, name, icon)`
         )
         .eq('status', 'approved')
+        .lte('created_at', snapshot ?? new Date().toISOString())
         .order('created_at', { ascending: false })
         .range(from, to)
     );
