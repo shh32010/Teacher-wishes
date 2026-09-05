@@ -226,19 +226,15 @@ export default function GiftGalaxy() {
           if (star.type === 'teacher') {
             return (
               <div key={star.id} className="pointer-events-auto">
+                {/* 教师天体为纯展示（点击无详情弹窗），悬停仅显示姓名 */}
                 <motion.div
                   initial={{ opacity: 0, scale: 0.5 }}
                   animate={{ opacity: visible ? 1 : 0, scale: visible ? 1 : 0.5 }}
                   transition={{ delay: 0.5 + stableRandom(star.id) * 0.5, duration: 0.8 }}
-                  className="group absolute cursor-pointer"
+                  className="group absolute"
                   style={{ left: `${star.x}%`, top: `${star.y}%` }}
-                  role="button"
-                  tabIndex={0}
-                  aria-label={`${star.teacher!.name}，点击查看详情`}
-                  onKeyDown={(e) => handleStarKeyDown(e, star)}
                   onMouseEnter={() => setHovered(star.id)}
                   onMouseLeave={() => setHovered(null)}
-                  onClick={() => setSelectedStar(star)}
                 >
                   {/* 教师天体 — 暖金光晕 + 头像 */}
                   <div
@@ -285,7 +281,6 @@ export default function GiftGalaxy() {
                           {star.teacher!.department && (
                             <p className="text-xs text-ink-muted">{star.teacher!.department}</p>
                           )}
-                          <p className="mt-1 text-xs text-accent">点击查看详情</p>
                         </div>
                         <div className="mx-auto h-0 w-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-ink/10" />
                       </motion.div>
@@ -377,9 +372,7 @@ export default function GiftGalaxy() {
               className="fixed inset-0 z-50 flex items-center justify-center p-4"
               role="dialog"
               aria-modal="true"
-              aria-label={
-                selectedStar.type === 'teacher' ? `${selectedStar.teacher!.name}的详情` : '祝福详情'
-              }
+              aria-label="祝福详情"
               data-modal="galaxy-detail"
               onClick={() => setSelectedStar(null)}
             >
@@ -409,45 +402,8 @@ export default function GiftGalaxy() {
                   </svg>
                 </button>
 
-                {selectedStar.type === 'teacher' && selectedStar.teacher && (
-                  <div className="text-center">
-                    {/* 教师头像（v2.0：不展示收到的祝福数量，避免教师间比较） */}
-                    <div
-                      className="relative mx-auto mb-4 flex h-20 w-20 items-center justify-center overflow-hidden rounded-full bg-primary/15"
-                      style={{
-                        boxShadow:
-                          '0 0 32px color-mix(in srgb, var(--color-primary) 40%, transparent), 0 0 64px color-mix(in srgb, var(--color-accent-gold) 15%, transparent)',
-                      }}
-                    >
-                      {selectedStar.teacher!.avatar_url ? (
-                        <Image
-                          src={selectedStar.teacher!.avatar_url}
-                          alt={selectedStar.teacher!.name}
-                          fill
-                          sizes="80px"
-                          className="object-cover"
-                        />
-                      ) : (
-                        <span className="text-2xl font-bold text-primary" aria-hidden="true">
-                          {selectedStar.teacher!.name[0]}
-                        </span>
-                      )}
-                    </div>
-
-                    <h2 className="text-xl font-bold text-ink">{selectedStar.teacher!.name}</h2>
-                    {selectedStar.teacher!.department && (
-                      <p className="mt-1 text-sm text-ink-light">
-                        {selectedStar.teacher!.department}
-                      </p>
-                    )}
-                    {selectedStar.teacher!.description && (
-                      <p className="mt-3 text-sm leading-relaxed text-ink">
-                        {selectedStar.teacher!.description}
-                      </p>
-                    )}
-                  </div>
-                )}
-
+                {/* v2.0：教师天体无详情弹窗（纯展示，悬停显名）；
+                    弹窗仅祝福星使用 */}
                 {selectedStar.type === 'blessing' && selectedStar.group && (
                   <div className="text-center">
                     {/* 祝福内容 */}
