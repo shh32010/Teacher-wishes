@@ -28,8 +28,9 @@ export async function GET(request: NextRequest) {
   try {
     const supabase = createAnonClient();
 
-    // 1. tags 语义匹配 + 命中分数排序（score = 命中关键词数，同分随机）
-    //    真正的「智能推荐排序」而非纯随机：命中 3 个关键词的排在命中 1 个的前面
+    // 1. tags 语义匹配 + 分层随机（score = 命中关键词数）
+    //    语义优先 + 降低重复率：按分数从高到低分层，层内洗牌随机取——
+    //    避免固定高分句永远霸榜（同情绪每次推荐几乎不变的体验问题）
     let recommendations: BlessingTemplate[] = [];
     if (VALID_CATEGORIES.includes(mood as EmotionCategory)) {
       const keywords = MOOD_KEYWORDS[mood] || [];
@@ -38,17 +39,24 @@ export async function GET(request: NextRequest) {
         .from('blessing_templates')
         .select('id, content, category, tags, sort_order')
         .overlaps('tags', keywords)
-        .limit(20);
+        .limit(100);
 
       if (matchError) {
         console.error('[API] 推荐匹配失败:', matchError);
       } else if (matched && matched.length > 0) {
-        const scored = (matched as BlessingTemplate[]).map((t) => ({
-          t,
-          score: (t.tags || []).filter((tag) => keywords.includes(tag)).length,
-        }));
-        scored.sort((a, b) => b.score - a.score || Math.random() - 0.5);
-        recommendations = scored.map((s) => s.t);
+        // 按 score 分层（高分先选，层内随机）
+        const layers = new Map<number, BlessingTemplate[]>();
+        for (const t of matched as BlessingTemplate[]) {
+          const score = (t.tags || []).filter((tag) => keywords.includes(tag)).length;
+          if (!layers.has(score)) layers.set(score, []);
+          layers.get(score)!.push(t);
+        }
+        const layerOrder = Array.from(layers.keys()).sort((a, b) => b - a);
+        for (const layer of layerOrder) {
+          if (recommendations.length >= 3) break;
+          const pool = [...layers.get(layer)!].sort(() => Math.random() - 0.5);
+          recommendations.push(...pool.slice(0, 3 - recommendations.length));
+        }
       }
     }
 
