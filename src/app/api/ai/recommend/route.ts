@@ -28,9 +28,10 @@ export async function GET(request: NextRequest) {
   try {
     const supabase = createAnonClient();
 
-    // 1. tags 语义匹配 + 分层随机（score = 命中关键词数）
-    //    语义优先 + 降低重复率：按分数从高到低分层，层内洗牌随机取——
-    //    避免固定高分句永远霸榜（同情绪每次推荐几乎不变的体验问题）
+    // 1. tags 语义匹配 + 加权随机抽样（score = 命中关键词数）
+    //    语义优先 + 降低重复率：权重 = 2^score，无放回抽 3 条——
+    //    高分句出现概率高但不锁定，避免固定高分句每次霸榜
+    //    （同情绪每次推荐几乎不变的体验问题）
     let recommendations: BlessingTemplate[] = [];
     if (VALID_CATEGORIES.includes(mood as EmotionCategory)) {
       const keywords = MOOD_KEYWORDS[mood] || [];
@@ -44,18 +45,26 @@ export async function GET(request: NextRequest) {
       if (matchError) {
         console.error('[API] 推荐匹配失败:', matchError);
       } else if (matched && matched.length > 0) {
-        // 按 score 分层（高分先选，层内随机）
-        const layers = new Map<number, BlessingTemplate[]>();
-        for (const t of matched as BlessingTemplate[]) {
-          const score = (t.tags || []).filter((tag) => keywords.includes(tag)).length;
-          if (!layers.has(score)) layers.set(score, []);
-          layers.get(score)!.push(t);
-        }
-        const layerOrder = Array.from(layers.keys()).sort((a, b) => b - a);
-        for (const layer of layerOrder) {
-          if (recommendations.length >= 3) break;
-          const pool = [...layers.get(layer)!].sort(() => Math.random() - 0.5);
-          recommendations.push(...pool.slice(0, 3 - recommendations.length));
+        const pool = (matched as BlessingTemplate[]).map((t) => ({
+          t,
+          score: (t.tags || []).filter((tag) => keywords.includes(tag)).length,
+        }));
+        // 无放回加权抽样：每轮按 2^score 权重抽一条，抽中即移出池
+        const remaining = [...pool];
+        while (recommendations.length < 3 && remaining.length > 0) {
+          const weights = remaining.map((s) => Math.pow(2, s.score));
+          const total = weights.reduce((a, b) => a + b, 0);
+          let r = Math.random() * total;
+          let idx = remaining.length - 1;
+          for (let i = 0; i < remaining.length; i++) {
+            r -= weights[i];
+            if (r <= 0) {
+              idx = i;
+              break;
+            }
+          }
+          recommendations.push(remaining[idx].t);
+          remaining.splice(idx, 1);
         }
       }
     }
