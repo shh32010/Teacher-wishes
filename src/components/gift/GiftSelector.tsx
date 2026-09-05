@@ -48,7 +48,7 @@ export default function GiftSelector({ onSelect, onSkip, onBack }: GiftSelectorP
       ) : gifts.length === 0 ? (
         <p className="py-12 text-center text-ink-muted">暂无可用的礼物，请稍后再来</p>
       ) : (
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
           {gifts.map((g, i) => (
             <motion.button
               key={g.id}
