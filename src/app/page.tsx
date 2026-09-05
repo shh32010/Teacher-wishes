@@ -242,7 +242,8 @@ export default function HomePage() {
                 className="h-[92px] w-[92px]"
               />
             </a>
-            <span className="rounded-full bg-ink/60 px-2 py-0.5 text-[10px] text-white/90 backdrop-blur-sm">
+            {/* 深色不透明底：日间/浅色主题下白字依然清晰 */}
+            <span className="rounded-full bg-black/70 px-2.5 py-1 text-[10px] font-medium text-white shadow-sm">
               扫码送祝福 🎁
             </span>
           </motion.div>
