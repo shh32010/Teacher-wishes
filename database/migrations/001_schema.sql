@@ -91,8 +91,9 @@ ALTER PUBLICATION supabase_realtime ADD TABLE blessings;
 -- ============================================================
 
 -- 插入示例教师
+-- 教师种子：真实姓氏示例（信息工程学院，完整名单见运营导入）
 INSERT INTO teachers (name, department) VALUES
-  ('王老师', '语文教研组'),
-  ('李老师', '数学教研组'),
-  ('张老师', '英语教研组')
+  ('王老师', '信息工程学院'),
+  ('盛老师', '信息工程学院'),
+  ('林老师', '信息工程学院')
 ON CONFLICT DO NOTHING;

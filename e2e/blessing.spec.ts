@@ -19,7 +19,7 @@ test.describe('祝福墙 & 祝福提交', () => {
     await expect(header).toBeVisible();
 
     // 应显示聚合后的祝福内容（同句聚合卡片）
-    await expect(page.getByText('张老师，感谢您三年来的谆谆教诲！')).toBeVisible({
+    await expect(page.getByText('王老师，感谢您三年来的谆谆教诲！')).toBeVisible({
       timeout: 10_000,
     });
     // 聚合卡显示「N 位同学送出了这句祝福」
@@ -56,7 +56,7 @@ test.describe('祝福墙 & 祝福提交', () => {
 
     const likesBtn = page.getByRole('radio', { name: '🔥 最热' });
     await likesBtn.click();
-    await expect(page.getByText('张老师，感谢您三年来的谆谆教诲！')).toBeVisible({
+    await expect(page.getByText('王老师，感谢您三年来的谆谆教诲！')).toBeVisible({
       timeout: 10_000,
     });
   });

@@ -211,7 +211,7 @@ export default function GiftGalaxy() {
                   style={{ left: `${star.x}%`, top: `${star.y}%` }}
                   role="button"
                   tabIndex={0}
-                  aria-label={`${star.teacher!.name}老师，点击查看详情`}
+                  aria-label={`${star.teacher!.name}，点击查看详情`}
                   onKeyDown={(e) => handleStarKeyDown(e, star)}
                   onMouseEnter={() => setHovered(star.id)}
                   onMouseLeave={() => setHovered(null)}
@@ -258,7 +258,7 @@ export default function GiftGalaxy() {
                         className="absolute bottom-full left-1/2 z-20 mb-3 -translate-x-1/2"
                       >
                         <div className="glass whitespace-nowrap rounded-xl px-4 py-3 text-center">
-                          <p className="text-sm font-bold text-ink">{star.teacher!.name}老师</p>
+                          <p className="text-sm font-bold text-ink">{star.teacher!.name}</p>
                           {star.teacher!.department && (
                             <p className="text-xs text-ink-muted">{star.teacher!.department}</p>
                           )}
@@ -355,9 +355,7 @@ export default function GiftGalaxy() {
               role="dialog"
               aria-modal="true"
               aria-label={
-                selectedStar.type === 'teacher'
-                  ? `${selectedStar.teacher!.name}老师的详情`
-                  : '祝福详情'
+                selectedStar.type === 'teacher' ? `${selectedStar.teacher!.name}的详情` : '祝福详情'
               }
               data-modal="galaxy-detail"
               onClick={() => setSelectedStar(null)}
@@ -413,7 +411,7 @@ export default function GiftGalaxy() {
                       )}
                     </div>
 
-                    <h2 className="text-xl font-bold text-ink">{selectedStar.teacher!.name}老师</h2>
+                    <h2 className="text-xl font-bold text-ink">{selectedStar.teacher!.name}</h2>
                     {selectedStar.teacher!.department && (
                       <p className="mt-1 text-sm text-ink-light">
                         {selectedStar.teacher!.department}

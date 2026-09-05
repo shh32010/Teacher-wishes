@@ -17,18 +17,18 @@ import type {
 export const MOCK_TEACHERS: Teacher[] = [
   {
     id: 't1',
-    name: '张老师',
-    department: '语文教研组',
+    name: '王老师',
+    department: '信息工程学院',
     avatar_url: null,
     description: '从教30年，桃李满天下',
     created_at: '2025-01-01T00:00:00Z',
   },
   {
     id: 't2',
-    name: '李老师',
-    department: '数学教研组',
+    name: '盛老师',
+    department: '信息工程学院',
     avatar_url: null,
-    description: '让每个学生爱上数学',
+    description: '让每个学生爱上学习',
     created_at: '2025-01-01T00:00:00Z',
   },
 ];
@@ -42,7 +42,7 @@ export const MOCK_BLESSINGS: Blessing[] = [
     teacher_id: 't1',
     nickname: '小明',
     class: '高一(3)班',
-    content: '张老师，感谢您三年来的谆谆教诲！',
+    content: '王老师，感谢您三年来的谆谆教诲！',
     likes: 12,
     is_featured: true,
     is_anonymous: false,
@@ -60,7 +60,7 @@ export const MOCK_BLESSINGS: Blessing[] = [
     teacher_id: 't2',
     nickname: '小红',
     class: '高二(1)班',
-    content: '李老师教数学教得太好了，让我从讨厌数学变成了热爱数学！',
+    content: '盛老师教专业课教得太好了，让我从讨厌数学变成了热爱数学！',
     likes: 8,
     is_featured: false,
     is_anonymous: false,
@@ -101,7 +101,7 @@ export const MOCK_PENDING_BLESSINGS: Blessing[] = [
     teacher_id: 't1',
     nickname: '小李',
     class: '高三(2)班',
-    content: '张老师太棒了！',
+    content: '王老师太棒了！',
     likes: 0,
     is_featured: false,
     is_anonymous: false,
@@ -250,7 +250,7 @@ export async function registerAllApiMocks(page: Page): Promise<void> {
       body: JSON.stringify({
         groups: [
           {
-            content: '张老师，感谢您三年来的谆谆教诲！',
+            content: '王老师，感谢您三年来的谆谆教诲！',
             count: 1,
             total_likes: 12,
             gift_counts: [],
@@ -262,7 +262,7 @@ export async function registerAllApiMocks(page: Page): Promise<void> {
             latest_created_at: '2025-09-10T08:00:00Z',
           },
           {
-            content: '李老师教数学教得太好了，让我从讨厌数学变成了热爱数学！',
+            content: '盛老师教专业课教得太好了，让我从讨厌数学变成了热爱数学！',
             count: 1,
             total_likes: 8,
             gift_counts: [],
