@@ -121,13 +121,31 @@ function getPositionPool(
 }
 
 /**
- * 气泡边缘自适应定位：天体/星星散布全屏，
- * 靠顶 → 向下弹；靠左右缘 → 向内展开，防溢出视口被裁
+ * 气泡结构：箭头与内容块分离定位——
+ * - 箭头固定在星点正上/正下（translateX(-50%) 恒对准天体中心）
+ * - 内容块水平居中于星点，靠视口边缘时用 marginLeft clamp 向内收，
+ *   保证不溢出（箭头不动，只内容平移，箭头始终指向星）
  */
-function bubbleClassName(x: number, y: number, small?: boolean): string {
-  const v = y < 15 ? 'top-full mt-3' : `bottom-full ${small ? 'mb-2' : 'mb-3'}`;
-  const h = x > 88 ? 'right-0' : x < 12 ? 'left-0' : 'left-1/2 -translate-x-1/2';
-  return `absolute z-20 whitespace-nowrap ${v} ${h}`;
+const BUBBLE_OFFSET = {
+  teacher: { arrow: 13, content: 25 }, // 26px 天体半径 13
+  star: { arrow: 8, content: 20 }, // 祝福星半径 4~11px
+};
+
+/** 内容块 ref：首次挂载时按星点 x 计算 clamp 平移（防止左右溢出） */
+function clampBubble(el: HTMLDivElement | null, starX: number) {
+  if (!el || el.dataset.clamped) return;
+  el.dataset.clamped = '1';
+  const w = el.offsetWidth;
+  const c = (starX / 100) * window.innerWidth;
+  const left = Math.max(8, Math.min(window.innerWidth - w - 8, c - w / 2));
+  el.style.marginLeft = `${left - (c - w / 2)}px`;
+}
+
+/** 箭头三角的 border 方向（below=气泡在星上方，尖朝下指星） */
+function arrowBorder(below: boolean): string {
+  return below
+    ? 'border-x-[5px] border-t-[7px] border-x-transparent border-t-ink/10'
+    : 'border-x-[5px] border-b-[7px] border-x-transparent border-b-ink/10';
 }
 
 /** 格式化日期 */
@@ -353,22 +371,45 @@ export default function GiftGalaxy() {
                     )}
                   </div>
 
-                  {/* 悬浮气泡 */}
+                  {/* 悬浮气泡 — 箭头恒指星点，内容块防溢出 */}
                   <AnimatePresence>
                     {hovered === star.id && (
                       <motion.div
                         initial={{ opacity: 0, y: 5, scale: 0.9 }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0 }}
-                        className={bubbleClassName(star.x, star.y)}
+                        className="pointer-events-none absolute z-30"
                       >
-                        <div className="glass whitespace-nowrap rounded-xl px-4 py-3 text-center">
-                          <p className="text-sm font-bold text-ink">{star.teacher!.name}</p>
-                          {star.teacher!.department && (
-                            <p className="text-xs text-ink-muted">{star.teacher!.department}</p>
-                          )}
-                        </div>
-                        <div className="mx-auto h-0 w-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-ink/10" />
+                        {(() => {
+                          const below = star.y >= 15; // 星在中下 → 气泡在上方
+                          const off = BUBBLE_OFFSET.teacher;
+                          return (
+                            <>
+                              {/* 内容块（玻璃卡）：星正上方，水平居中并按边缘 clamp */}
+                              <div
+                                ref={(el) => clampBubble(el, star.x)}
+                                className="glass absolute whitespace-nowrap rounded-xl px-4 py-3 text-center"
+                                style={{
+                                  left: 0,
+                                  ...(below ? { bottom: off.content } : { top: off.content }),
+                                  transform: 'translateX(-50%)',
+                                }}
+                              >
+                                <p className="text-sm font-bold text-ink">{star.teacher!.name}</p>
+                                {star.teacher!.department && (
+                                  <p className="text-xs text-ink-muted">
+                                    {star.teacher!.department}
+                                  </p>
+                                )}
+                              </div>
+                              {/* 箭头：固定星点正上/正下，不随内容平移 */}
+                              <div
+                                className={`absolute left-1/2 h-0 w-0 -translate-x-1/2 ${arrowBorder(below)}`}
+                                style={below ? { bottom: off.arrow } : { top: off.arrow }}
+                              />
+                            </>
+                          );
+                        })()}
                       </motion.div>
                     )}
                   </AnimatePresence>
@@ -414,19 +455,40 @@ export default function GiftGalaxy() {
                       initial={{ opacity: 0, y: 5, scale: 0.9 }}
                       animate={{ opacity: 1, y: 0, scale: 1 }}
                       exit={{ opacity: 0 }}
-                      className={bubbleClassName(star.x, star.y, true)}
+                      className="pointer-events-none absolute z-30"
                     >
-                      <div className="glass max-w-[220px] whitespace-nowrap rounded-xl px-4 py-3 text-center">
-                        <p className="truncate text-xs text-ink">
-                          {group.content.slice(0, 30)}
-                          {group.content.length > 30 ? '...' : ''}
-                        </p>
-                        <p className="mt-1 text-xs text-ink-muted">
-                          {group.count} 位同学送出 · ❤️ {group.total_likes}
-                        </p>
-                        <p className="text-xs text-accent">点击查看详情</p>
-                      </div>
-                      <div className="mx-auto h-0 w-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-ink/10" />
+                      {(() => {
+                        const below = star.y >= 15;
+                        const off = BUBBLE_OFFSET.star;
+                        return (
+                          <>
+                            {/* 内容块：星上方，水平居中并按边缘 clamp */}
+                            <div
+                              ref={(el) => clampBubble(el, star.x)}
+                              className="glass absolute max-w-[220px] whitespace-nowrap rounded-xl px-4 py-3 text-center"
+                              style={{
+                                left: 0,
+                                ...(below ? { bottom: off.content } : { top: off.content }),
+                                transform: 'translateX(-50%)',
+                              }}
+                            >
+                              <p className="truncate text-xs text-ink">
+                                {group.content.slice(0, 30)}
+                                {group.content.length > 30 ? '...' : ''}
+                              </p>
+                              <p className="mt-1 text-xs text-ink-muted">
+                                {group.count} 位同学送出 · ❤️ {group.total_likes}
+                              </p>
+                              <p className="text-xs text-accent">点击查看详情</p>
+                            </div>
+                            {/* 箭头：固定星点正上/正下 */}
+                            <div
+                              className={`absolute left-1/2 h-0 w-0 -translate-x-1/2 ${arrowBorder(below)}`}
+                              style={below ? { bottom: off.arrow } : { top: off.arrow }}
+                            />
+                          </>
+                        );
+                      })()}
                     </motion.div>
                   )}
                 </AnimatePresence>
