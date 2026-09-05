@@ -120,6 +120,16 @@ function getPositionPool(
   return cache[kind]!;
 }
 
+/**
+ * 气泡边缘自适应定位：天体/星星散布全屏，
+ * 靠顶 → 向下弹；靠左右缘 → 向内展开，防溢出视口被裁
+ */
+function bubbleClassName(x: number, y: number, small?: boolean): string {
+  const v = y < 15 ? 'top-full mt-3' : `bottom-full ${small ? 'mb-2' : 'mb-3'}`;
+  const h = x > 88 ? 'right-0' : x < 12 ? 'left-0' : 'left-1/2 -translate-x-1/2';
+  return `absolute z-20 whitespace-nowrap ${v} ${h}`;
+}
+
 /** 格式化日期 */
 function formatDate(dateStr: string): string {
   const d = new Date(dateStr);
@@ -350,7 +360,7 @@ export default function GiftGalaxy() {
                         initial={{ opacity: 0, y: 5, scale: 0.9 }}
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0 }}
-                        className="absolute bottom-full left-1/2 z-20 mb-3 -translate-x-1/2"
+                        className={bubbleClassName(star.x, star.y)}
                       >
                         <div className="glass whitespace-nowrap rounded-xl px-4 py-3 text-center">
                           <p className="text-sm font-bold text-ink">{star.teacher!.name}</p>
@@ -404,7 +414,7 @@ export default function GiftGalaxy() {
                       initial={{ opacity: 0, y: 5, scale: 0.9 }}
                       animate={{ opacity: 1, y: 0, scale: 1 }}
                       exit={{ opacity: 0 }}
-                      className="absolute bottom-full left-1/2 z-20 mb-2 -translate-x-1/2"
+                      className={bubbleClassName(star.x, star.y, true)}
                     >
                       <div className="glass max-w-[220px] whitespace-nowrap rounded-xl px-4 py-3 text-center">
                         <p className="truncate text-xs text-ink">
