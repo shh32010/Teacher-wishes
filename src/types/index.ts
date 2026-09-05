@@ -10,7 +10,7 @@ export type EmotionCategory = '感恩' | '祝愿' | '青春' | '温暖' | '文�
 
 /** 礼物动画类型（v2.0） */
 export type GiftAnimation =
-  'bloom' | 'twinkle' | 'page' | 'write' | 'steam' | 'envelope' | 'bounce' | 'grow';
+  'bloom' | 'twinkle' | 'page' | 'write' | 'steam' | 'envelope' | 'bounce' | 'grow' | 'fly';
 
 /** 教师 */
 export interface Teacher {

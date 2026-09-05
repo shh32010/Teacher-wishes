@@ -192,7 +192,7 @@ getClientIp(request)
 │   ├── components/
 │   │   ├── home/                  # 首页组件（GiftGalaxy 礼物星河）
 │   │   ├── blessing/              # 祝福相关组件
-│   │   ├── gift/                  # v2.0 送礼流程组件（GiftFlow 状态机 + 8 种礼物动画）
+│   │   ├── gift/                  # v2.0 送礼流程组件（GiftFlow 状态机 + 礼物动画）
 │   │   ├── ai/                    # v2.0 AI 展示组件（QuoteOfDay）
 │   │   ├── admin/                 # 管理后台组件（TemplateManager/GiftManager/AICenter）
 │   │   └── ui/                    # 通用 UI 组件

@@ -57,7 +57,7 @@
 │   │   │   ├── EmotionPicker.tsx  # 情绪选择
 │   │   │   ├── TemplatePicker.tsx # 祝福选择（AI 推荐 + 换一批 + 分类浏览）
 │   │   │   ├── GiftSelector.tsx   # 礼物宫格
-│   │   │   ├── GiftAnimation.tsx  # 8 种礼物动画（3.8s）
+│   │   │   ├── GiftAnimation.tsx  # 礼物动画（3.8s）
 │   │   │   └── GiftSuccess.tsx    # 完成页 + 分享
 │   │   ├── ai/                    # v2.0 AI 展示组件
 │   │   │   └── QuoteOfDay.tsx     # 精选金句

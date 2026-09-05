@@ -84,6 +84,16 @@ const ICON_VARIANTS: Record<GiftAnimationType, Variants> = {
       transition: { duration: 1.6, ease: 'easeOut' },
     },
   },
+  fly: {
+    // 千纸鹤：轻盈滑翔入场（上下起伏 + 轻微侧倾）
+    initial: { y: 60, opacity: 0, rotate: -14 },
+    animate: {
+      y: [60, -16, 6, -8, 0],
+      rotate: [-14, 6, -4, 3, 0],
+      opacity: 1,
+      transition: { duration: 1.8, times: [0, 0.35, 0.6, 0.8, 1], ease: 'easeInOut' },
+    },
+  },
 };
 
 /** 飞入星河的 8 个光点（相对右上方向的偏移） */
