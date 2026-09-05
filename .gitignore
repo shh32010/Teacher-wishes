@@ -50,3 +50,12 @@ next-env.d.ts
 
 .vercel
 .env*
+
+.vercel
+.env*
+
+# 本地排查/导出工具（含学生导出数据，不入库）
+/database/diagnose-*.mjs
+/database/export-*.mjs
+/database/exports/
+/database/q-*.mjs
