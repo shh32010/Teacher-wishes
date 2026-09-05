@@ -69,32 +69,55 @@ function inZone(x: number, y: number, zones: Zone[], pad = 0): boolean {
 }
 
 /**
- * 在可视区自由散布 count 个点，拒绝采样避开禁区
- * @param opts.margin 点到禁区的最小距离（百分比，防大天体贴边被盖）
+ * 在可视区自由散布 count 个点，拒绝采样避开禁区（Math.random 真随机，
+ * 视觉均匀自然——固定 LCG 序列在二维线性相关会排成斜带）
+ * @param opts.margin 点到禁区的最小距离（百分比）
  * @param opts.gap 已放点之间的最小间距（百分比）
  * @param opts.zones 禁区集合（当前视口档位）
- * @param opts.seedBias 确定性偏差（同屏多次刷新位置稳定；0=纯随机）
  */
 function scatterPositions(
   count: number,
-  opts: { margin: number; gap: number; zones: Zone[]; seedBias?: number }
+  opts: { margin: number; gap: number; zones: Zone[] }
 ): { x: number; y: number }[] {
-  const { margin, gap, zones, seedBias = 0 } = opts;
+  const { margin, gap, zones } = opts;
   const points: { x: number; y: number }[] = [];
-  const maxTries = Math.max(600, count * 90); // 拒绝采样兜底上限
+  const maxTries = Math.max(800, count * 120); // 拒绝采样兜底上限
   for (let i = 0; i < maxTries && points.length < count; i++) {
-    // 伪随机（确定性偏差下退化为可复现序列；默认 Math.random 全随机）
-    const u =
-      seedBias > 0 ? ((i * 9301 + 49297 + seedBias * 7919) % 233280) / 233280 : Math.random();
-    const v =
-      seedBias > 0 ? ((i * 2333 + 17317 + seedBias * 5449) % 233280) / 233280 : Math.random();
-    const x = 2 + u * 96;
-    const y = 1.5 + v * 97;
+    const x = 2 + Math.random() * 96;
+    const y = 1.5 + Math.random() * 97;
     if (inZone(x, y, zones, margin)) continue; // 落入禁区 → 弃点重投
     if (gap > 0 && points.some((p) => Math.hypot(p.x - x, p.y - y) < gap)) continue; // 离已放点太近
     points.push({ x, y });
   }
   return points;
+}
+
+/**
+ * 模块级位置池（一次性真随机生成后缓存）：
+ * 同屏多次刷新/新增祝福时，已有天体与星星保持原位不跳，
+ * 新祝福星按顺序取池中下一个空位。不同设备/刷新产生不同自然布局。
+ */
+const POOL_CACHE: Record<
+  'wide' | 'narrow',
+  { teacher?: { x: number; y: number }[]; star?: { x: number; y: number }[] }
+> = {
+  wide: {},
+  narrow: {},
+};
+
+function getPositionPool(
+  key: 'wide' | 'narrow',
+  kind: 'teacher' | 'star'
+): { x: number; y: number }[] {
+  const cache = POOL_CACHE[key];
+  if (!cache[kind]) {
+    const zones = key === 'wide' ? LAYOUT_ZONES.wide : LAYOUT_ZONES.narrow;
+    cache[kind] =
+      kind === 'teacher'
+        ? scatterPositions(41, { margin: 3, gap: 6.8, zones })
+        : scatterPositions(900, { margin: 1.3, gap: 0, zones });
+  }
+  return cache[kind]!;
 }
 
 /** 格式化日期 */
@@ -136,17 +159,12 @@ export default function GiftGalaxy() {
 
       const allStars: Star[] = [];
 
-      // 布局档位：禁区随视口；确定性偏差保证同屏多次刷新位置稳定
-      const zones = window.innerWidth < 768 ? LAYOUT_ZONES.narrow : LAYOUT_ZONES.wide;
+      // 布局档位：禁区随视口；位置取自模块级真随机池（会话内稳定）
+      const poolKey = window.innerWidth < 768 ? 'narrow' : 'wide';
 
-      // 教师天体 — 全屏自由散布（大边距防贴文案、天体间保持间距，
-      // 固定序列：刷新/新增祝福时教师位置不乱跳）
-      const teacherPos = scatterPositions(teachers.length, {
-        margin: 3,
-        gap: 6.8,
-        zones,
-        seedBias: 41,
-      });
+      // 教师天体 — 真随机自然散布（大边距防贴文案、天体间保持间距，
+      // 池缓存：刷新/新增祝福时教师位置不跳）
+      const teacherPos = getPositionPool(poolKey, 'teacher');
       teachers.forEach((teacher, i) => {
         allStars.push({
           id: `teacher-${teacher.id}`,
@@ -158,13 +176,9 @@ export default function GiftGalaxy() {
         });
       });
 
-      // 祝福星星 — 同样禁区避让散布（小边距；每句一颗，送出越多越大越亮）
-      const blessingPos = scatterPositions(groups.length, {
-        margin: 1.3,
-        gap: 0,
-        zones,
-        seedBias: 165,
-      });
+      // 祝福星星 — 真随机散布（小边距；每句一颗，送出越多越大越亮）
+      const starPool = getPositionPool(poolKey, 'star');
+      const blessingPos = starPool.slice(0, groups.length);
       groups.forEach((group, i) => {
         const baseSize = 3.5 + (group.count > 10 ? 2.5 : group.count > 5 ? 1.5 : 0);
         allStars.push({
