@@ -23,28 +23,77 @@ interface Star {
   teacher?: Teacher;
 }
 
+// ─────────────────────────────────────────────────────────────
+// 天体/星星「发布」布局 — 禁区避让自由散布
+// 禁区来源：Edge headless 实测首页文案/按钮/图标矩形（1440×900 与 390×844）
+// 坐标系：视口百分比（x/y = 左/上，w/h = 宽/高），已含视觉留白
+// ─────────────────────────────────────────────────────────────
+
+interface Zone {
+  x: number;
+  y: number;
+  w: number;
+  h: number;
+}
+
+/** 首页文案/按钮/图标禁区（百分比矩形） */
+const LAYOUT_ZONES: { wide: Zone[]; narrow: Zone[] } = {
+  // 桌面（≥768px）
+  wide: [
+    { x: 42, y: 15, w: 17, h: 12 }, // 语录「一支粉笔…/三尺讲台…」
+    { x: 31, y: 26, w: 39, h: 17 }, // 主标题 + 副标题
+    { x: 41, y: 45.5, w: 19, h: 7 }, // 星河引导文案
+    { x: 35.5, y: 50.5, w: 30, h: 21.5 }, // 数据看板 3 卡
+    { x: 41.5, y: 71.5, w: 18, h: 14 }, // CTA 按钮 + 「先看看祝福墙」
+    { x: 92, y: 0.5, w: 8, h: 6.5 }, // 主题切换（右上）
+    { x: 0.5, y: 82, w: 10.5, h: 18 }, // 活动二维码（左下）
+    { x: 93.5, y: 94.5, w: 6.5, h: 5.5 }, // 管理后台（右下）
+  ],
+  // 移动端（<768px）
+  narrow: [
+    { x: 20, y: 15, w: 60, h: 13 }, // 语录两行
+    { x: 5, y: 27.5, w: 90, h: 15.5 }, // 标题 + 副标题
+    { x: 18, y: 45.5, w: 64, h: 6 }, // 星河引导
+    { x: 9, y: 50.5, w: 82, h: 22 }, // 数据看板
+    { x: 27, y: 71, w: 46, h: 13.5 }, // CTA + 链接
+    { x: 84, y: 0.5, w: 16, h: 5.5 }, // 主题切换（右上）
+    { x: 79, y: 93.5, w: 21, h: 6.5 }, // 管理后台（右下）
+  ],
+};
+
+/** 点是否落入任一禁区（可附加边距） */
+function inZone(x: number, y: number, zones: Zone[], pad = 0): boolean {
+  return zones.some(
+    (z) => x > z.x - pad && x < z.x + z.w + pad && y > z.y - pad && y < z.y + z.h + pad
+  );
+}
+
 /**
- * 用斐波那契螺旋生成均匀分布的 2D 坐标（避开中心光核区域）
+ * 在可视区自由散布 count 个点，拒绝采样避开禁区
+ * @param opts.margin 点到禁区的最小距离（百分比，防大天体贴边被盖）
+ * @param opts.gap 已放点之间的最小间距（百分比）
+ * @param opts.zones 禁区集合（当前视口档位）
+ * @param opts.seedBias 确定性偏差（同屏多次刷新位置稳定；0=纯随机）
  */
-/**
- * 斐波那契螺旋均匀分布
- * @param count 点数
- * @param rMin 最小半径（相对屏宽 50% 的系数）
- * @param rMax 最大半径
- */
-function generatePositions(count: number, rMin = 0.14, rMax = 0.86): { x: number; y: number }[] {
+function scatterPositions(
+  count: number,
+  opts: { margin: number; gap: number; zones: Zone[]; seedBias?: number }
+): { x: number; y: number }[] {
+  const { margin, gap, zones, seedBias = 0 } = opts;
   const points: { x: number; y: number }[] = [];
-  const phi = Math.PI * (3 - Math.sqrt(5));
-
-  for (let i = 0; i < count; i++) {
-    const t = i / (count - 1 || 1);
-    const radius = rMin + t * (rMax - rMin);
-    const angle = i * phi;
-    const x = 50 + radius * 50 * Math.cos(angle);
-    const y = 50 + radius * 50 * Math.sin(angle);
-    points.push({ x: Math.max(3, Math.min(97, x)), y: Math.max(3, Math.min(94, y)) });
+  const maxTries = Math.max(600, count * 90); // 拒绝采样兜底上限
+  for (let i = 0; i < maxTries && points.length < count; i++) {
+    // 伪随机（确定性偏差下退化为可复现序列；默认 Math.random 全随机）
+    const u =
+      seedBias > 0 ? ((i * 9301 + 49297 + seedBias * 7919) % 233280) / 233280 : Math.random();
+    const v =
+      seedBias > 0 ? ((i * 2333 + 17317 + seedBias * 5449) % 233280) / 233280 : Math.random();
+    const x = 2 + u * 96;
+    const y = 1.5 + v * 97;
+    if (inZone(x, y, zones, margin)) continue; // 落入禁区 → 弃点重投
+    if (gap > 0 && points.some((p) => Math.hypot(p.x - x, p.y - y) < gap)) continue; // 离已放点太近
+    points.push({ x, y });
   }
-
   return points;
 }
 
@@ -87,9 +136,17 @@ export default function GiftGalaxy() {
 
       const allStars: Star[] = [];
 
-      // 教师天体 — 独立外环分布（r 0.52~0.9，避开中央文案层，
-      // 否则中央语录/标题会盖住教师天体，如袁/姜曾被文案遮挡）
-      const teacherPos = generatePositions(teachers.length, 0.52, 0.9);
+      // 布局档位：禁区随视口；确定性偏差保证同屏多次刷新位置稳定
+      const zones = window.innerWidth < 768 ? LAYOUT_ZONES.narrow : LAYOUT_ZONES.wide;
+
+      // 教师天体 — 全屏自由散布（大边距防贴文案、天体间保持间距，
+      // 固定序列：刷新/新增祝福时教师位置不乱跳）
+      const teacherPos = scatterPositions(teachers.length, {
+        margin: 3,
+        gap: 6.8,
+        zones,
+        seedBias: 41,
+      });
       teachers.forEach((teacher, i) => {
         allStars.push({
           id: `teacher-${teacher.id}`,
@@ -101,8 +158,13 @@ export default function GiftGalaxy() {
         });
       });
 
-      // 祝福星星 — 内圈分布（每句一颗，送出人数越多越大越亮）
-      const blessingPos = generatePositions(groups.length, 0.12, 0.5);
+      // 祝福星星 — 同样禁区避让散布（小边距；每句一颗，送出越多越大越亮）
+      const blessingPos = scatterPositions(groups.length, {
+        margin: 1.3,
+        gap: 0,
+        zones,
+        seedBias: 165,
+      });
       groups.forEach((group, i) => {
         const baseSize = 3.5 + (group.count > 10 ? 2.5 : group.count > 5 ? 1.5 : 0);
         allStars.push({
