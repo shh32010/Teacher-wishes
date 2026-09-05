@@ -74,9 +74,9 @@ export default function GiftGalaxy() {
 
   // 拉取星河数据（教师天体 + 祝福星星）并生成星表
   const loadGalaxy = useCallback(async (firstLoad = false) => {
-    // 视觉上限：防止大量祝福导致 DOM/Motion 元素过多
-    // 聚合模型：每句祝福一颗星（同句合并），当前词库 165 句 → 天然有界
-    const MAX_VISUAL_STARS = 120;
+    // 词库 165 句天然有界 → 不择优：所有被送出的句子都亮星
+    // （上限 500 仅为防未来词库大幅扩大的页面性能失控，日常不触发）
+    const MAX_VISUAL_STARS = 500;
     try {
       const [groupedRes, teachersRes] = await Promise.all([
         fetch('/api/blessings/grouped?sort=likes').then((r) => r.json()),
