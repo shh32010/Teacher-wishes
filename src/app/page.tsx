@@ -9,6 +9,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import dynamic from 'next/dynamic';
 import { useRouter } from 'next/navigation';
+import Image from 'next/image';
 import ThemeToggle from '@/components/ui/ThemeToggle';
 
 // tsParticles 黄昏暖色背景（懒加载）
@@ -215,14 +216,47 @@ export default function HomePage() {
         )}
       </div>
 
-      {/* 底部入口 */}
+      {/* 底部入口：左下角活动二维码 + 管理后台 */}
       <AnimatePresence>
         {isActive('button') && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.8 }}
-            className="fixed bottom-8 z-10 flex gap-4 text-xs text-ink-muted"
+            className="fixed bottom-5 left-5 z-20 hidden flex-col items-center gap-1.5 sm:flex"
+            aria-label="活动二维码"
+          >
+            {/* 白底圆角小码：大屏投影时台下学生可扫码进入 */}
+            <a
+              href="https://teacher.shh32010.dpdns.org"
+              target="_blank"
+              rel="noopener noreferrer"
+              title="扫码进入 教师节祝福墙"
+              className="rounded-xl bg-white p-1.5 shadow-lg shadow-black/10 ring-1 ring-ink/10 transition-transform hover:scale-105"
+            >
+              <Image
+                src="/activity-qr.png"
+                alt="活动二维码：扫码进入教师节祝福墙"
+                width={92}
+                height={92}
+                className="h-[92px] w-[92px]"
+              />
+            </a>
+            <span className="rounded-full bg-ink/60 px-2 py-0.5 text-[10px] text-white/90 backdrop-blur-sm">
+              扫码送祝福 🎁
+            </span>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* 管理后台入口（右下角，避开二维码） */}
+      <AnimatePresence>
+        {isActive('button') && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ delay: 0.8 }}
+            className="fixed bottom-3 right-4 z-10 text-xs text-ink-muted"
           >
             <button
               onClick={() => router.push('/admin')}
