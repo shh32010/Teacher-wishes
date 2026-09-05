@@ -166,6 +166,13 @@ function stableRandom(id: string): number {
   return Math.abs(hash % 1000) / 1000;
 }
 
+/** 教师天体缓慢漂移参数（按 id 确定性派生：幅度 6~12px、周期 10~18s、错相位） */
+function drift(id: string): { x: number; y: number; dur: number; phase: number } {
+  const r = stableRandom(id);
+  const amp = 6 + r * 6;
+  return { x: amp, y: amp * 0.6, dur: 10 + r * 8, phase: r * 10 };
+}
+
 export default function GiftGalaxy() {
   const [stars, setStars] = useState<Star[]>([]);
   const [hovered, setHovered] = useState<string | null>(null);
@@ -340,36 +347,51 @@ export default function GiftGalaxy() {
                   onMouseEnter={() => setHovered(star.id)}
                   onMouseLeave={() => setHovered(null)}
                 >
-                  {/* 教师天体 — 暖金光晕 + 头像 */}
-                  <div
-                    className="relative flex items-center justify-center overflow-hidden rounded-full"
-                    style={{
-                      width: star.size,
-                      height: star.size,
-                      marginLeft: -star.size / 2,
-                      marginTop: -star.size / 2,
-                      background:
-                        'radial-gradient(circle, color-mix(in srgb, var(--color-primary) 55%, transparent) 0%, color-mix(in srgb, var(--color-accent-gold) 30%, transparent) 50%, transparent 70%)',
-                      boxShadow: `0 0 ${star.size}px color-mix(in srgb, var(--color-primary) 50%, transparent), 0 0 ${star.size * 2}px color-mix(in srgb, var(--color-accent-gold) 18%, transparent)`,
+                  {/* 缓慢漂移层：每颗天体独立幅度/周期/相位（10~18s 循环，
+                      如星空缓缓游动；幅度 6~12px 不抢文案视觉） */}
+                  <motion.div
+                    animate={{
+                      x: [0, drift(star.id).x, 0],
+                      y: [0, drift(star.id).y, 0],
+                    }}
+                    transition={{
+                      duration: drift(star.id).dur,
+                      repeat: Infinity,
+                      ease: 'easeInOut',
+                      delay: -drift(star.id).phase,
                     }}
                   >
-                    {star.teacher!.avatar_url ? (
-                      <Image
-                        src={star.teacher!.avatar_url}
-                        alt={star.teacher!.name}
-                        fill
-                        sizes="28px"
-                        className="object-cover"
-                      />
-                    ) : (
-                      <span
-                        className="text-xs font-bold text-ink drop-shadow-lg"
-                        aria-hidden="true"
-                      >
-                        {star.teacher!.name[0]}
-                      </span>
-                    )}
-                  </div>
+                    {/* 教师天体 — 暖金光晕 + 头像 */}
+                    <div
+                      className="relative flex items-center justify-center overflow-hidden rounded-full"
+                      style={{
+                        width: star.size,
+                        height: star.size,
+                        marginLeft: -star.size / 2,
+                        marginTop: -star.size / 2,
+                        background:
+                          'radial-gradient(circle, color-mix(in srgb, var(--color-primary) 55%, transparent) 0%, color-mix(in srgb, var(--color-accent-gold) 30%, transparent) 50%, transparent 70%)',
+                        boxShadow: `0 0 ${star.size}px color-mix(in srgb, var(--color-primary) 50%, transparent), 0 0 ${star.size * 2}px color-mix(in srgb, var(--color-accent-gold) 18%, transparent)`,
+                      }}
+                    >
+                      {star.teacher!.avatar_url ? (
+                        <Image
+                          src={star.teacher!.avatar_url}
+                          alt={star.teacher!.name}
+                          fill
+                          sizes="28px"
+                          className="object-cover"
+                        />
+                      ) : (
+                        <span
+                          className="text-xs font-bold text-ink drop-shadow-lg"
+                          aria-hidden="true"
+                        >
+                          {star.teacher!.name[0]}
+                        </span>
+                      )}
+                    </div>
+                  </motion.div>
 
                   {/* 悬浮气泡 — 箭头恒指星点，内容块防溢出 */}
                   <AnimatePresence>
