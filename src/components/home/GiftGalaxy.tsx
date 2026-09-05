@@ -166,11 +166,11 @@ function stableRandom(id: string): number {
   return Math.abs(hash % 1000) / 1000;
 }
 
-/** 教师天体缓慢漂移参数（按 id 确定性派生：幅度 6~12px、周期 10~18s、错相位） */
+/** 教师天体缓慢漂移参数（按 id 确定性派生：幅度 14~30px、周期 12~22s、错相位） */
 function drift(id: string): { x: number; y: number; dur: number; phase: number } {
   const r = stableRandom(id);
-  const amp = 6 + r * 6;
-  return { x: amp, y: amp * 0.6, dur: 10 + r * 8, phase: r * 10 };
+  const amp = 14 + r * 16;
+  return { x: amp, y: amp * 0.6, dur: 12 + r * 10, phase: r * 12 };
 }
 
 export default function GiftGalaxy() {
@@ -344,11 +344,8 @@ export default function GiftGalaxy() {
                   transition={{ delay: 0.5 + stableRandom(star.id) * 0.5, duration: 0.8 }}
                   className="group absolute"
                   style={{ left: `${star.x}%`, top: `${star.y}%` }}
-                  onMouseEnter={() => setHovered(star.id)}
-                  onMouseLeave={() => setHovered(null)}
                 >
-                  {/* 缓慢漂移层：每颗天体独立幅度/周期/相位（10~18s 循环，
-                      如星空缓缓游动；幅度 6~12px 不抢文案视觉） */}
+                  {/* 缓慢漂移层：悬停事件挂在漂移层上，光标跟随移动中的星体 */}
                   <motion.div
                     animate={{
                       x: [0, drift(star.id).x, 0],
@@ -360,6 +357,8 @@ export default function GiftGalaxy() {
                       ease: 'easeInOut',
                       delay: -drift(star.id).phase,
                     }}
+                    onMouseEnter={() => setHovered(star.id)}
+                    onMouseLeave={() => setHovered(null)}
                   >
                     {/* 教师天体 — 暖金光晕 + 头像 */}
                     <div
