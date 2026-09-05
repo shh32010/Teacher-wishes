@@ -72,61 +72,79 @@ export default function GiftGalaxy() {
   const [visible, setVisible] = useState(false);
   const [selectedStar, setSelectedStar] = useState<Star | null>(null);
 
-  useEffect(() => {
+  // 拉取星河数据（教师天体 + 祝福星星）并生成星表
+  const loadGalaxy = useCallback(async (firstLoad = false) => {
     // 视觉上限：防止大量祝福导致 DOM/Motion 元素过多
-    // 聚合模型：每句祝福一颗星（同句合并），当前词库 126 句 → 天然有界
+    // 聚合模型：每句祝福一颗星（同句合并），当前词库 165 句 → 天然有界
     const MAX_VISUAL_STARS = 120;
-    let showTimer: ReturnType<typeof setTimeout> | null = null;
-    Promise.all([
-      fetch('/api/blessings/grouped?sort=likes').then((r) => r.json()),
-      fetch('/api/teachers').then((r) => r.json()),
-    ])
-      .then(([groupedRes, teachersRes]) => {
-        const groups: BlessingGroup[] = (groupedRes.groups || []).slice(0, MAX_VISUAL_STARS);
-        const teachers: Teacher[] = teachersRes.teachers || [];
+    try {
+      const [groupedRes, teachersRes] = await Promise.all([
+        fetch('/api/blessings/grouped?sort=likes').then((r) => r.json()),
+        fetch('/api/teachers').then((r) => r.json()),
+      ]);
+      const groups: BlessingGroup[] = (groupedRes.groups || []).slice(0, MAX_VISUAL_STARS);
+      const teachers: Teacher[] = teachersRes.teachers || [];
 
-        const allStars: Star[] = [];
+      const allStars: Star[] = [];
 
-        // 教师天体 — 独立外环分布（r 0.52~0.9，避开中央文案层，
-        // 否则中央语录/标题会盖住教师天体，如袁/姜曾被文案遮挡）
-        const teacherPos = generatePositions(teachers.length, 0.52, 0.9);
-        teachers.forEach((teacher, i) => {
-          allStars.push({
-            id: `teacher-${teacher.id}`,
-            x: teacherPos[i]?.x ?? 50,
-            y: teacherPos[i]?.y ?? 50,
-            size: 26,
-            type: 'teacher',
-            teacher,
-          });
+      // 教师天体 — 独立外环分布（r 0.52~0.9，避开中央文案层，
+      // 否则中央语录/标题会盖住教师天体，如袁/姜曾被文案遮挡）
+      const teacherPos = generatePositions(teachers.length, 0.52, 0.9);
+      teachers.forEach((teacher, i) => {
+        allStars.push({
+          id: `teacher-${teacher.id}`,
+          x: teacherPos[i]?.x ?? 50,
+          y: teacherPos[i]?.y ?? 50,
+          size: 26,
+          type: 'teacher',
+          teacher,
         });
-
-        // 祝福星星 — 内圈分布（每句一颗，送出人数越多越大越亮）
-        const blessingPos = generatePositions(groups.length, 0.12, 0.5);
-        groups.forEach((group, i) => {
-          const baseSize = 3.5 + (group.count > 10 ? 2.5 : group.count > 5 ? 1.5 : 0);
-          allStars.push({
-            id: `blessing-${group.representative_id}`,
-            x: blessingPos[i]?.x ?? 50,
-            y: blessingPos[i]?.y ?? 50,
-            size: group.is_featured ? baseSize + 3 : baseSize,
-            type: 'blessing',
-            group,
-          });
-        });
-
-        setStars(allStars);
-        showTimer = setTimeout(() => setVisible(true), 500);
-      })
-      .catch((err) => {
-        // 星河数据加载失败 → 静默降级（首页其他区块不受影响）
-        console.error('[GiftGalaxy] 数据加载失败:', err);
       });
 
-    return () => {
-      if (showTimer) clearTimeout(showTimer);
-    };
+      // 祝福星星 — 内圈分布（每句一颗，送出人数越多越大越亮）
+      const blessingPos = generatePositions(groups.length, 0.12, 0.5);
+      groups.forEach((group, i) => {
+        const baseSize = 3.5 + (group.count > 10 ? 2.5 : group.count > 5 ? 1.5 : 0);
+        allStars.push({
+          id: `blessing-${group.representative_id}`,
+          x: blessingPos[i]?.x ?? 50,
+          y: blessingPos[i]?.y ?? 50,
+          size: group.is_featured ? baseSize + 3 : baseSize,
+          type: 'blessing',
+          group,
+        });
+      });
+
+      setStars(allStars);
+      if (firstLoad) {
+        // 首次挂载：延迟点亮入场动画
+        setTimeout(() => setVisible(true), 500);
+      }
+      // 刷新时：已 visible，新祝福星会以初始态淡入（同 key 星不重播动画）
+    } catch (err) {
+      // 星河数据加载失败 → 静默降级（首页其他区块不受影响）
+      console.error('[GiftGalaxy] 数据加载失败:', err);
+    }
   }, []);
+
+  useEffect(() => {
+    // 首次加载 + 保持新鲜：
+    // - 切回页面（focus/visibilitychange）立即刷新——送出祝福后回首页可见新星
+    // - 60 秒轮询兜底（与 wall 一致性模型一致：API 为真相，轮询为兜底）
+    void loadGalaxy(true);
+    const onVisibility = () => {
+      if (document.visibilityState === 'visible') void loadGalaxy();
+    };
+    const onFocus = () => void loadGalaxy();
+    const timer = setInterval(() => void loadGalaxy(), 60_000);
+    window.addEventListener('focus', onFocus);
+    document.addEventListener('visibilitychange', onVisibility);
+    return () => {
+      clearInterval(timer);
+      window.removeEventListener('focus', onFocus);
+      document.removeEventListener('visibilitychange', onVisibility);
+    };
+  }, [loadGalaxy]);
 
   // 键盘事件
   const handleStarKeyDown = useCallback((e: React.KeyboardEvent, star: Star) => {
