@@ -26,13 +26,19 @@ interface Star {
 /**
  * 用斐波那契螺旋生成均匀分布的 2D 坐标（避开中心光核区域）
  */
-function generatePositions(count: number): { x: number; y: number }[] {
+/**
+ * 斐波那契螺旋均匀分布
+ * @param count 点数
+ * @param rMin 最小半径（相对屏宽 50% 的系数）
+ * @param rMax 最大半径
+ */
+function generatePositions(count: number, rMin = 0.14, rMax = 0.86): { x: number; y: number }[] {
   const points: { x: number; y: number }[] = [];
   const phi = Math.PI * (3 - Math.sqrt(5));
 
   for (let i = 0; i < count; i++) {
     const t = i / (count - 1 || 1);
-    const radius = 0.14 + t * 0.72;
+    const radius = rMin + t * (rMax - rMin);
     const angle = i * phi;
     const x = 50 + radius * 50 * Math.cos(angle);
     const y = 50 + radius * 50 * Math.sin(angle);
@@ -79,31 +85,30 @@ export default function GiftGalaxy() {
         const groups: BlessingGroup[] = (groupedRes.groups || []).slice(0, MAX_VISUAL_STARS);
         const teachers: Teacher[] = teachersRes.teachers || [];
 
-        const total = teachers.length + groups.length;
-        const positions = generatePositions(total);
-
         const allStars: Star[] = [];
 
-        // 教师天体 — 最外圈（教师展示，不参与数量对比）
+        // 教师天体 — 独立外环分布（r 0.52~0.9，避开中央文案层，
+        // 否则中央语录/标题会盖住教师天体，如袁/姜曾被文案遮挡）
+        const teacherPos = generatePositions(teachers.length, 0.52, 0.9);
         teachers.forEach((teacher, i) => {
-          const posIdx = groups.length + i;
           allStars.push({
             id: `teacher-${teacher.id}`,
-            x: positions[posIdx]?.x ?? 50,
-            y: positions[posIdx]?.y ?? 50,
+            x: teacherPos[i]?.x ?? 50,
+            y: teacherPos[i]?.y ?? 50,
             size: 26,
             type: 'teacher',
             teacher,
           });
         });
 
-        // 祝福星星 — 每句一颗，送出人数越多越大越亮
+        // 祝福星星 — 内圈分布（每句一颗，送出人数越多越大越亮）
+        const blessingPos = generatePositions(groups.length, 0.12, 0.5);
         groups.forEach((group, i) => {
           const baseSize = 3.5 + (group.count > 10 ? 2.5 : group.count > 5 ? 1.5 : 0);
           allStars.push({
             id: `blessing-${group.representative_id}`,
-            x: positions[i]?.x ?? 50,
-            y: positions[i]?.y ?? 50,
+            x: blessingPos[i]?.x ?? 50,
+            y: blessingPos[i]?.y ?? 50,
             size: group.is_featured ? baseSize + 3 : baseSize,
             type: 'blessing',
             group,
