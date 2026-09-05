@@ -4,7 +4,7 @@ All notable changes to Teacher Wishes Platform will be documented in this file.
 
 ---
 
-## [2.0.0] — 2026-09-05（待发布）
+## [2.0.0] — 2026-09-06（已上线）
 
 ### ✨ 产品重构（甲方需求）
 
