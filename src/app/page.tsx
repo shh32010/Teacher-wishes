@@ -232,7 +232,7 @@ export default function HomePage() {
           >
             {/* 白底圆角小码：大屏投影时台下学生可扫码进入 */}
             <a
-              href="https://teacher.shh32010.dpdns.org"
+              href="https://teacher-wishes.asia"
               target="_blank"
               rel="noopener noreferrer"
               title="扫码进入 教师节祝福墙"
