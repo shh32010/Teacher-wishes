@@ -176,9 +176,9 @@ export const MOCK_GIFTS: Gift[] = [
   },
   {
     id: 'star',
-    name: '星星',
+    name: '爱心',
     icon: '🌟',
-    description: '感恩老师的指引之光',
+    description: '一份温暖的心意',
     animation: 'twinkle',
     sort_order: 2,
     is_active: true,
@@ -279,7 +279,7 @@ export async function registerAllApiMocks(page: Page): Promise<void> {
             total_likes: 20,
             gift_counts: [
               { icon: '🌹', name: '鲜花', count: 2 },
-              { icon: '🌟', name: '星星', count: 1 },
+              { icon: '❤️', name: '爱心', count: 1 },
             ],
             emotion: '感恩',
             representative_id: 'b3',

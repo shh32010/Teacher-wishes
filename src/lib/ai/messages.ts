@@ -10,7 +10,7 @@ import type { EmotionCategory } from '@/types';
 
 const GIFT_WORDS: Record<string, string[]> = {
   rose: ['这束花', '花开', '花香'],
-  star: ['这颗星', '星光', '星辉'],
+  star: ['这颗爱心', '真心', '真心'],
   book: ['这本书', '书页', '书香'],
   chalk: ['这支粉笔', '板书', '粉笔灰'],
   coffee: ['这杯咖啡', '热气', '醇香'],
