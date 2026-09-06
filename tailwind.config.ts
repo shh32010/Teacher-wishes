@@ -77,9 +77,18 @@ const config: Config = {
           '"Noto Sans SC"',
           'sans-serif',
         ],
-        // 标题字体 — 霞鹜文楷（本地 woff2，next/font/local 加载）
-        // CSS 变量 --font-wenkai 由 layout.tsx 注入
-        wenkai: ['var(--font-wenkai)', '"Noto Serif SC"', '"Source Han Serif SC"', 'serif'],
+        // 标题字体 — 行楷优先（甲方拍板 09-06：首页换行楷）
+        // 顺序：华文行楷（Windows 系统自带，机房/大屏生效，零下载）
+        //   → 霞鹜文楷（--font-wenkai 本地 woff2，手机/无行楷系统兜底）
+        wenkai: [
+          'STXingkai',
+          '"华文行楷"',
+          '"Xingkai SC"',
+          'var(--font-wenkai)',
+          '"Noto Serif SC"',
+          '"Source Han Serif SC"',
+          'serif',
+        ],
       },
       animation: {
         'fade-in': 'fadeIn 0.8s ease-out forwards',

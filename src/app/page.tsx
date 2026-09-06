@@ -122,10 +122,10 @@ export default function HomePage() {
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 1.5, type: 'spring', stiffness: 80 }}
             >
-              <h1 className="text-gradient text-glow text-5xl font-extrabold md:text-7xl">
+              <h1 className="text-gradient text-glow font-wenkai text-5xl font-extrabold md:text-7xl">
                 🌸 教师节快乐
               </h1>
-              <p className="mt-3 text-lg text-ink-light">谢谢您，照亮了我们的未来</p>
+              <p className="mt-3 font-wenkai text-lg text-ink-light">谢谢您，照亮了我们的未来</p>
             </motion.div>
           )}
         </AnimatePresence>
