@@ -39,7 +39,7 @@ const GiftGalaxy = dynamic(() => import('@/components/home/GiftGalaxy'), {
 });
 
 /** 首页语录 — 教师节主题 */
-const QUOTES = ['一支粉笔，两袖清风。', '三尺讲台，四季耕耘。'];
+const QUOTES = ['一支粉笔，两袖微尘。', '三尺讲台，四季耕耘。'];
 
 type Stage = 'particles' | 'quote1' | 'quote2' | 'title' | 'galaxyHint' | 'button';
 
