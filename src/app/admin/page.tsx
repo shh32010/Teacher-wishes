@@ -99,12 +99,12 @@ export default function AdminPage() {
     }
   };
 
-  /** 软删除：隐藏祝福（墙/星河不可见，后台可恢复） */
+  /** 软删除：隐藏祝福（墙/芯河不可见，后台可恢复） */
   const handleHide = async () => {
     if (selectedIds.size === 0) return;
     if (
       !confirm(
-        `确定隐藏选中的 ${selectedIds.size} 条祝福？\n\n墙/星河将不再显示，可在祝福记录中恢复。`
+        `确定隐藏选中的 ${selectedIds.size} 条祝福？\n\n墙/芯河将不再显示，可在祝福记录中恢复。`
       )
     )
       return;
@@ -501,7 +501,7 @@ export default function AdminPage() {
                   <p>提交时间：{formatDateTime(detailBlessing.created_at)}</p>
                   <p>❤️ {detailBlessing.likes} 赞</p>
                   {detailBlessing.status === 'hidden' && (
-                    <p className="text-danger">状态：已隐藏（墙/星河不可见）</p>
+                    <p className="text-danger">状态：已隐藏（墙/芯河不可见）</p>
                   )}
                 </div>
 

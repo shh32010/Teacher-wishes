@@ -1,5 +1,5 @@
 // ============================================================
-// 礼物星河（v2.0）— 教师天体外圈 + 祝福星星环绕
+// 礼物芯河（v2.0）— 教师天体外圈 + 祝福星星环绕
 // 聚合模型：每颗星星 = 一句祝福（同句多人送出合并为一颗，大小按送出人数）
 // 弹窗展示该句的礼物数量分布（🌹×8 🌟×5）与总赞
 // 产品原则 1：不比较老师 — 教师弹窗不展示收到祝福数量
@@ -42,7 +42,7 @@ const LAYOUT_ZONES: { wide: Zone[]; narrow: Zone[] } = {
   wide: [
     { x: 42, y: 15, w: 17, h: 12 }, // 语录「一支粉笔…/三尺讲台…」
     { x: 31, y: 26, w: 39, h: 17 }, // 主标题 + 副标题
-    { x: 41, y: 45.5, w: 19, h: 7 }, // 星河引导文案
+    { x: 41, y: 45.5, w: 19, h: 7 }, // 芯河引导文案
     { x: 35.5, y: 50.5, w: 30, h: 21.5 }, // 数据看板 3 卡
     { x: 41.5, y: 71.5, w: 18, h: 14 }, // CTA 按钮 + 「先看看祝福墙」
     { x: 92, y: 0.5, w: 8, h: 6.5 }, // 主题切换（右上）
@@ -53,7 +53,7 @@ const LAYOUT_ZONES: { wide: Zone[]; narrow: Zone[] } = {
   narrow: [
     { x: 20, y: 15, w: 60, h: 13 }, // 语录两行
     { x: 5, y: 27.5, w: 90, h: 15.5 }, // 标题 + 副标题
-    { x: 18, y: 45.5, w: 64, h: 6 }, // 星河引导
+    { x: 18, y: 45.5, w: 64, h: 6 }, // 芯河引导
     { x: 9, y: 50.5, w: 82, h: 22 }, // 数据看板
     { x: 27, y: 71, w: 46, h: 13.5 }, // CTA + 链接
     { x: 84, y: 0.5, w: 16, h: 5.5 }, // 主题切换（右上）
@@ -179,7 +179,7 @@ export default function GiftGalaxy() {
   const [visible, setVisible] = useState(false);
   const [selectedStar, setSelectedStar] = useState<Star | null>(null);
 
-  // 拉取星河数据（教师天体 + 祝福星星）并生成星表
+  // 拉取芯河数据（教师天体 + 祝福星星）并生成星表
   const loadGalaxy = useCallback(async (firstLoad = false) => {
     // 词库 165 句天然有界 → 不择优：所有被送出的句子都亮星
     // （上限 500 仅为防未来词库大幅扩大的页面性能失控，日常不触发）
@@ -233,7 +233,7 @@ export default function GiftGalaxy() {
       }
       // 刷新时：已 visible，新祝福星会以初始态淡入（同 key 星不重播动画）
     } catch (err) {
-      // 星河数据加载失败 → 静默降级（首页其他区块不受影响）
+      // 芯河数据加载失败 → 静默降级（首页其他区块不受影响）
       console.error('[GiftGalaxy] 数据加载失败:', err);
     }
   }, []);
@@ -331,7 +331,7 @@ export default function GiftGalaxy() {
 
   return (
     <>
-      {/* ==================== 星河层 ==================== */}
+      {/* ==================== 芯河层 ==================== */}
       <div className="pointer-events-none absolute inset-0 z-10 overflow-hidden">
         {stars.map((star) => {
           if (star.type === 'teacher') {

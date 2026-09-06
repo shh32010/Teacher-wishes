@@ -110,7 +110,7 @@
 ```json
 {
   "success": true,
-  "message": "🎁 礼物已送达！祝福已自动汇入星河（无礼物时为 ✨ 祝福已自动汇入星河）",
+  "message": "🎁 礼物已送达！祝福已自动汇入芯河（无礼物时为 ✨ 祝福已自动汇入芯河）",
   "gift_icon": "🌹 (无礼物时 null)",
   "gift_name": "鲜花 (无礼物时 null)"
 }
@@ -323,7 +323,7 @@
 
 ### `DELETE /api/admin/blessings`
 
-批量隐藏祝福（软删除：置 `status=hidden`，墙/星河经 RLS 自动不可见，后台可查看并恢复）。
+批量隐藏祝福（软删除：置 `status=hidden`，墙/芯河经 RLS 自动不可见，后台可查看并恢复）。
 
 **请求体:**
 

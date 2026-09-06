@@ -1,6 +1,6 @@
 // ============================================================
 // Step 5 沉浸式礼物动画 — 全屏呈现（3.8s）
-// 时间轴：礼物入场(0~1.6s) → 祝福文字(1.8s) → 光点飞入星河(2.6s) → 完成(3.8s)
+// 时间轴：礼物入场(0~1.6s) → 祝福文字(1.8s) → 光点飞入芯河(2.6s) → 完成(3.8s)
 // 尊重 prefers-reduced-motion（800ms 直接收尾）；动画失败不影响提交状态
 // ============================================================
 
@@ -96,7 +96,7 @@ const ICON_VARIANTS: Record<GiftAnimationType, Variants> = {
   },
 };
 
-/** 飞入星河的 8 个光点（相对右上方向的偏移） */
+/** 飞入芯河的 8 个光点（相对右上方向的偏移） */
 const PARTICLES = Array.from({ length: 8 }, (_, i) => ({
   id: i,
   dx: 40 + (i % 4) * 70 - Math.round(i / 4) * 50,
@@ -139,7 +139,7 @@ export default function GiftAnimation({ gift, content, onComplete }: GiftAnimati
           <p className="mt-3 text-sm text-white/70">愿这份心意，被温柔以待。</p>
         </motion.div>
 
-        {/* 光点飞向右上角（星河入口） */}
+        {/* 光点飞向右上角（芯河入口） */}
         {PARTICLES.map((p) => (
           <motion.span
             key={p.id}

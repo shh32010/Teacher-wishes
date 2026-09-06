@@ -27,7 +27,7 @@
 ```
 ├── src/
 │   ├── app/                       # Next.js App Router
-│   │   ├── page.tsx               # 首页（时间线 + 礼物星河 + 精选金句）
+│   │   ├── page.tsx               # 首页（时间线 + 礼物芯河 + 精选金句）
 │   │   ├── layout.tsx             # 根布局 + SEO metadata
 │   │   ├── gift/page.tsx          # v2.0 送礼主流程（6 步状态机）
 │   │   ├── wall/page.tsx          # 祝福墙（同句聚合 + Realtime）
@@ -36,7 +36,7 @@
 │   │   │   └── login/page.tsx     # 管理员登录
 │   │   └── api/                   # API Route Handlers
 │   │       ├── blessings/         # 祝福 CRUD + 点赞 + 统计 + 同句聚合（v2.0 送礼契约）
-│   │       ├── teachers/          # 教师列表（星河天体展示用）
+│   │       ├── teachers/          # 教师列表（芯河天体展示用）
 │   │       ├── templates/         # v2.0 公开词库
 │   │       ├── gifts/             # v2.0 公开礼物
 │   │       ├── ai/                # v2.0 AI（recommend/quote/insights）
@@ -44,7 +44,7 @@
 │   ├── components/
 │   │   ├── home/                  # 首页组件
 │   │   │   ├── StarBackground.tsx # tsParticles 星空
-│   │   │   ├── GiftGalaxy.tsx     # v2.0 礼物星河（教师天体 + 每句一颗祝福星）
+│   │   │   ├── GiftGalaxy.tsx     # v2.0 礼物芯河（教师天体 + 每句一颗祝福星）
 │   │   │   ├── StatsPanel.tsx     # 数据看板
 │   │   │   ├── CountUp.tsx        # 数字滚动动画
 │   │   │   └── FallingPetals.tsx  # 花瓣飘落动画
@@ -215,7 +215,7 @@ erDiagram
 ```mermaid
 flowchart TB
     subgraph Client["🖥 浏览器"]
-        Home["首页 /\n礼物星河 + 精选金句"]
+        Home["首页 /\n礼物芯河 + 精选金句"]
         Gift["送礼流程 /gift\n6 步状态机"]
         Wall["祝福墙 /wall"]
         Admin["管理后台 /admin\n5 tab"]
@@ -392,4 +392,4 @@ sequenceDiagram
 | **粒子渲染** | Canvas（非 DOM，tsParticles） |
 | **动画降级** | `prefers-reduced-motion` 媒体查询（礼物动画 3.8s → 0.8s 收尾） |
 | **v2.0 AI 零实时调用** | 学生端推荐 = DB tags 索引查询（p95 < 200ms）；LLM 仅低频后台任务（分类/金句/总结）；仪式文案为静态矩阵直读 |
-| **星河视觉上限** | GiftGalaxy 按热度取前 100 个粒子，防大量 Motion DOM |
+| **芯河视觉上限** | GiftGalaxy 按热度取前 100 个粒子，防大量 Motion DOM |

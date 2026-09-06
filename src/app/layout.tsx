@@ -71,7 +71,7 @@ export const metadata: Metadata = {
         url: '/screenshots/homepage.png',
         width: 1200,
         height: 630,
-        alt: '教师节祝福墙 - 暖色秋天美学，星河动画，毛玻璃设计',
+        alt: '教师节祝福墙 - 暖色秋天美学，芯河动画，毛玻璃设计',
       },
     ],
   },

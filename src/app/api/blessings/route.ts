@@ -289,7 +289,7 @@ export async function POST(request: NextRequest) {
     return NextResponse.json(
       {
         success: true,
-        message: gift ? '🎁 礼物已送达！祝福已自动汇入星河' : '✨ 祝福已自动汇入星河',
+        message: gift ? '🎁 礼物已送达！祝福已自动汇入芯河' : '✨ 祝福已自动汇入芯河',
         gift_icon: gift?.icon ?? null,
         gift_name: gift?.name ?? null,
       },

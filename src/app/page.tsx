@@ -1,6 +1,6 @@
 // ============================================================
 // 首页 — 教师节温暖沉浸体验
-// 时间线：黄昏粒子 → 花瓣飘落 → 语录淡入 → 标题 → 星河 → 按钮
+// 时间线：黄昏粒子 → 花瓣飘落 → 语录淡入 → 标题 → 芯河 → 按钮
 // ============================================================
 
 'use client';
@@ -80,10 +80,10 @@ export default function HomePage() {
       {/* 飘落花瓣/银杏 */}
       {isActive('quote1') && <FallingPetals />}
 
-      {/* 祝福星河层（标题后显示） */}
+      {/* 祝福芯河层（标题后显示） */}
       {isActive('title') && <GiftGalaxy />}
 
-      {/* 内容层（垂直居中，星河粒子作为背景环绕） */}
+      {/* 内容层（垂直居中，芯河粒子作为背景环绕） */}
       <div className="relative z-10 flex flex-col items-center gap-6 px-4 text-center">
         <AnimatePresence>
           {isActive('quote1') && (
@@ -130,7 +130,7 @@ export default function HomePage() {
           )}
         </AnimatePresence>
 
-        {/* 星河引导文案 — 老师是烛光，祝福是光点 */}
+        {/* 芯河引导文案 — 老师是烛光，祝福是光点 */}
         <AnimatePresence>
           {isActive('galaxyHint') && (
             <motion.div
@@ -163,7 +163,7 @@ export default function HomePage() {
                     opacity: 0.9,
                   }}
                 />
-                祝福是光点，汇成一片星河
+                祝福是光点，汇成一片芯河
               </p>
               <p className="text-sm text-ink-muted">轻触光点，看看同学们送出的心意</p>
             </motion.div>
@@ -176,7 +176,7 @@ export default function HomePage() {
         {/* 今日金句（管理员确认后展示，无金句自动隐藏） */}
         {isActive('button') && <QuoteOfDay />}
 
-        {/* 进入按钮 — v2.0：主 CTA 送礼流程 + 祝福星河次入口 */}
+        {/* 进入按钮 — v2.0：主 CTA 送礼流程 + 祝福芯河次入口 */}
         <AnimatePresence>
           {isActive('button') && (
             <motion.div

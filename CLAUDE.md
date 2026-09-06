@@ -6,7 +6,7 @@
 
 ## 项目概述
 
-教师节祝福墙 (Teacher Wishes) — 基于 Next.js 14 App Router 的沉浸式节日活动平台。暖色秋天美学 + 毛玻璃设计，v2.0 升级为 **AI 沉浸式教师节互动送礼平台**：学生选择官方祝福语 + 数字礼物 → AI 呈现 → 礼物化作光点飞入「教师节祝福星河」（不指定老师，全校汇聚）。
+教师节祝福墙 (Teacher Wishes) — 基于 Next.js 14 App Router 的沉浸式节日活动平台。暖色秋天美学 + 毛玻璃设计，v2.0 升级为 **AI 沉浸式教师节互动送礼平台**：学生选择官方祝福语 + 数字礼物 → AI 呈现 → 礼物化作光点飞入「教师节祝福芯河」（不指定老师，全校汇聚）。
 
 **当前版本**：v2.0.0 开发中 | **v2 设计文档**：`docs/V2_DESIGN.md`（唯一蓝图）
 
@@ -175,7 +175,7 @@ getClientIp(request)
 ```
 ├── src/
 │   ├── app/                       # Next.js App Router
-│   │   ├── page.tsx               # 首页（故事式时间线 + 礼物星河 + 精选金句）
+│   │   ├── page.tsx               # 首页（故事式时间线 + 礼物芯河 + 精选金句）
 │   │   ├── layout.tsx             # 根布局 + SEO metadata
 │   │   ├── gift/page.tsx          # v2.0 送礼主流程（6 步状态机）
 │   │   ├── wall/page.tsx          # 祝福墙（无限滚动 + Realtime）
@@ -190,7 +190,7 @@ getClientIp(request)
 │   │       ├── ai/                # v2.0 AI（recommend/quote/insights）
 │   │       └── admin/             # 管理端（blessings/templates/gifts/ai/login/logout/upload）
 │   ├── components/
-│   │   ├── home/                  # 首页组件（GiftGalaxy 礼物星河）
+│   │   ├── home/                  # 首页组件（GiftGalaxy 礼物芯河）
 │   │   ├── blessing/              # 祝福相关组件
 │   │   ├── gift/                  # v2.0 送礼流程组件（GiftFlow 状态机 + 礼物动画）
 │   │   ├── ai/                    # v2.0 AI 展示组件（QuoteOfDay）
@@ -242,7 +242,7 @@ getClientIp(request)
 | `/api/blessings` | POST | Anon | CSRF + 限流 | **v2.0** 送礼提交：`template_id`+`gift_id`（可选，缺省=只送祝福），服务端查词库取内容 |
 | `/api/blessings/[id]/like` | POST | Anon | CSRF + 限流 | 点赞 RPC |
 | `/api/blessings/stats` | GET | Anon | 无 | 聚合统计 |
-| `/api/teachers` | GET | Anon | 无 | 教师列表（星河教师天体展示用，不参与送礼流程） |
+| `/api/teachers` | GET | Anon | 无 | 教师列表（芯河教师天体展示用，不参与送礼流程） |
 | `/api/templates` | GET | Anon | 无 | 公开词库（分页+分类，RLS 仅返回启用） |
 | `/api/templates/random` | GET | Anon | 无 | 「换一句」随机一条（mood 可选） |
 | `/api/gifts` | GET | Anon | 无 | 礼物列表（RLS 仅返回启用） |

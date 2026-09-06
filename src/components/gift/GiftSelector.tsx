@@ -32,7 +32,7 @@ export default function GiftSelector({ onSelect, onSkip, onBack }: GiftSelectorP
     <div className="glass-card p-6">
       <h2 className="mb-1 text-center text-xl font-bold text-ink">再送上一份礼物吧</h2>
       <p className="mb-6 text-center text-sm text-ink-muted">
-        礼物会化作光点，飞进全体老师的祝福星河
+        礼物会化作光点，飞进全体老师的祝福芯河
       </p>
 
       {loading ? (

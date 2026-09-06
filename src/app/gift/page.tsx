@@ -8,7 +8,7 @@ import GiftFlow from '@/components/gift/GiftFlow';
 
 export const metadata: Metadata = {
   title: '送出我的祝福 | 教师节祝福墙',
-  description: '选择一句祝福，送上一份礼物，让心意化作星河里的光',
+  description: '选择一句祝福，送上一份礼物，让心意化作芯河里的光',
 };
 
 export default function GiftPage() {

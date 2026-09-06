@@ -121,7 +121,7 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: '非法祝福ID' }, { status: 400 });
     }
 
-    // 软删除：置为 hidden（墙/星河经 RLS 自动不可见；后台可查看/恢复）
+    // 软删除：置为 hidden（墙/芯河经 RLS 自动不可见；后台可查看/恢复）
     const { data, error } = await supabase
       .from('blessings')
       .update({ status: 'hidden' })
