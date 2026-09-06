@@ -77,13 +77,15 @@ const config: Config = {
           '"Noto Sans SC"',
           'sans-serif',
         ],
-        // 标题字体 — 行楷优先（甲方拍板 09-06：首页换行楷）
-        // 顺序：华文行楷（Windows 系统自带，机房/大屏生效，零下载）
-        //   → 霞鹜文楷（--font-wenkai 本地 woff2，手机/无行楷系统兜底）
+        // 标题字体 — 行楷（甲方拍板 09-06 全平台）
+        // 优先：系统华文行楷（Windows 零下载）→ Ma Shan Zheng 网页字体
+        // （public/fonts 2.7MB swap 加载，手机/无行楷系统一致）
+        // → 霞鹜文楷（本地 woff2）兜底
         wenkai: [
           'STXingkai',
           '"华文行楷"',
           '"Xingkai SC"',
+          '"Ma Shan Zheng"',
           'var(--font-wenkai)',
           '"Noto Serif SC"',
           '"Source Han Serif SC"',
