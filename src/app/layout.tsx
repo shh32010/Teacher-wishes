@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from 'next';
 import localFont from 'next/font/local';
 import { Analytics } from '@vercel/analytics/next';
 import PageTransition from '@/components/ui/PageTransition';
+import MusicToggle from '@/components/ui/MusicToggle';
 import './globals.css';
 
 /* ── 正文系统无衬线字体 ── */
@@ -104,6 +105,8 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} ${wenkaiFont.variable} antialiased`}
       >
         <PageTransition>{children}</PageTransition>
+        {/* 背景音乐开关（全站常驻，跨路由连续播放） */}
+        <MusicToggle />
         <Analytics />
       </body>
     </html>
