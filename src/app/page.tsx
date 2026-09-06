@@ -130,7 +130,7 @@ export default function HomePage() {
           )}
         </AnimatePresence>
 
-        {/* 星河引导文案 */}
+        {/* 星河引导文案 — 老师是烛光，祝福是光点 */}
         <AnimatePresence>
           {isActive('galaxyHint') && (
             <motion.div
@@ -138,19 +138,22 @@ export default function HomePage() {
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 1, ease: 'easeOut' }}
-              className="flex flex-col items-center gap-3 text-center"
+              className="flex flex-col items-center gap-2 text-center"
             >
               <p className="text-base leading-relaxed text-ink">
                 <span
                   className="mx-1 inline-block h-3.5 w-3.5 rounded-full align-middle"
                   style={{
                     background:
-                      'radial-gradient(circle, var(--color-primary) 0%, var(--color-accent-gold) 50%, transparent 70%)',
-                    boxShadow: '0 0 8px var(--color-primary-soft)',
-                    opacity: 0.85,
+                      'radial-gradient(circle, #fff7e6 0%, var(--color-accent-gold) 40%, var(--color-primary) 70%, transparent 90%)',
+                    boxShadow:
+                      '0 0 10px var(--color-accent-gold), 0 0 20px color-mix(in srgb, var(--color-accent-gold) 40%, transparent)',
+                    opacity: 0.95,
                   }}
                 />
-                金色天体是每位老师，光点是每句祝福
+                老师是烛光，静静照亮我们走过的路
+              </p>
+              <p className="text-sm leading-relaxed text-ink-light">
                 <span
                   className="mx-1 inline-block h-2.5 w-2.5 animate-star-twinkle rounded-full align-middle"
                   style={{
@@ -160,8 +163,9 @@ export default function HomePage() {
                     opacity: 0.9,
                   }}
                 />
+                祝福是光点，汇成一片星河
               </p>
-              <p className="text-sm text-ink-muted">轻触任意光点，听听他们的故事</p>
+              <p className="text-sm text-ink-muted">轻触光点，看看同学们送出的心意</p>
             </motion.div>
           )}
         </AnimatePresence>

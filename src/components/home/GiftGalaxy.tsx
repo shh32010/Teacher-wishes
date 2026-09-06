@@ -1,5 +1,5 @@
 // ============================================================
-// 礼物星河（v2.0）— 教师天体外圈 + 祝福星星环绕
+// 礼物星河（v2.0）— 教师烛光外圈 + 祝福星星环绕
 // 聚合模型：每颗星星 = 一句祝福（同句多人送出合并为一颗，大小按送出人数）
 // 弹窗展示该句的礼物数量分布（🌹×8 🌟×5）与总赞
 // 产品原则 1：不比较老师 — 教师弹窗不展示收到祝福数量
@@ -166,7 +166,7 @@ function stableRandom(id: string): number {
   return Math.abs(hash % 1000) / 1000;
 }
 
-/** 教师天体缓慢漂移参数（按 id 确定性派生：幅度 14~30px、周期 12~22s、错相位） */
+/** 教师烛光缓慢漂移参数（按 id 确定性派生：幅度 14~30px、周期 12~22s、错相位） */
 function drift(id: string): { x: number; y: number; dur: number; phase: number } {
   const r = stableRandom(id);
   const amp = 14 + r * 16;
@@ -179,7 +179,7 @@ export default function GiftGalaxy() {
   const [visible, setVisible] = useState(false);
   const [selectedStar, setSelectedStar] = useState<Star | null>(null);
 
-  // 拉取星河数据（教师天体 + 祝福星星）并生成星表
+  // 拉取星河数据（教师烛光 + 祝福星星）并生成星表
   const loadGalaxy = useCallback(async (firstLoad = false) => {
     // 词库 165 句天然有界 → 不择优：所有被送出的句子都亮星
     // （上限 500 仅为防未来词库大幅扩大的页面性能失控，日常不触发）
@@ -197,7 +197,7 @@ export default function GiftGalaxy() {
       // 布局档位：禁区随视口；位置取自模块级真随机池（会话内稳定）
       const poolKey = window.innerWidth < 768 ? 'narrow' : 'wide';
 
-      // 教师天体 — 真随机自然散布（大边距防贴文案、天体间保持间距，
+      // 教师烛光 — 真随机自然散布（大边距防贴文案、天体间保持间距，
       // 池缓存：刷新/新增祝福时教师位置不跳）
       const teacherPos = getPositionPool(poolKey, 'teacher');
       teachers.forEach((teacher, i) => {
@@ -337,7 +337,7 @@ export default function GiftGalaxy() {
           if (star.type === 'teacher') {
             return (
               <div key={star.id} className="pointer-events-auto">
-                {/* 教师天体为纯展示（点击无详情弹窗），悬停仅显示姓名 */}
+                {/* 教师烛光为纯展示（点击无详情弹窗），悬停仅显示姓名 */}
                 <motion.div
                   initial={{ opacity: 0, scale: 0.5 }}
                   animate={{ opacity: visible ? 1 : 0, scale: visible ? 1 : 0.5 }}
@@ -360,7 +360,7 @@ export default function GiftGalaxy() {
                     onMouseEnter={() => setHovered(star.id)}
                     onMouseLeave={() => setHovered(null)}
                   >
-                    {/* 教师天体 — 暖金光晕 + 头像 */}
+                    {/* 教师烛光 — 暖白烛芯 + 金色光晕（老师是烛光） */}
                     <div
                       className="relative flex items-center justify-center overflow-hidden rounded-full"
                       style={{
@@ -369,8 +369,8 @@ export default function GiftGalaxy() {
                         marginLeft: -star.size / 2,
                         marginTop: -star.size / 2,
                         background:
-                          'radial-gradient(circle, color-mix(in srgb, var(--color-primary) 55%, transparent) 0%, color-mix(in srgb, var(--color-accent-gold) 30%, transparent) 50%, transparent 70%)',
-                        boxShadow: `0 0 ${star.size}px color-mix(in srgb, var(--color-primary) 50%, transparent), 0 0 ${star.size * 2}px color-mix(in srgb, var(--color-accent-gold) 18%, transparent)`,
+                          'radial-gradient(circle, #fff7e6 0%, var(--color-accent-gold) 45%, var(--color-primary) 70%, transparent 92%)',
+                        boxShadow: `0 0 ${star.size}px color-mix(in srgb, var(--color-accent-gold) 55%, transparent), 0 0 ${star.size * 2.2}px color-mix(in srgb, var(--color-accent-gold) 22%, transparent)`,
                       }}
                     >
                       {star.teacher!.avatar_url ? (
@@ -571,7 +571,7 @@ export default function GiftGalaxy() {
                   </svg>
                 </button>
 
-                {/* v2.0：教师天体无详情弹窗（纯展示，悬停显名）；
+                {/* v2.0：教师烛光无详情弹窗（纯展示，悬停显名）；
                     弹窗仅祝福星使用 */}
                 {selectedStar.type === 'blessing' && selectedStar.group && (
                   <div className="text-center">
