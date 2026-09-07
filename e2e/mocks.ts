@@ -192,6 +192,7 @@ export const MOCK_GIFTS: Gift[] = [
 export const MOCK_STATS: BlessingStats = {
   total_blessings: 128,
   total_participants: 86,
+  total_groups: 42,
   total_likes: 256,
   pending_count: 5,
   approved_count: 120,

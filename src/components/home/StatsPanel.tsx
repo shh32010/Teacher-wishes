@@ -32,8 +32,9 @@ export default function StatsPanel({ visible }: StatsPanelProps) {
 
   if (!stats) return null;
 
+  // 总祝福 = 上墙句数（与芯河星星数/墙卡片数一致）
   const items = [
-    { label: '总祝福', value: stats.total_blessings, emoji: '💌', color: 'text-accent' },
+    { label: '总祝福', value: stats.total_groups, emoji: '💌', color: 'text-accent' },
     { label: '参与人数', value: stats.total_participants, emoji: '👥', color: 'text-primary' },
     { label: '点赞总数', value: stats.total_likes, emoji: '❤️', color: 'text-secondary' },
   ];

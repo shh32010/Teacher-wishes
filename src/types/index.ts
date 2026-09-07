@@ -113,6 +113,8 @@ export interface CreateBlessingPayload {
 export interface BlessingStats {
   total_blessings: number;
   total_participants: number;
+  /** 上墙句数（distinct content = 芯河星星数/墙卡片数） */
+  total_groups: number;
   total_likes: number;
   pending_count: number;
   approved_count: number;

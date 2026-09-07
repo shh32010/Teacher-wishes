@@ -198,6 +198,7 @@ describe('isValidBlessingStats', () => {
     const stats: BlessingStats = {
       total_blessings: 100,
       total_participants: 50,
+      total_groups: 30,
       total_likes: 200,
       pending_count: 5,
       approved_count: 90,
@@ -211,6 +212,7 @@ describe('isValidBlessingStats', () => {
     const stats: BlessingStats = {
       total_blessings: 0,
       total_participants: 0,
+      total_groups: 0,
       total_likes: 0,
       pending_count: 0,
       approved_count: 0,
