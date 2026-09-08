@@ -5,11 +5,32 @@
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createAdminClient } from '@/lib/supabase/server';
+import { fetchAllPages } from '@/lib/supabase/fetch-all';
 import type { AdminUpdateBlessing } from '@/types';
 import { validateCsrfToken, csrfErrorResponse } from '@/lib/csrf';
 import { requireAdmin } from '@/lib/auth/admin';
 
 export const dynamic = 'force-dynamic';
+
+/** 管理端同句聚合条目 */
+export interface AdminBlessingGroup {
+  content: string;
+  emotion: string | null;
+  count: number;
+  total_likes: number;
+  is_featured: boolean;
+  latest_at: string;
+  representative_id: string;
+  all_hidden: boolean;
+  members: {
+    id: string;
+    nickname: string | null;
+    is_anonymous: boolean;
+    likes: number;
+    status: string;
+    created_at: string;
+  }[];
+}
 
 export async function GET(request: NextRequest) {
   // 纵深防御：中间件之外的二次验签
@@ -25,6 +46,61 @@ export async function GET(request: NextRequest) {
 
   try {
     const supabase = createAdminClient();
+
+    // ── 按句聚合视图（view=grouped）：每句一行，含组内成员明细 ──
+    if (searchParams.get('view') === 'grouped') {
+      const { rows } = await fetchAllPages<Record<string, unknown>>((from, to) =>
+        supabase
+          .from('blessings')
+          .select(
+            `id, content, emotion, likes, is_featured, status, created_at,
+             nickname, is_anonymous`
+          )
+          .order('created_at', { ascending: false })
+          .range(from, to)
+      );
+      const groupMap = new Map<string, AdminBlessingGroup>();
+      for (const r of rows as Record<string, unknown>[]) {
+        const content = String(r.content);
+        let g = groupMap.get(content);
+        if (!g) {
+          g = {
+            content,
+            emotion: (r.emotion as string) ?? null,
+            count: 0,
+            total_likes: 0,
+            is_featured: false,
+            latest_at: String(r.created_at),
+            representative_id: String(r.id),
+            all_hidden: true,
+            members: [],
+          };
+          groupMap.set(content, g);
+        }
+        g.count += 1;
+        g.total_likes += Number(r.likes) || 0;
+        if (r.is_featured) g.is_featured = true;
+        if (r.status !== 'hidden') g.all_hidden = false;
+        g.members.push({
+          id: String(r.id),
+          nickname: (r.nickname as string | null) ?? null,
+          is_anonymous: Boolean(r.is_anonymous),
+          likes: Number(r.likes) || 0,
+          status: String(r.status),
+          created_at: String(r.created_at),
+        });
+      }
+      const groups = Array.from(groupMap.values()).sort((a, b) => {
+        if (a.is_featured !== b.is_featured) return a.is_featured ? -1 : 1;
+        return a.latest_at < b.latest_at ? 1 : -1;
+      });
+      return NextResponse.json({
+        groups: groups.slice(offset, offset + pageSize),
+        total: groups.length,
+        page,
+        pageSize,
+      });
+    }
 
     let query = supabase
       .from('blessings')
