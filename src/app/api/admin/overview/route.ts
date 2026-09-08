@@ -95,7 +95,9 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json({
       kpis: {
-        total_blessings: blessings.length,
+        // 与首页口径一致：总祝福=上墙句数（distinct content），送出条数另行保留
+        total_blessings: new Set(blessings.map((b) => b.content)).size,
+        total_sent: blessings.length,
         total_gifts: Array.from(giftCounts.values()).reduce((s, g) => s + g.count, 0),
         // 无真实用户身份体系，不伪造「参与人数」；用精选数作为第四个 KPI
         featured_count: featuredCount,

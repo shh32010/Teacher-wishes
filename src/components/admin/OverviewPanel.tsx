@@ -14,7 +14,10 @@ const fetcher = async (url: string) => {
 
 interface OverviewData {
   kpis: {
+    /** 上墙句数（distinct content，与首页总祝福口径一致） */
     total_blessings: number;
+    /** 送出总条数（情绪分布等按条数比例用） */
+    total_sent: number;
     total_gifts: number;
     featured_count: number;
     total_likes: number;
@@ -69,7 +72,7 @@ export default function OverviewPanel() {
                     <div
                       className="h-full rounded-full"
                       style={{
-                        width: `${(e.count / data.kpis.total_blessings) * 100}%`,
+                        width: `${(e.count / (data.kpis.total_sent || 1)) * 100}%`,
                         background: `hsl(${28 + i * 30} 80% 55%)`,
                       }}
                     />
