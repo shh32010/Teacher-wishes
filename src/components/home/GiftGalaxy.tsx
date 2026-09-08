@@ -121,6 +121,30 @@ function getPositionPool(
 }
 
 /**
+ * 移动端教师位置 — 确定性贴边网格（首屏上下边缘 4 行）
+ * 移动端文案几乎占满中央（语录/标题/看板/CTA，y≈14%~85%），
+ * 随机散布可用区不足时放不满会回退叠在中心 → 教师看不见。
+ * 网格保证 41 位全部落在首屏且互不重叠、不碰右侧管理后台。
+ */
+function narrowTeacherPositions(count: number): { x: number; y: number }[] {
+  const rows = [
+    { y: 3.2, cols: 12, maxX: 92 }, // 顶行
+    { y: 7.9, cols: 10, maxX: 80 }, // 二行（避开右上主题按钮）
+    { y: 87.2, cols: 10, maxX: 74 }, // 底二行（x 限 4..74 避开右下管理后台）
+    { y: 92.4, cols: 9, maxX: 74 },
+  ];
+  const pos: { x: number; y: number }[] = [];
+  let n = 0;
+  for (const row of rows) {
+    const step = (row.maxX - 4) / Math.max(1, row.cols - 1);
+    for (let c = 0; c < row.cols && n < count; c++, n++) {
+      pos.push({ x: 4 + c * step, y: row.y });
+    }
+  }
+  return pos;
+}
+
+/**
  * 气泡结构：箭头与内容块分离定位——
  * - 箭头固定在星点正上/正下（translateX(-50%) 恒对准天体中心）
  * - 内容块水平居中于星点，靠视口边缘时用 marginLeft clamp 向内收，
@@ -197,9 +221,10 @@ export default function GiftGalaxy() {
       // 布局档位：禁区随视口；位置取自模块级真随机池（会话内稳定）
       const poolKey = window.innerWidth < 768 ? 'narrow' : 'wide';
 
-      // 教师天体 — 真随机自然散布（大边距防贴文案、天体间保持间距，
-      // 池缓存：刷新/新增祝福时教师位置不跳）
-      const teacherPos = getPositionPool(poolKey, 'teacher');
+      // 教师天体 — 桌面真随机散布（池缓存位置稳定）；移动端贴边网格
+      // （窄屏可用区不足，随机放不满会叠在中心不可见 → 网格保证 41 位全见）
+      const teacherPos =
+        poolKey === 'narrow' ? narrowTeacherPositions(41) : getPositionPool(poolKey, 'teacher');
       teachers.forEach((teacher, i) => {
         allStars.push({
           id: `teacher-${teacher.id}`,
@@ -331,8 +356,9 @@ export default function GiftGalaxy() {
 
   return (
     <>
-      {/* ==================== 芯河层 ==================== */}
-      <div className="pointer-events-none absolute inset-0 z-10 overflow-hidden">
+      {/* ==================== 芯河层（fixed 相对视口：
+          百分比坐标 = 首屏位置，移动端内容超高时天体不会跑到屏幕外） */}
+      <div className="pointer-events-none fixed inset-0 z-[5] overflow-hidden">
         {stars.map((star) => {
           if (star.type === 'teacher') {
             return (
@@ -355,7 +381,7 @@ export default function GiftGalaxy() {
                       duration: drift(star.id).dur,
                       repeat: Infinity,
                       ease: 'easeInOut',
-                      delay: -drift(star.id).phase,
+                      // 不同周期(12~22s)自然错开，不用负 delay（移动端可能引起启动抖动）
                     }}
                     onMouseEnter={() => setHovered(star.id)}
                     onMouseLeave={() => setHovered(null)}
