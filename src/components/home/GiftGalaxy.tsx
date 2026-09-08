@@ -121,27 +121,32 @@ function getPositionPool(
 }
 
 /**
- * 移动端教师位置 — 确定性贴边网格（首屏上下边缘 4 行）
- * 移动端文案几乎占满中央（语录/标题/看板/CTA，y≈14%~85%），
- * 随机散布可用区不足时放不满会回退叠在中心 → 教师看不见。
- * 网格保证 41 位全部落在首屏且互不重叠、不碰右侧管理后台。
+ * 黄金角螺旋环形分布（确定性，无随机）
+ * 移动端教师「回到外环」布局：金色天体沿屏幕一周环绕（避开中央文案列），
+ * 上下越界自动 clamp 贴边；与桌面时代的环形观感一致
  */
-function narrowTeacherPositions(count: number): { x: number; y: number }[] {
-  const rows = [
-    { y: 3.2, cols: 12, maxX: 92 }, // 顶行
-    { y: 7.9, cols: 10, maxX: 80 }, // 二行（避开右上主题按钮）
-    { y: 87.2, cols: 10, maxX: 74 }, // 底二行（x 限 4..74 避开右下管理后台）
-    { y: 92.4, cols: 9, maxX: 74 },
-  ];
+function ringPositions(count: number, rMin: number, rMax: number): { x: number; y: number }[] {
   const pos: { x: number; y: number }[] = [];
-  let n = 0;
-  for (const row of rows) {
-    const step = (row.maxX - 4) / Math.max(1, row.cols - 1);
-    for (let c = 0; c < row.cols && n < count; c++, n++) {
-      pos.push({ x: 4 + c * step, y: row.y });
-    }
+  const phi = Math.PI * (3 - Math.sqrt(5));
+  for (let i = 0; i < count; i++) {
+    const t = i / (count - 1 || 1);
+    const radius = rMin + t * (rMax - rMin);
+    const angle = i * phi;
+    pos.push({
+      x: Math.max(3, Math.min(97, 50 + radius * 50 * Math.cos(angle))),
+      y: Math.max(3, Math.min(94, 50 + radius * 50 * Math.sin(angle))),
+    });
   }
   return pos;
+}
+
+/**
+ * 移动端教师位置 — 外环环绕（回到之前布局）：r 0.52~0.9 环带
+ * 沿屏幕一周分布，中央文案列（语录/标题/看板/CTA）留空，
+ * 41 位全部落在首屏且互不重叠
+ */
+function narrowTeacherPositions(count: number): { x: number; y: number }[] {
+  return ringPositions(count, 0.52, 0.9);
 }
 
 /**
@@ -525,8 +530,10 @@ export default function GiftGalaxy() {
                 onMouseLeave={() => setHovered(null)}
                 onClick={() => setSelectedStar(star)}
               >
+                {/* 移动端静态光点：112 颗无限闪烁 + 多层大范围 box-shadow
+                    逐帧重绘是移动端卡顿主因（桌面保留闪烁） */}
                 <div
-                  className="animate-star-twinkle rounded-full"
+                  className={`${driftEnabled ? 'animate-star-twinkle ' : ''}rounded-full`}
                   style={{
                     width: star.size * 2.5,
                     height: star.size * 2.5,
