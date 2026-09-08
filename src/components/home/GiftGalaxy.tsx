@@ -7,7 +7,7 @@
 
 'use client';
 
-import { useEffect, useState, useCallback } from 'react';
+import { useEffect, useState, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import Image from 'next/image';
 import type { BlessingGroup } from '@/lib/group-blessings';
@@ -197,11 +197,29 @@ function drift(id: string): { x: number; y: number; dur: number; phase: number }
   return { x: amp, y: amp * 0.6, dur: 12 + r * 10, phase: r * 12 };
 }
 
+/**
+ * 漂移动画是否启用：仅桌面且未开启「减弱动效」。
+ * 移动端 41 个无限循环动画 → 卡顿/闪烁，已由贴边网格保证布局，漂移无必要。
+ * （每次 render 调用，成本可忽略）
+ */
+function isDriftEnabled(): boolean {
+  if (typeof window === 'undefined') return true;
+  if (window.innerWidth < 768) return false;
+  try {
+    return !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  } catch {
+    return true;
+  }
+}
+
 export default function GiftGalaxy() {
   const [stars, setStars] = useState<Star[]>([]);
   const [hovered, setHovered] = useState<string | null>(null);
   const [visible, setVisible] = useState(false);
   const [selectedStar, setSelectedStar] = useState<Star | null>(null);
+  // 首次加载失败重试计数/定时器（Vercel 冷启动首拉可能超 8s）
+  const retryCount = useRef(0);
+  const retryTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // 拉取芯河数据（教师天体 + 祝福星星）并生成星表
   const loadGalaxy = useCallback(async (firstLoad = false) => {
@@ -209,9 +227,16 @@ export default function GiftGalaxy() {
     // （上限 500 仅为防未来词库大幅扩大的页面性能失控，日常不触发）
     const MAX_VISUAL_STARS = 500;
     try {
+      // 8s 超时：Vercel 冷启动首次请求可达 10s+，挂起会让星河一直空白 →
+      // 超时后 catch → 定时重试（warm 后秒回）
+      const json = async (url: string) => {
+        const res = await fetch(url, { signal: AbortSignal.timeout(8000) });
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.json();
+      };
       const [groupedRes, teachersRes] = await Promise.all([
-        fetch('/api/blessings/grouped?sort=likes').then((r) => r.json()),
-        fetch('/api/teachers').then((r) => r.json()),
+        json('/api/blessings/grouped?sort=likes'),
+        json('/api/teachers'),
       ]);
       const groups: BlessingGroup[] = (groupedRes.groups || []).slice(0, MAX_VISUAL_STARS);
       const teachers: Teacher[] = teachersRes.teachers || [];
@@ -258,8 +283,13 @@ export default function GiftGalaxy() {
       }
       // 刷新时：已 visible，新祝福星会以初始态淡入（同 key 星不重播动画）
     } catch (err) {
-      // 芯河数据加载失败 → 静默降级（首页其他区块不受影响）
-      console.error('[GiftGalaxy] 数据加载失败:', err);
+      // 芯河数据加载失败（常见于 Vercel 冷启动超时）→ 静默 + 退避重试，
+      // warm 后重试秒回，避免星河一直空白
+      console.error('[GiftGalaxy] 数据加载失败，稍后重试:', err);
+      retryCount.current += 1;
+      if (retryCount.current <= 4) {
+        retryTimer.current = setTimeout(() => void loadGalaxy(false), 4000 * retryCount.current);
+      }
     }
   }, []);
 
@@ -277,6 +307,7 @@ export default function GiftGalaxy() {
     document.addEventListener('visibilitychange', onVisibility);
     return () => {
       clearInterval(timer);
+      if (retryTimer.current) clearTimeout(retryTimer.current);
       window.removeEventListener('focus', onFocus);
       document.removeEventListener('visibilitychange', onVisibility);
     };
@@ -354,6 +385,8 @@ export default function GiftGalaxy() {
     return null;
   }
 
+  const driftEnabled = isDriftEnabled();
+
   return (
     <>
       {/* ==================== 芯河层（fixed 相对视口：
@@ -371,18 +404,27 @@ export default function GiftGalaxy() {
                   className="group absolute"
                   style={{ left: `${star.x}%`, top: `${star.y}%` }}
                 >
-                  {/* 缓慢漂移层：悬停事件挂在漂移层上，光标跟随移动中的星体 */}
+                  {/* 缓慢漂移层（悬停事件挂此层跟随星体）。
+                      性能：移动端/减弱动效时禁用——41 个无限循环动画是
+                      移动端卡顿与异常闪烁的主因，贴边网格下静态即可 */}
                   <motion.div
-                    animate={{
-                      x: [0, drift(star.id).x, 0],
-                      y: [0, drift(star.id).y, 0],
-                    }}
-                    transition={{
-                      duration: drift(star.id).dur,
-                      repeat: Infinity,
-                      ease: 'easeInOut',
-                      // 不同周期(12~22s)自然错开，不用负 delay（移动端可能引起启动抖动）
-                    }}
+                    animate={
+                      driftEnabled
+                        ? {
+                            x: [0, drift(star.id).x, 0],
+                            y: [0, drift(star.id).y, 0],
+                          }
+                        : undefined
+                    }
+                    transition={
+                      driftEnabled
+                        ? {
+                            duration: drift(star.id).dur,
+                            repeat: Infinity,
+                            ease: 'easeInOut',
+                          }
+                        : undefined
+                    }
                     onMouseEnter={() => setHovered(star.id)}
                     onMouseLeave={() => setHovered(null)}
                   >

@@ -53,12 +53,14 @@ interface StarBackgroundProps {
 }
 
 export default function StarBackground({ count = 100 }: StarBackgroundProps) {
+  // 移动端降粒子数（低端机 canvas 压力大 → 卡顿）
+  const effective = typeof window !== 'undefined' && window.innerWidth < 768 ? 24 : count;
   const options = useMemo<ISourceOptions>(() => {
     const opts = structuredClone(WARM_PARTICLE_CONFIG);
     const particles = opts.particles as Record<string, unknown>;
-    (particles.number as Record<string, unknown>).value = count;
+    (particles.number as Record<string, unknown>).value = effective;
     return opts;
-  }, [count]);
+  }, [effective]);
 
   return <Particles id="warm-particle-bg" options={options} />;
 }
